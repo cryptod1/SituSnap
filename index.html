@@ -57,6 +57,8 @@
 .postcode-choices{margin-top:8px;padding:9px 10px;border-radius:12px;background:rgba(255,255,255,.96);border:1px solid rgba(105,223,131,.45)}
 .postcode-choices label{display:block;font-size:9px;font-weight:900;letter-spacing:.5px;color:#31506b;margin-bottom:5px}
 .postcode-choices select{width:100%;min-height:40px;border-radius:9px;border:1px solid #cbd5e1;padding:8px 10px;font-weight:750;color:#10253d;background:#fff}
+#manualAddress{min-height:52px!important;background:#0d3525!important;color:#f3f7fc!important;-webkit-text-fill-color:#f3f7fc!important;caret-color:#69df83!important;font-size:16px!important;pointer-events:auto!important;user-select:text!important;-webkit-user-select:text!important}
+#manualAddress:focus{outline:3px solid rgba(105,223,131,.22)!important}
 
 </style></head>
 <body><div id="celebration" aria-hidden="true"><div class="celebrate-content"><div class="celebrate-title">FOUND IT!</div><div class="celebrate-sub">SituSnap location confirmed</div></div></div><header><div class="brand"><div class="brand-mark" aria-label="SituSnap logo">
@@ -81,10 +83,10 @@ fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/>
 fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round"/>
 </svg></div><div><div class="brand-name"><span style="color:#fff">Situ</span><span style="color:#69df83">Snap</span></div><div class="tag">WHERE SATNAV STOPS.</div></div></div><div class="menu">☰</div></header>
 <main>
-<section class="hero"><div class="eyebrow"></div><h1 style="font-size:clamp(22px,7vw,34px);letter-spacing:-.8px">Find it. Snap it. Update it.</h1><p>You are given a postcode. Use SituSnap to help you hunt for the property, then record what you discover when you find it.</p><div class="find"><div style="font-size:10px;font-weight:850;color:#61738b;padding:3px 10px 6px">ENTER THE POSTCODE YOU'VE BEEN GIVEN</div><div class="find-row"><input id="huntPostcode" placeholder="e.g. CF36 3YW" autocomplete="postal-code" oninput="queuePostcodeLookup()"><button onclick="startHunt()">START HUNT</button></div><div id="postcodeChoices" class="postcode-choices hidden"><label for="streetChoice">SELECT THE STREET / PROPERTY</label><select id="streetChoice" onchange="syncSelectedAddress()"><option value="">Looking up locations…</option></select></div></div></section>
+<section class="hero"><div class="eyebrow"></div><h1 style="font-size:clamp(22px,7vw,34px);letter-spacing:-.8px">Find it. Snap it. Update it.</h1><p>You are given a postcode. Use SituSnap to help you hunt for the property, then record what you discover when you find it.</p><div class="find"><div style="font-size:10px;font-weight:850;color:#61738b;padding:3px 10px 6px">ENTER THE POSTCODE YOU'VE BEEN GIVEN</div><div class="find-row"><input id="huntPostcode" placeholder="e.g. CF36 3YW" autocomplete="postal-code" oninput="queuePostcodeLookup()"><button onclick="startHunt()">START HUNT</button></div><div id="postcodeChoices" class="postcode-choices hidden"><label for="streetChoice">OPTIONAL: ADD STREET / PROPERTY IF KNOWN</label><select id="streetChoice" onchange="syncSelectedAddress()"><option value="">Looking up locations…</option></select><div id="manualAddressWrap" class="hidden" style="margin-top:10px"><label for="manualAddress">OR ENTER A PROPERTY / FARM NAME IF KNOWN</label><input id="manualAddress" type="text" inputmode="text" enterkeyhint="done" autocomplete="street-address" autocapitalize="words" placeholder="e.g. Ty Mawr Farm (optional)" oninput="syncManualAddress()" onpointerdown="focusManualAddress(this)" onclick="focusManualAddress(this)" style="width:100%;margin-top:7px;touch-action:manipulation"></div></div></div></section>
 <section id="huntPanel" class="card hidden"><div class="section-head"><div><h2>Hunt in progress</h2><p class="muted">SituSnap now resolves the postcode to a mapped target coordinate, then uses your phone GPS for the final on-the-ground hunt. The property still needs to be physically confirmed.</p></div><span class="pill">ACTIVE</span></div><div class="location"><div class="pin">📍</div><div><b id="huntPc"></b><span id="targetStatus">Resolving precise postcode coordinate…</span></div></div><div id="targetBox" class="record" style="margin-top:9px"><h3>🎯 SituSnap target</h3><div class="meta" id="targetDetails">Waiting for postcode lookup.</div><div class="precision"><div class="precision-top"><div class="precision-title">DESTINATION ENGINE</div><span class="precision-badge" id="precisionBadge">CHECKING</span></div><div class="precision-bar"><div class="precision-fill" id="precisionFill"></div></div><div class="small-note" id="precisionNote">SituSnap will use the best available postcode coordinate, then measure the phone's live GPS against it. The field observation confirms the real-world location.</div></div></div><div class="quick" style="margin-top:10px"><div class="meta" style="text-align:center;width:100%;font-weight:800">Navigation and live GPS are started automatically.</div></div><div id="liveHunt" class="record hidden"><h3>Live hunt</h3><div class="live-grid"><div class="metric"><b id="distanceMetric">—</b><span>From target</span></div><div class="metric"><b id="accuracyMetric">—</b><span>GPS accuracy</span></div></div><div class="meta" id="liveStatus" style="margin-top:9px">Waiting for GPS…</div></div><div class="quick" id="huntActions" style="margin-top:10px;display:flex;gap:10px"><button id="retryGpsBtn" type="button" onclick="startLiveHunt()" style="display:none;flex:1;padding:12px 10px;border-radius:10px;border:0;font-weight:900;background:#69df83;color:#071a33">RETRY GPS</button></div></section>
-<section id="foundPanel" class="card hidden"><div class="eyebrow">PROPERTY FOUND</div><h2 style="margin:5px 0 3px">SituSnap confirmed</h2><p id="foundStatus" class="muted">Location confirmation complete.</p></section>
-<section class="card" id="reminderCard"><div class="section-head"><div><h2>When you find it</h2><p class="muted">Open the dropdown, record the details, then tap Found It.</p></div></div><details class="details" id="recordDetails"><summary>＋ Record details</summary><div class="inside"><div class="form-grid">
+<section class="card" id="reminderCard"><div class="section-head"><div><h2>When you find it</h2><p class="muted">Update the found property first. Reminders are available underneath if you need them.</p></div></div>
+<details class="details" id="recordDetails"><summary>✓ Update the found property</summary><div class="inside"><div class="form-grid">
 <div><label>Postcode given</label><input id="postcode" placeholder="Postcode" readonly></div><div><label>Property / building found</label><input id="address" placeholder="e.g. 12 Marine Parade or Farmhouse"></div>
 <div><label>What did you find?</label><select id="type"><option>Property / building</option><option>Access point</option><option>Emergency access</option><option>Landmark</option><option>Asset / equipment</option><option>Hazard</option><option>Other</option></select></div>
 <div><label>Observed by</label><select id="observedBy"><option>MGroup</option><option>Courier partner</option><option>Verified contributor</option><option>Utility partner</option><option>Emergency service</option><option>Professional survey</option></select></div>
@@ -92,20 +94,30 @@ fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round"/>
 <div class="full"><label>What would help the next person find it?</label><textarea id="notes" placeholder="Landmarks, turns, gates, signs, building description, access route, corrections…"></textarea></div>
 <div class="full"><label>Who can use this information?</label><select id="visibility"><option>Public</option><option>Private</option><option>My Team</option><option>Eligible for aggregated commercial use</option></select></div>
 <div><label>Photo — approach</label><input id="photo1" type="file" accept="image/*" capture="environment"></div><div><label>Photo — property / entrance</label><input id="photo2" type="file" accept="image/*" capture="environment"></div>
-<div class="full"><button class="save" id="detailsFoundBtn" onclick="confirmFoundFromDetails()">✓ FOUND IT</button><div class="small-note" id="foundGpsNote" style="margin-top:8px;text-align:center">SituSnap will briefly lock onto the best available phone location before confirming.</div></div></div></div></details></section>
+<div class="full"><button class="save" id="detailsFoundBtn" onclick="confirmFoundFromDetails()">✓ FOUND IT</button><div class="small-note" id="foundGpsNote" style="margin-top:8px;text-align:center">SituSnap will briefly lock onto the best available phone location before confirming.</div></div></div></div></details>
+<div style="height:8px"></div>
+<details class="details" id="reminderIdentify"><summary>🏠 Identify the property</summary><div class="inside">Record the number/name, building, entrance, gate or another clear identifier.</div></details>
+<details class="details"><summary>🧭 Record how you found it</summary><div class="inside">Add the road, track, landmark, passage, gate or approach that actually helped you locate it.</div></details>
+<details class="details"><summary>📸 Take useful photos</summary><div class="inside">Capture the approach and the property/entrance so the next person can recognise the correct place.</div></details>
+<details class="details"><summary>⚠️ Add anything important</summary><div class="inside">Access restrictions, hazards, corrections and anything else that would save the next person time.</div></details></section>
 <div class="scroll-hint">MORE BELOW — SWIPE UP<span>⌄</span></div>
 <section class="card" id="recordsCard"><div class="section-head"><div><h2>Previous SituSnaps</h2><p class="muted">Useful knowledge already captured for this area.</p></div></div><input id="search" class="searchbox" oninput="render()" placeholder="Search postcode, property or reference…"><div id="records"></div></section>
 
 </main><nav class="bottom"><button class="nav active" onclick="window.scrollTo({top:0,behavior:'smooth'})"><span class="ico">⌂</span>Find</button><button class="nav" onclick="showForm()"><span class="ico">⌄</span>Reminder</button><button class="nav" onclick="document.getElementById('recordsCard').scrollIntoView({behavior:'smooth'})"><span class="ico">↻</span>Updates</button><button class="nav" onclick="alert('More options can be added as the platform develops.')"><span class="ico">☰</span>More</button></nav>
 <script>
-let gps=null,huntPostcode="",target=null,watchId=null,postcodeTimer=null;const getRecords=()=>JSON.parse(localStorage.getItem("situSnapRecords")||"[]");
+let gps=null,huntPostcode="",huntAddressQuery="",target=null,watchId=null,postcodeTimer=null;const getRecords=()=>JSON.parse(localStorage.getItem("situSnapRecords")||"[]");
 async function lookupPostcodeOptions(){
   const input=document.getElementById("huntPostcode");
   const p=input.value.trim().toUpperCase();
   const box=document.getElementById("postcodeChoices");
   const select=document.getElementById("streetChoice");
-  if(p.length<5){box.classList.add("hidden");select.dataset.options="";return}
+  const manualWrap=document.getElementById("manualAddressWrap");
+  const manual=document.getElementById("manualAddress");
+  if(p.length<5){box.classList.add("hidden");select.dataset.options="";if(manualWrap)manualWrap.classList.add("hidden");return}
   box.classList.remove("hidden");
+  if(manualWrap)manualWrap.classList.add("hidden");
+  if(manual)manual.value="";
+  select.disabled=false;
   select.innerHTML='<option value="">Finding streets near this postcode…</option>';
   select.dataset.options="";
   try{
@@ -150,7 +162,9 @@ async function lookupPostcodeOptions(){
     streets.sort((a,b)=>a.label.localeCompare(b.label));
     const options=[...properties,...streets].slice(0,80);
     if(!options.length){
-      select.innerHTML='<option value="">No mapped street found for this postcode</option>';
+      select.innerHTML='<option value="">Automatic street lookup unavailable</option>';
+      select.disabled=true;
+      if(manualWrap)manualWrap.classList.remove("hidden");
       return;
     }
     let html='<option value="">Choose a street or property…</option>';
@@ -164,7 +178,10 @@ async function lookupPostcodeOptions(){
     select.innerHTML=html;
     select.dataset.options=JSON.stringify(options);
   }catch(e){
-    select.innerHTML='<option value="">Street lookup unavailable — check connection and retry</option>';
+    select.innerHTML='<option value="">Automatic street lookup unavailable</option>';
+    select.disabled=true;
+    if(manualWrap)manualWrap.classList.remove("hidden");
+    setTimeout(()=>{const m=document.getElementById('manualAddress');if(m)m.scrollIntoView({behavior:'smooth',block:'center'})},80);
   }
 }
 function queuePostcodeLookup(){
@@ -176,11 +193,15 @@ async function startHunt(){
   if(!p){alert("Enter the postcode you've been given.");return}
   huntPostcode=p;
   const choice=document.getElementById("streetChoice");
-  if(!choice || !choice.dataset.options || choice.value===""){alert("Choose the street or property before starting the hunt.");return}
+  const manual=(document.getElementById("manualAddress")?.value||"").trim();
   let selected=null;
   if(choice && choice.dataset.options && choice.value!==""){
     try{selected=JSON.parse(choice.dataset.options)[Number(choice.value)]||null}catch(e){}
   }
+  const chosenLabel=selected?.label||manual;
+  // Rural-first workflow: a postcode is enough to begin the hunt.
+  // Street/property/farm name is optional supporting information only.
+  huntAddressQuery=chosenLabel ? (chosenLabel+", "+p).trim() : p;
   // START HUNT now owns the complete journey. Open a tab immediately so mobile browsers are less likely to block navigation after the postcode lookup finishes.
   let navWindow=null;
   try{navWindow=window.open("about:blank","_blank")}catch(e){}
@@ -215,7 +236,7 @@ async function startHunt(){
           "X-Goog-Api-Key":key,
           "X-Goog-FieldMask":"destinations.entrances,destinations.navigationPoints,destinations.primary.place,destinations.primary.address,destinations.primary.location,destinations.primary.displayName"
         },
-        body:JSON.stringify({addressQuery:p})
+        body:JSON.stringify({addressQuery:huntAddressQuery||p})
       });
       const d=await r.json();
       if(!r.ok) throw new Error(d.error?.message||"Destination API request failed");
@@ -264,8 +285,11 @@ async function startHunt(){
       longitude:d.result.longitude,
       postcode:d.result.postcode,
       quality:"POSTCODE TARGET",
-      source:"postcodes.io"
+      source:"postcodes.io",
+      address:chosenLabel||p
     };
+    document.getElementById("postcode").value=p;
+    document.getElementById("address").value=chosenLabel||"";
     document.getElementById("targetStatus").textContent="Postcode target ready — specialist destination mode can be enabled when an API key is connected";
     document.getElementById("targetDetails").innerHTML=
       "<b>Postcode target</b><br>"+target.latitude.toFixed(6)+", "+target.longitude.toFixed(6)+
@@ -287,12 +311,13 @@ async function startHunt(){
 }
 function finishHunt(navWindow){
   if(navWindow && !navWindow.closed){
-    if(target) navWindow.location.href="https://www.google.com/maps/dir/?api=1&destination="+target.latitude+","+target.longitude+"&travelmode=driving";
+    if(huntAddressQuery) navWindow.location.href="https://www.google.com/maps/dir/?api=1&destination="+encodeURIComponent(huntAddressQuery)+"&travelmode=driving";
+    else if(target) navWindow.location.href="https://www.google.com/maps/dir/?api=1&destination="+target.latitude+","+target.longitude+"&travelmode=driving";
     else if(huntPostcode) navWindow.location.href="https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(huntPostcode);
   }
   startLiveHunt();
 }
-function openMaps(){if(target)window.open("https://www.google.com/maps/dir/?api=1&destination="+target.latitude+","+target.longitude+"&travelmode=driving","_blank");else if(huntPostcode)window.open("https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(huntPostcode),"_blank")}
+function openMaps(){if(huntAddressQuery)window.open("https://www.google.com/maps/dir/?api=1&destination="+encodeURIComponent(huntAddressQuery)+"&travelmode=driving","_blank");else if(target)window.open("https://www.google.com/maps/dir/?api=1&destination="+target.latitude+","+target.longitude+"&travelmode=driving","_blank");else if(huntPostcode)window.open("https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(huntPostcode),"_blank")}
 function startLiveHunt(){
     document.getElementById('retryGpsBtn').style.display='none';
   if(!navigator.geolocation){document.getElementById("liveHunt").classList.remove("hidden");document.getElementById("liveStatus").textContent="GPS is unavailable in this browser/device.";return}
@@ -325,6 +350,25 @@ function startLiveHunt(){
   },gpsError,{enableHighAccuracy:true,maximumAge:0,timeout:30000});
 }
 function haversine(a,b,c,d){const R=6371000,toRad=x=>x*Math.PI/180,A=toRad(c-a),B=toRad(d-b),x=Math.sin(A/2)**2+Math.cos(toRad(a))*Math.cos(toRad(c))*Math.sin(B/2)**2;return 2*R*Math.asin(Math.sqrt(x))}function formatDistance(m){return m<1000?Math.round(m)+"m":(m/1000).toFixed(2)+"km"}
+
+
+function focusManualAddress(el){
+  try{
+    el.removeAttribute("readonly");
+    el.disabled=false;
+    el.focus({preventScroll:true});
+    const n=el.value.length;
+    if(el.setSelectionRange) el.setSelectionRange(n,n);
+  }catch(e){ try{el.focus()}catch(_){} }
+}
+
+function syncManualAddress(){
+  const manual=(document.getElementById("manualAddress")?.value||"").trim();
+  if(manual){
+    document.getElementById("address").value=manual;
+    document.getElementById("postcode").value=document.getElementById("huntPostcode").value.trim().toUpperCase();
+  }
+}
 function syncSelectedAddress(){
   const choice=document.getElementById("streetChoice");
   if(!choice || !choice.dataset.options || choice.value==="") return;
@@ -349,8 +393,11 @@ function showForm(){
   document.getElementById("postcode").value=huntPostcode||document.getElementById("huntPostcode").value.trim().toUpperCase();
   if(!document.getElementById("address").value && target?.address) document.getElementById("address").value=target.address;
   syncSelectedAddress();
-  const d=document.getElementById("recordDetails");if(d)d.open=true;
-  document.getElementById("reminderCard").scrollIntoView({behavior:"smooth"});
+  // Always present the Reminder area cleanly: collapse every reminder/record panel,
+  // then open only the first reminder so the user can see the guidance immediately.
+  document.querySelectorAll("#reminderCard details").forEach(d=>d.open=false);
+  const reminder=document.getElementById("reminderIdentify");if(reminder)reminder.open=true;
+  document.getElementById("reminderCard").scrollIntoView({behavior:"smooth",block:"start"});
 }
 function hideForm(){const d=document.getElementById("recordDetails");if(d)d.open=false}
 function persistFoundRecord(){
@@ -366,10 +413,10 @@ function persistFoundRecord(){
 function finishFound(){
   if(!persistFoundRecord()) return;
   hideForm();
-  document.getElementById("foundPanel").classList.remove("hidden");
-  document.getElementById("foundStatus").textContent=gps?"Property confirmed. GPS was captured automatically.":"Property confirmed. GPS was unavailable, but the SituSnap details were saved.";
   triggerCelebration();
-  document.getElementById("foundPanel").scrollIntoView({behavior:"smooth"});
+  const note=document.getElementById("foundGpsNote");
+  if(note) note.textContent=gps?(gps.accuracy<=10?"Confirmed · Excellent GPS ±"+Math.round(gps.accuracy)+"m":gps.accuracy<=25?"Confirmed · Good GPS ±"+Math.round(gps.accuracy)+"m":"Confirmed · Best GPS ±"+Math.round(gps.accuracy)+"m"):"Confirmed · Details saved; GPS unavailable";
+  document.getElementById("recordsCard").scrollIntoView({behavior:"smooth",block:"start"});
 }
 function confirmFoundFromDetails(){
   // On confirmation, briefly sample the live location and keep the most accurate reading.
