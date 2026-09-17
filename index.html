@@ -974,9 +974,23 @@ function retrySituSnap(id){
   window.scrollTo({top:0,behavior:"smooth"});
   setTimeout(()=>{ if(typeof startHunt==="function")startHunt(); },250);
 }
+function isVerifiedSituSnap(r){
+  return !!r && (r.pinVerified===true || r.result==="Location verified");
+}
+function retrySituSnap(id){
+  const r=getRecords().find(x=>x.id===id); if(!r)return;
+  const hp=document.getElementById("huntPostcode"), pc=document.getElementById("postcode");
+  const addr=document.getElementById("address"), manual=document.getElementById("manualAddress");
+  if(hp)hp.value=r.postcode||"";
+  if(pc)pc.value=r.postcode||"";
+  if(addr)addr.value=(r.address&&r.address!=="Not located")?r.address:"";
+  if(manual)manual.value=(r.address&&r.address!=="Not located")?r.address:"";
+  window.scrollTo({top:0,behavior:"smooth"});
+  setTimeout(()=>{if(typeof startHunt==="function")startHunt();},250);
+}
 function useSituSnap(id){
   const r=getRecords().find(x=>x.id===id); if(!r)return;
-  if(!isVerifiedSituSnap(r)){ retrySituSnap(id); return; }
+  if(!isVerifiedSituSnap(r)){retrySituSnap(id);return;}
   const dest=r.gps?`${r.gps.latitude},${r.gps.longitude}`:(r.address?`${r.address}${r.street?", "+r.street:""}, ${r.postcode}`:r.postcode);
   window.open("https://www.google.com/maps/dir/?api=1&destination="+encodeURIComponent(dest)+"&travelmode=driving","_blank");
 }
@@ -992,14 +1006,10 @@ function render(){
     const action=verified
       ? `<button type="button" onclick="event.stopPropagation();useSituSnap(${r.id})" style="margin-top:10px;width:100%;padding:11px;border-radius:10px;border:0;font-weight:900;background:#145a35;color:#fff">NAVIGATE TO VERIFIED LOCATION</button>`
       : (r.result==="Unable to locate"||r.updateStatus==="Investigation attempt")
-        ? `<button type="button" onclick="event.stopPropagation();retrySituSnap(${r.id})" style="margin-top:10px;width:100%;padding:11px;border-radius:10px;border:0;font-weight:900;background:#145a35;color:#fff">TRY AGAIN</button>`
-        : "";
+        ? `<button type="button" onclick="event.stopPropagation();retrySituSnap(${r.id})" style="margin-top:10px;width:100%;padding:11px;border-radius:10px;border:0;font-weight:900;background:#145a35;color:#fff">TRY AGAIN</button>` : "";
     return `<article class="record" onclick="editSituSnap(${r.id})" title="Tap to review or edit"><h3>${esc(r.address)}${r.street?` · ${esc(r.street)}`:""}</h3><div class="pills"><span class="pill">${esc(r.postcode)}</span><span class="pill">${esc(r.updateStatus||r.type)}</span></div>`+
-      `${r.entrance?`<div class="meta"><b>Entrance:</b> ${esc(r.entrance)}</div>`:""}`+
-      `${r.approach?`<div class="meta"><b>Approach:</b> ${esc(r.approach)}</div>`:""}`+
-      `${r.accessInfo?`<div class="meta"><b>Access:</b> ${esc(r.accessInfo)}</div>`:""}`+
-      `<div class="meta">${esc(r.notes||"No additional intelligence.")}</div>`+
-      `<div class="meta">📍 ${gpsLabel} · ${esc(r.observedBy||"Contributor")}${stamp?" · "+esc(stamp):""}</div>`+
+      `${r.entrance?`<div class="meta"><b>Entrance:</b> ${esc(r.entrance)}</div>`:""}${r.approach?`<div class="meta"><b>Approach:</b> ${esc(r.approach)}</div>`:""}${r.accessInfo?`<div class="meta"><b>Access:</b> ${esc(r.accessInfo)}</div>`:""}`+
+      `<div class="meta">${esc(r.notes||"No additional intelligence.")}</div><div class="meta">📍 ${gpsLabel} · ${esc(r.observedBy||"Contributor")}${stamp?" · "+esc(stamp):""}</div>`+
       `<div class="previous-edit-hint">Tap this SituSnap to review or edit its details</div>${action}</article>`;
   }).join(""):'<div class="empty">No previous SituSnaps yet.</div>'
 }
