@@ -104,7 +104,7 @@ fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/>
 fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round"/>
 </svg></div><div><div class="brand-name"><span style="color:#fff">Situ</span><span style="color:#69df83">Snap</span></div><div class="tag">WHERE SATNAV STOPS.</div></div></div><div class="menu">☰</div></header>
 <main><div id="breadcrumbsBridge" class="card hidden" style="border:2px solid #69df83;margin-top:12px"><div class="eyebrow">BREADCRUMBS</div><h2 id="bridgeTitle" style="margin:5px 0">Continue</h2><div class="meta" id="bridgeText"></div></div>
-<section class="hero"><div class="eyebrow"></div><h1 style="font-size:clamp(22px,7vw,34px);letter-spacing:-.8px">Find it. Snap it. Update it.</h1><div class="find"><div style="font-size:13px;font-weight:950;color:#43566f;padding:3px 10px 6px;letter-spacing:.6px">POSTCODE</div><div class="find-row"><input id="huntPostcode" placeholder="e.g. CF36 3YW" autocomplete="postal-code" autocapitalize="characters" spellcheck="false" oninput="queuePostcodeLookup();syncRecordPostcode()"><button id="googleMapsBtn" type="button" onclick="googleMapsNow()" style="background:#145a35">GOOGLE MAPS</button></div><div id="bcMainWrap" style="display:block;margin-top:9px"><button id="bcMainBtn" type="button" onclick="openBreadcrumbsRoute()" disabled style="width:100%;background:#145a35;opacity:.45">BREADCRUMBS</button></div><div id="bcQuickStatus" style="font-size:12px;color:#61738b;font-weight:850;padding:7px 4px 0;display:block">Enter property / house name for Breadcrumbs</div><div style="display:flex;gap:8px;margin-top:9px"><button type="button" onclick="saveNotFound()" style="flex:1;padding:13px 8px;border-radius:12px;border:1px solid rgba(105,223,131,.45);background:#145a35;color:#fff;font-weight:900">NOT FOUND</button><button type="button" onclick="recordWithoutSatNav()" style="flex:1.55;padding:13px 8px;border-radius:12px;border:1px solid rgba(105,223,131,.45);background:#145a35;color:#fff;font-weight:900">RECORD WITHOUT SAT NAV</button></div><div id="postcodeChoices" class="postcode-choices hidden"><label for="streetChoice">OPTIONAL: ADD STREET / PROPERTY IF KNOWN</label><div class="street-picker"><button type="button" id="streetPickerTrigger" class="street-picker-trigger" onclick="toggleStreetPicker()">Looking up locations…</button><div id="streetPickerMenu" class="street-picker-menu hidden"></div><select id="streetChoice" class="hidden" onchange="syncSelectedAddress()"><option value="">Looking up locations…</option></select></div><div id="manualAddressWrap" class="hidden" style="margin-top:10px"><label for="manualAddress">PROPERTY / HOUSE NAME</label><input id="manualAddress" type="text" inputmode="text" enterkeyhint="done" autocomplete="street-address" autocapitalize="words" placeholder="e.g. Stephan" oninput="syncManualAddress()" onpointerdown="focusManualAddress(this)" onclick="focusManualAddress(this)" style="width:100%;margin-top:7px;touch-action:manipulation"></div></div></div></section>
+<section class="hero"><div class="eyebrow"></div><h1 style="font-size:clamp(22px,7vw,34px);letter-spacing:-.8px">Find it. Snap it. Update it.</h1><div class="find"><div style="font-size:13px;font-weight:950;color:#43566f;padding:3px 10px 6px;letter-spacing:.6px">POSTCODE</div><div class="find-row"><input id="huntPostcode" placeholder="e.g. CF36 3YW" autocomplete="postal-code" autocapitalize="characters" spellcheck="false" oninput="queuePostcodeLookup();syncRecordPostcode()"><button id="googleMapsBtn" type="button" onclick="googleMapsNow()" style="background:#145a35">GOOGLE MAPS</button></div><div id="bcMainWrap" style="display:block;margin-top:9px"><button id="bcMainBtn" type="button" onclick="openBreadcrumbsRoute()" disabled style="width:100%;background:#145a35;opacity:.45">BREADCRUMBS</button></div><div id="bcQuickStatus" style="font-size:12px;color:#61738b;font-weight:850;padding:7px 4px 0;display:block">Enter property / house name for Breadcrumbs</div><div style="display:flex;gap:8px;margin-top:9px"><button type="button" onclick="saveNotFound()" style="flex:1;padding:13px 8px;border-radius:12px;border:1px solid rgba(105,223,131,.45);background:#145a35;color:#fff;font-weight:900">NOT FOUND</button><button type="button" onclick="recordWithoutSatNav()" style="flex:1.55;padding:13px 8px;border-radius:12px;border:1px solid rgba(105,223,131,.45);background:#145a35;color:#fff;font-weight:900">RECORD WITHOUT SAT NAV</button></div><div id="postcodeChoices" class="postcode-choices hidden"><label for="streetChoice">OPTIONAL: ADD STREET / PROPERTY IF KNOWN</label><div class="street-picker"><button type="button" id="streetPickerTrigger" class="street-picker-trigger" onclick="toggleStreetPicker()">Looking up locations…</button><div id="streetPickerMenu" class="street-picker-menu hidden"></div><select id="streetChoice" class="hidden" onchange="syncSelectedAddress()"><option value="">Looking up locations…</option></select></div><div id="manualAddressWrap" class="hidden" style="margin-top:10px"><label for="manualAddress">DESTINATION NAME (IF KNOWN)</label><input id="manualAddress" type="text" inputmode="text" enterkeyhint="done" autocomplete="street-address" autocapitalize="words" placeholder="e.g. Cartref, Bryntirion Cottage" oninput="syncManualAddress()" onpointerdown="focusManualAddress(this)" onclick="focusManualAddress(this)" style="width:100%;margin-top:7px;touch-action:manipulation"></div></div></div></section>
 <section id="huntPanel" class="card hidden"><div class="section-head"><div><h2>Destination</h2></div><span class="pill">ACTIVE</span></div><div class="location"><div class="pin">📍</div><div><b id="huntPc"></b><span id="targetStatus">Checking destination…</span></div></div><div id="targetBox" class="record" style="margin-top:9px"><h3>🎯 SituSnap target</h3><div class="meta" id="targetDetails">Waiting for postcode lookup.</div><div class="precision"><div class="precision-top"><div class="precision-title">DESTINATION ENGINE</div><span class="precision-badge" id="precisionBadge">CHECKING</span></div><div class="precision-bar"><div class="precision-fill" id="precisionFill"></div></div><div class="small-note" id="precisionNote">SituSnap will use the best available postcode coordinate, then measure the phone's live GPS against it. The field observation confirms the real-world location.</div></div></div><div id="liveHunt" class="record hidden"><h3>Live hunt</h3>
 <div id="bcResolveCard" class="bc-resolve">
   <div class="bc-kicker">Resolved by Breadcrumbs</div>
@@ -585,7 +585,11 @@ function queuePostcodeLookup(){
   const manualWrap=document.getElementById("manualAddressWrap");
   if(box)box.classList.remove("hidden");
   if(manualWrap)manualWrap.classList.remove("hidden");
-  bcSetMainAvailable(false,'Enter property / house name for Breadcrumbs');
+  bcResolution=null;
+  bcSetMainAvailable(false,'Breadcrumbs preparing…');
+  // If a destination name was entered before the postcode completed, start Breadcrumbs now.
+  const earlyName=(document.getElementById('manualAddress')?.value||'').trim();
+  if(earlyName && typeof bcQueueResolve==='function') bcQueueResolve(earlyName,raw);
   // Mapping suggestions still load quietly in the background.
   postcodeWarmTimer=setTimeout(fastPostcodeStreetPrefetch,40);
   postcodeTimer=setTimeout(lookupPostcodeOptions,450);
@@ -604,13 +608,14 @@ function googleMapsNow(){
   const {p,chosenLabel}=currentHuntInputs();
   if(!p){alert("Enter the postcode you've been given.");return}
   huntPostcode=p;
-  huntAddressQuery=chosenLabel ? (chosenLabel+", "+p).trim() : p;
-  document.getElementById("huntPc").textContent=p;
+  // Keep ordinary Google Maps safe: manually typed names are for Breadcrumbs, not a loose Google text search.
+  // A mapped/selected location may be used by the richer hunt flow; this immediate button uses the postcode only.
+  huntAddressQuery=p;
+  document.getElementById("huntPc").textContent=chosenLabel ? (chosenLabel+" · "+p) : p;
   document.getElementById("huntPanel").classList.remove("hidden");
   startLiveHunt();
   window.open("https://www.google.com/maps/dir/?api=1&destination="+encodeURIComponent(huntAddressQuery)+"&travelmode=driving","_blank");
-  // Breadcrumbs is deliberately independent: Google Maps never waits for it.
-  if(chosenLabel && typeof bcResolve==="function") bcResolve(chosenLabel,p);
+  // Breadcrumbs is deliberately independent and is triggered by postcode/name entry, not by this button.
 }
 function openBreadcrumbsRoute(){
   if(!bcResolution || !Number.isFinite(Number(bcResolution.latitude)) || !Number.isFinite(Number(bcResolution.longitude)))return;
@@ -795,11 +800,14 @@ function focusManualAddress(el){
 
 function syncManualAddress(){
   const manual=(document.getElementById("manualAddress")?.value||"").trim();
-  if(manual){
-    document.getElementById("address").value=manual;
-    const pc=document.getElementById("huntPostcode").value.trim().toUpperCase();
-    document.getElementById("postcode").value=pc;
+  const pc=document.getElementById("huntPostcode").value.trim().toUpperCase();
+  document.getElementById("address").value=manual;
+  document.getElementById("postcode").value=pc;
+  if(manual && isCompleteUkPostcode(normalisePc(pc))){
     if(typeof bcQueueResolve==="function")bcQueueResolve(manual,pc);
+  }else if(!manual){
+    bcResolution=null;
+    if(isCompleteUkPostcode(normalisePc(pc)))bcSetMainAvailable(false,'Breadcrumbs preparing…');
   }
 }
 function syncSelectedAddress(){
@@ -1158,7 +1166,7 @@ async function bcResolve(property,postcode){
 }
 function bcReadInputs(){
   const postcode=(document.getElementById('postcode')?.value||document.getElementById('huntPostcode')?.value||'').trim();
-  const property=(document.getElementById('address')?.value||document.getElementById('property')?.value||'').trim();
+  const property=(document.getElementById('manualAddress')?.value||document.getElementById('address')?.value||document.getElementById('property')?.value||'').trim();
   return {property,postcode};
 }
 function bcTry(){
@@ -1178,11 +1186,11 @@ window.addEventListener('pageshow',()=>{
   }catch(_){}
 });
 document.addEventListener('input',e=>{
-  if(!['postcode','huntPostcode','address','property'].includes(e.target?.id))return;
+  if(!['postcode','huntPostcode','manualAddress','address','property'].includes(e.target?.id))return;
   clearTimeout(bcTimer);bcTimer=setTimeout(bcTry,500);
 });
 document.addEventListener('change',e=>{
-  if(['postcode','huntPostcode','address','property'].includes(e.target?.id))bcTry();
+  if(['postcode','huntPostcode','manualAddress','address','property'].includes(e.target?.id))bcTry();
 });
 </script>
 
