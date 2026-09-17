@@ -110,6 +110,10 @@ fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round"/>
   <div class="bc-kicker">Resolved by Breadcrumbs</div>
   <div id="bcResolveTitle" class="bc-title">Checking exact pinpoint…</div>
   <div id="bcResolveMeta" class="bc-meta">Property + postcode are checked against the secure Breadcrumbs resolver.</div>
+  <div id="bcAlternativeActions" style="display:none;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px">
+    <button id="bcTryMe" class="bc-action" type="button" style="margin-top:0">TRY ME</button>
+    <button id="bcGotIt" class="bc-action investigate" type="button" style="margin-top:0">GOT IT</button>
+  </div>
   <button id="bcResolveAction" class="bc-action investigate" type="button" style="display:none">INVESTIGATE →</button>
 </div>
 <div class="live-grid"><div class="metric"><b id="distanceMetric">—</b><span>From target</span></div><div class="metric"><b id="accuracyMetric">—</b><span>GPS accuracy</span></div></div><div class="meta" id="liveStatus" style="margin-top:9px">Waiting for GPS…</div></div><div class="quick" id="huntActions" style="margin-top:10px;display:flex;gap:10px"><button id="retryGpsBtn" type="button" onclick="startLiveHunt()" style="display:none;flex:1;padding:12px 10px;border-radius:10px;border:0;font-weight:900;background:#145a35;color:#fff">RETRY GPS</button></div></section>
@@ -598,6 +602,9 @@ async function startHunt(){
   // Rural-first workflow: a postcode is enough to begin the hunt.
   // Street/property/farm name is optional supporting information only.
   huntAddressQuery=chosenLabel ? (chosenLabel+", "+p).trim() : p;
+  // If the colleague supplied/selected a property name, ask Breadcrumbs immediately.
+  // This runs alongside normal navigation and may expose a deliberate TRY ME alternative.
+  if(chosenLabel && typeof bcResolve==="function") bcResolve(chosenLabel,p);
   // START HUNT now owns the complete journey. Open a tab immediately so mobile browsers are less likely to block navigation after the postcode lookup finishes.
   let navWindow=null;
   try{navWindow=window.open("about:blank","_blank")}catch(e){}
@@ -1055,21 +1062,41 @@ function bcFindVerified(property,postcode){
     return verified && rpc===pc && (ra===p || (ra&&p&&(ra.includes(p)||p.includes(ra))));
   })||null;
 }
-function bcUI(title,meta,verified){
+function bcUI(title,meta,verified,alternative=false){
   const card=document.getElementById('bcResolveCard');
   const t=document.getElementById('bcResolveTitle');
   const m=document.getElementById('bcResolveMeta');
   const a=document.getElementById('bcResolveAction');
+  const alt=document.getElementById('bcAlternativeActions');
+  const tryMe=document.getElementById('bcTryMe');
+  const gotIt=document.getElementById('bcGotIt');
   if(!card||!t||!m||!a)return;
   card.style.display='block'; t.textContent=title; m.textContent=meta||'';
+  if(alt)alt.style.display='none';
+  a.style.display='none';
+
+  if(alternative && bcResolution && Number.isFinite(Number(bcResolution.latitude)) && Number.isFinite(Number(bcResolution.longitude))){
+    if(alt)alt.style.display='grid';
+    if(tryMe)tryMe.onclick=()=>{
+      const lat=Number(bcResolution.latitude),lon=Number(bcResolution.longitude);
+      window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}&travelmode=driving`,'_blank');
+    };
+    if(gotIt)gotIt.onclick=()=>{
+      if(alt)alt.style.display='none';
+      t.textContent='Breadcrumbs alternative saved for this hunt';
+      m.textContent='Continue with your chosen route. Nothing has been marked PIN VERIFIED.';
+    };
+    return;
+  }
+
   a.style.display='block';
   a.textContent=verified?'NAVIGATE →':'INVESTIGATE →';
   a.className='bc-action'+(verified?'':' investigate');
   a.onclick=()=>{
     if(verified && bcResolution && Number.isFinite(Number(bcResolution.latitude)) && Number.isFinite(Number(bcResolution.longitude))){
-      location.href=`https://www.google.com/maps/dir/?api=1&destination=${Number(bcResolution.latitude)},${Number(bcResolution.longitude)}`;
+      window.open(`https://www.google.com/maps/dir/?api=1&destination=${Number(bcResolution.latitude)},${Number(bcResolution.longitude)}&travelmode=driving`,'_blank');
     } else {
-      document.getElementById('detailsCard')?.scrollIntoView({behavior:'smooth',block:'start'});
+      document.getElementById('reminderCard')?.scrollIntoView({behavior:'smooth',block:'start'});
     }
   };
 }
@@ -1095,8 +1122,8 @@ async function bcResolve(property,postcode){
     });
     const d=await r.json().catch(()=>null);
     if(r.ok&&d&&d.verified===true&&d.uprn&&Number.isFinite(Number(d.latitude))&&Number.isFinite(Number(d.longitude))){
-      bcResolution=d;
-      bcUI('EXACT PINPOINT VERIFIED ✓',`${d.address||property} · authoritative property record`,true);
+      bcResolution={...d,fieldVerified:false};
+      bcUI('BREADCRUMBS ALTERNATIVE',`${d.address||property} · possible better property location`,false,true);
     }else{
       bcResolution={verified:false};
       bcUI('EXACT PINPOINT NOT CONFIRMED','Breadcrumbs has not established an exact destination. Investigation remains available.',false);
