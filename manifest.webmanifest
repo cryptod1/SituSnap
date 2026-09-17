@@ -1,0 +1,10 @@
+{
+  "name": "SituSnap",
+  "short_name": "SituSnap",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#071a33",
+  "theme_color": "#0c3a25",
+  "description": "SituSnap field location capture"
+}
