@@ -104,16 +104,13 @@ fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/>
 fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round"/>
 </svg></div><div><div class="brand-name"><span style="color:#fff">Situ</span><span style="color:#69df83">Snap</span></div><div class="tag">WHERE SATNAV STOPS.</div></div></div><div class="menu">☰</div></header>
 <main><div id="breadcrumbsBridge" class="card hidden" style="border:2px solid #69df83;margin-top:12px"><div class="eyebrow">BREADCRUMBS</div><h2 id="bridgeTitle" style="margin:5px 0">Continue</h2><div class="meta" id="bridgeText"></div></div>
-<section class="hero"><div class="eyebrow"></div><h1 style="font-size:clamp(22px,7vw,34px);letter-spacing:-.8px">Find it. Snap it. Update it.</h1><p>You are given a postcode. Use SituSnap to help you hunt for the property, then record what you discover when you find it.</p><div class="find"><div style="font-size:10px;font-weight:850;color:#61738b;padding:3px 10px 6px">ENTER THE POSTCODE YOU'VE BEEN GIVEN</div><div class="find-row"><input id="huntPostcode" placeholder="e.g. CF36 3YW" autocomplete="postal-code" autocapitalize="characters" spellcheck="false" oninput="queuePostcodeLookup();syncRecordPostcode()"><button onclick="startHunt()" style="background:#145a35">START HUNT</button></div><div style="display:flex;gap:8px;margin-top:9px"><button type="button" onclick="saveNotFound()" style="flex:1;padding:13px 8px;border-radius:12px;border:1px solid rgba(105,223,131,.45);background:#145a35;color:#fff;font-weight:900">NOT FOUND</button><button type="button" onclick="recordWithoutSatNav()" style="flex:1.55;padding:13px 8px;border-radius:12px;border:1px solid rgba(105,223,131,.45);background:#145a35;color:#fff;font-weight:900">RECORD WITHOUT SAT NAV</button></div><div id="postcodeChoices" class="postcode-choices hidden"><label for="streetChoice">OPTIONAL: ADD STREET / PROPERTY IF KNOWN</label><div class="street-picker"><button type="button" id="streetPickerTrigger" class="street-picker-trigger" onclick="toggleStreetPicker()">Looking up locations…</button><div id="streetPickerMenu" class="street-picker-menu hidden"></div><select id="streetChoice" class="hidden" onchange="syncSelectedAddress()"><option value="">Looking up locations…</option></select></div><div id="manualAddressWrap" class="hidden" style="margin-top:10px"><label for="manualAddress">OR ENTER A PROPERTY / FARM NAME IF KNOWN</label><input id="manualAddress" type="text" inputmode="text" enterkeyhint="done" autocomplete="street-address" autocapitalize="words" placeholder="e.g. Ty Mawr Farm (optional)" oninput="syncManualAddress()" onpointerdown="focusManualAddress(this)" onclick="focusManualAddress(this)" style="width:100%;margin-top:7px;touch-action:manipulation"></div></div></div></section>
+<section class="hero"><div class="eyebrow"></div><h1 style="font-size:clamp(22px,7vw,34px);letter-spacing:-.8px">Find it. Snap it. Update it.</h1><p>You are given a postcode. Use SituSnap to help you hunt for the property, then record what you discover when you find it.</p><div class="find"><div style="font-size:10px;font-weight:850;color:#61738b;padding:3px 10px 6px">ENTER THE POSTCODE YOU'VE BEEN GIVEN</div><div class="find-row"><input id="huntPostcode" placeholder="e.g. CF36 3YW" autocomplete="postal-code" autocapitalize="characters" spellcheck="false" oninput="queuePostcodeLookup();syncRecordPostcode()"><button id="googleMapsBtn" type="button" onclick="googleMapsNow()" style="background:#145a35">GOOGLE MAPS</button></div><div id="bcMainWrap" style="display:none;margin-top:9px"><button id="bcMainBtn" type="button" onclick="openBreadcrumbsRoute()" style="width:100%;background:#145a35">BREADCRUMBS</button></div><div id="bcQuickStatus" style="font-size:11px;color:#61738b;font-weight:800;padding:7px 4px 0;display:none">Breadcrumbs checking…</div><div style="display:flex;gap:8px;margin-top:9px"><button type="button" onclick="saveNotFound()" style="flex:1;padding:13px 8px;border-radius:12px;border:1px solid rgba(105,223,131,.45);background:#145a35;color:#fff;font-weight:900">NOT FOUND</button><button type="button" onclick="recordWithoutSatNav()" style="flex:1.55;padding:13px 8px;border-radius:12px;border:1px solid rgba(105,223,131,.45);background:#145a35;color:#fff;font-weight:900">RECORD WITHOUT SAT NAV</button></div><div id="postcodeChoices" class="postcode-choices hidden"><label for="streetChoice">OPTIONAL: ADD STREET / PROPERTY IF KNOWN</label><div class="street-picker"><button type="button" id="streetPickerTrigger" class="street-picker-trigger" onclick="toggleStreetPicker()">Looking up locations…</button><div id="streetPickerMenu" class="street-picker-menu hidden"></div><select id="streetChoice" class="hidden" onchange="syncSelectedAddress()"><option value="">Looking up locations…</option></select></div><div id="manualAddressWrap" class="hidden" style="margin-top:10px"><label for="manualAddress">OR ENTER A PROPERTY / FARM NAME IF KNOWN</label><input id="manualAddress" type="text" inputmode="text" enterkeyhint="done" autocomplete="street-address" autocapitalize="words" placeholder="e.g. Ty Mawr Farm (optional)" oninput="syncManualAddress()" onpointerdown="focusManualAddress(this)" onclick="focusManualAddress(this)" style="width:100%;margin-top:7px;touch-action:manipulation"></div></div></div></section>
 <section id="huntPanel" class="card hidden"><div class="section-head"><div><h2>Hunt in progress</h2><p class="muted">Breadcrumbs resolves the destination. SituSnap then uses your phone GPS for the final on-site confirmation.</p></div><span class="pill">ACTIVE</span></div><div class="location"><div class="pin">📍</div><div><b id="huntPc"></b><span id="targetStatus">Resolving precise postcode coordinate…</span></div></div><div id="targetBox" class="record" style="margin-top:9px"><h3>🎯 SituSnap target</h3><div class="meta" id="targetDetails">Waiting for postcode lookup.</div><div class="precision"><div class="precision-top"><div class="precision-title">DESTINATION ENGINE</div><span class="precision-badge" id="precisionBadge">CHECKING</span></div><div class="precision-bar"><div class="precision-fill" id="precisionFill"></div></div><div class="small-note" id="precisionNote">SituSnap will use the best available postcode coordinate, then measure the phone's live GPS against it. The field observation confirms the real-world location.</div></div></div><div class="quick" style="margin-top:10px"><div class="meta" style="text-align:center;width:100%;font-weight:800">Navigation and live GPS are started automatically.</div></div><div id="liveHunt" class="record hidden"><h3>Live hunt</h3>
 <div id="bcResolveCard" class="bc-resolve">
   <div class="bc-kicker">Resolved by Breadcrumbs</div>
   <div id="bcResolveTitle" class="bc-title">Checking exact pinpoint…</div>
   <div id="bcResolveMeta" class="bc-meta">Property + postcode are checked against the secure Breadcrumbs resolver.</div>
-  <div id="bcAlternativeActions" style="display:none;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px">
-    <button id="bcTryMe" class="bc-action" type="button" style="margin-top:0">TRY ME</button>
-    <button id="bcGotIt" class="bc-action investigate" type="button" style="margin-top:0">GOT IT</button>
-  </div>
+  <div id="bcAlternativeActions" style="display:none"></div>
   <button id="bcResolveAction" class="bc-action investigate" type="button" style="display:none">INVESTIGATE →</button>
 </div>
 <div class="live-grid"><div class="metric"><b id="distanceMetric">—</b><span>From target</span></div><div class="metric"><b id="accuracyMetric">—</b><span>GPS accuracy</span></div></div><div class="meta" id="liveStatus" style="margin-top:9px">Waiting for GPS…</div></div><div class="quick" id="huntActions" style="margin-top:10px;display:flex;gap:10px"><button id="retryGpsBtn" type="button" onclick="startLiveHunt()" style="display:none;flex:1;padding:12px 10px;border-radius:10px;border:0;font-weight:900;background:#145a35;color:#fff">RETRY GPS</button></div></section>
@@ -588,6 +585,32 @@ function queuePostcodeLookup(){
   postcodeWarmTimer=setTimeout(fastPostcodeStreetPrefetch,40);
   postcodeTimer=setTimeout(lookupPostcodeOptions,450);
 }
+function currentHuntInputs(){
+  const p=(document.getElementById("huntPostcode")?.value||"").trim().toUpperCase();
+  const choice=document.getElementById("streetChoice");
+  const manual=(document.getElementById("manualAddress")?.value||"").trim();
+  let selected=null;
+  if(choice && choice.dataset.options && choice.value!==""){
+    try{selected=JSON.parse(choice.dataset.options)[Number(choice.value)]||null}catch(e){}
+  }
+  return {p,selected,chosenLabel:selected?.label||manual};
+}
+function googleMapsNow(){
+  const {p,chosenLabel}=currentHuntInputs();
+  if(!p){alert("Enter the postcode you've been given.");return}
+  huntPostcode=p;
+  huntAddressQuery=chosenLabel ? (chosenLabel+", "+p).trim() : p;
+  document.getElementById("huntPc").textContent=p;
+  document.getElementById("huntPanel").classList.remove("hidden");
+  startLiveHunt();
+  window.open("https://www.google.com/maps/dir/?api=1&destination="+encodeURIComponent(huntAddressQuery)+"&travelmode=driving","_blank");
+  // Breadcrumbs is deliberately independent: Google Maps never waits for it.
+  if(chosenLabel && typeof bcResolve==="function") bcResolve(chosenLabel,p);
+}
+function openBreadcrumbsRoute(){
+  if(!bcResolution || !Number.isFinite(Number(bcResolution.latitude)) || !Number.isFinite(Number(bcResolution.longitude)))return;
+  window.open(`https://www.google.com/maps/dir/?api=1&destination=${Number(bcResolution.latitude)},${Number(bcResolution.longitude)}&travelmode=driving`,'_blank');
+}
 async function startHunt(){
   const p=document.getElementById("huntPostcode").value.trim().toUpperCase();
   if(!p){alert("Enter the postcode you've been given.");return}
@@ -769,7 +792,9 @@ function syncManualAddress(){
   const manual=(document.getElementById("manualAddress")?.value||"").trim();
   if(manual){
     document.getElementById("address").value=manual;
-    document.getElementById("postcode").value=document.getElementById("huntPostcode").value.trim().toUpperCase();
+    const pc=document.getElementById("huntPostcode").value.trim().toUpperCase();
+    document.getElementById("postcode").value=pc;
+    if(typeof bcQueueResolve==="function")bcQueueResolve(manual,pc);
   }
 }
 function syncSelectedAddress(){
@@ -779,7 +804,9 @@ function syncSelectedAddress(){
     const selected=JSON.parse(choice.dataset.options)[Number(choice.value)]||null;
     if(selected){
       document.getElementById("address").value=selected.label||"";
-      document.getElementById("postcode").value=document.getElementById("huntPostcode").value.trim().toUpperCase();
+      const pc=document.getElementById("huntPostcode").value.trim().toUpperCase();
+      document.getElementById("postcode").value=pc;
+      if(typeof bcQueueResolve==="function")bcQueueResolve(selected.label||"",pc);
     }
   }catch(e){}
 }
@@ -1049,6 +1076,7 @@ render();
 <script>
 const BREADCRUMBS_RESOLVER_URL='https://holy-frost-eda0.stopjunkmail35.workers.dev/api/resolve';
 let bcResolution=null, bcTimer=null;
+const BC_HUNT_CACHE='situSnapBreadcrumbsHuntV1';
 
 function bcNorm(v){return String(v||'').trim().toUpperCase().replace(/\s+/g,' ')}
 function bcRecords(){try{return JSON.parse(localStorage.getItem('situSnapRecords')||'[]')}catch(_){return []}}
@@ -1062,43 +1090,29 @@ function bcFindVerified(property,postcode){
     return verified && rpc===pc && (ra===p || (ra&&p&&(ra.includes(p)||p.includes(ra))));
   })||null;
 }
+function bcSetMainAvailable(available,status=''){
+  const wrap=document.getElementById('bcMainWrap');
+  const quick=document.getElementById('bcQuickStatus');
+  if(wrap)wrap.style.display=available?'block':'none';
+  if(quick){quick.style.display=status?'block':'none';quick.textContent=status||'';}
+}
 function bcUI(title,meta,verified,alternative=false){
   const card=document.getElementById('bcResolveCard');
   const t=document.getElementById('bcResolveTitle');
   const m=document.getElementById('bcResolveMeta');
   const a=document.getElementById('bcResolveAction');
-  const alt=document.getElementById('bcAlternativeActions');
-  const tryMe=document.getElementById('bcTryMe');
-  const gotIt=document.getElementById('bcGotIt');
   if(!card||!t||!m||!a)return;
-  card.style.display='block'; t.textContent=title; m.textContent=meta||'';
-  if(alt)alt.style.display='none';
-  a.style.display='none';
-
-  if(alternative && bcResolution && Number.isFinite(Number(bcResolution.latitude)) && Number.isFinite(Number(bcResolution.longitude))){
-    if(alt)alt.style.display='grid';
-    if(tryMe)tryMe.onclick=()=>{
-      const lat=Number(bcResolution.latitude),lon=Number(bcResolution.longitude);
-      window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}&travelmode=driving`,'_blank');
-    };
-    if(gotIt)gotIt.onclick=()=>{
-      if(alt)alt.style.display='none';
-      t.textContent='Breadcrumbs alternative saved for this hunt';
-      m.textContent='Continue with your chosen route. Nothing has been marked PIN VERIFIED.';
-    };
-    return;
-  }
-
-  a.style.display='block';
-  a.textContent=verified?'NAVIGATE →':'INVESTIGATE →';
-  a.className='bc-action'+(verified?'':' investigate');
-  a.onclick=()=>{
-    if(verified && bcResolution && Number.isFinite(Number(bcResolution.latitude)) && Number.isFinite(Number(bcResolution.longitude))){
-      window.open(`https://www.google.com/maps/dir/?api=1&destination=${Number(bcResolution.latitude)},${Number(bcResolution.longitude)}&travelmode=driving`,'_blank');
-    } else {
-      document.getElementById('reminderCard')?.scrollIntoView({behavior:'smooth',block:'start'});
-    }
-  };
+  card.style.display='block'; t.textContent=title; m.textContent=meta||''; a.style.display='none';
+  const routeReady=bcResolution && Number.isFinite(Number(bcResolution.latitude)) && Number.isFinite(Number(bcResolution.longitude));
+  if(routeReady && (alternative||verified)) bcSetMainAvailable(true,'');
+  else if(title==='Checking exact pinpoint…') bcSetMainAvailable(false,'Breadcrumbs checking…');
+  else bcSetMainAvailable(false,'');
+}
+function bcQueueResolve(property,postcode){
+  clearTimeout(bcTimer);
+  if(!String(property||'').trim()||!String(postcode||'').trim())return;
+  bcSetMainAvailable(false,'Breadcrumbs checking…');
+  bcTimer=setTimeout(()=>bcResolve(property,postcode),350);
 }
 async function bcResolve(property,postcode){
   property=String(property||'').trim();
@@ -1109,8 +1123,9 @@ async function bcResolve(property,postcode){
     bcResolution={
       verified:true,fieldVerified:true,address:remembered.address,
       latitude:remembered.gps?.latitude,longitude:remembered.gps?.longitude,
-      source:'SituSnap verified memory'
+      source:'SituSnap verified memory',property,postcode
     };
+    try{localStorage.setItem(BC_HUNT_CACHE,JSON.stringify(bcResolution))}catch(_){}
     bcUI('EXACT PINPOINT VERIFIED ✓','Previously verified on site in SituSnap',true);
     return;
   }
@@ -1122,7 +1137,8 @@ async function bcResolve(property,postcode){
     });
     const d=await r.json().catch(()=>null);
     if(r.ok&&d&&d.verified===true&&d.uprn&&Number.isFinite(Number(d.latitude))&&Number.isFinite(Number(d.longitude))){
-      bcResolution={...d,fieldVerified:false};
+      bcResolution={...d,fieldVerified:false,property,postcode};
+      try{localStorage.setItem(BC_HUNT_CACHE,JSON.stringify(bcResolution))}catch(_){}
       bcUI('BREADCRUMBS ALTERNATIVE',`${d.address||property} · possible better property location`,false,true);
     }else{
       bcResolution={verified:false};
@@ -1142,6 +1158,18 @@ function bcTry(){
   const {property,postcode}=bcReadInputs();
   if(property&&postcode)bcResolve(property,postcode);
 }
+window.addEventListener('pageshow',()=>{
+  try{
+    const saved=JSON.parse(localStorage.getItem(BC_HUNT_CACHE)||'null');
+    if(!saved)return;
+    const {p,chosenLabel}=currentHuntInputs();
+    if(bcNorm(saved.postcode).replace(/\s/g,'')!==bcNorm(p).replace(/\s/g,'') || bcNorm(saved.property)!==bcNorm(chosenLabel))return;
+    if(Number.isFinite(Number(saved.latitude))&&Number.isFinite(Number(saved.longitude))){
+      bcResolution=saved;
+      bcUI(saved.fieldVerified?'EXACT PINPOINT VERIFIED ✓':'BREADCRUMBS ALTERNATIVE',saved.fieldVerified?'Previously verified on site in SituSnap':`${saved.address||saved.property} · possible better property location`,!!saved.fieldVerified,!saved.fieldVerified);
+    }
+  }catch(_){}
+});
 document.addEventListener('input',e=>{
   if(!['postcode','huntPostcode','address','property'].includes(e.target?.id))return;
   clearTimeout(bcTimer);bcTimer=setTimeout(bcTry,500);
