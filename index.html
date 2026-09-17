@@ -104,11 +104,11 @@ fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/>
 fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round"/>
 </svg></div><div><div class="brand-name"><span style="color:#fff">Situ</span><span style="color:#69df83">Snap</span></div><div class="tag">WHERE SATNAV STOPS.</div></div></div><div class="menu">☰</div></header>
 <main><div id="breadcrumbsBridge" class="card hidden" style="border:2px solid #69df83;margin-top:12px"><div class="eyebrow">BREADCRUMBS</div><h2 id="bridgeTitle" style="margin:5px 0">Continue</h2><div class="meta" id="bridgeText"></div></div>
-<section class="hero"><div class="eyebrow"></div><h1 style="font-size:clamp(22px,7vw,34px);letter-spacing:-.8px">Find it. Snap it. Update it.</h1><p>You are given a postcode. Use SituSnap to help you hunt for the property, then record what you discover when you find it.</p><div class="find"><div style="font-size:10px;font-weight:850;color:#61738b;padding:3px 10px 6px">ENTER THE POSTCODE YOU'VE BEEN GIVEN</div><div class="find-row"><input id="huntPostcode" placeholder="e.g. CF36 3YW" autocomplete="postal-code" autocapitalize="characters" spellcheck="false" oninput="queuePostcodeLookup();syncRecordPostcode()"><button id="googleMapsBtn" type="button" onclick="googleMapsNow()" style="background:#145a35">GOOGLE MAPS</button></div><div id="bcMainWrap" style="display:none;margin-top:9px"><button id="bcMainBtn" type="button" onclick="openBreadcrumbsRoute()" style="width:100%;background:#145a35">BREADCRUMBS</button></div><div id="bcQuickStatus" style="font-size:11px;color:#61738b;font-weight:800;padding:7px 4px 0;display:none">Breadcrumbs checking…</div><div style="display:flex;gap:8px;margin-top:9px"><button type="button" onclick="saveNotFound()" style="flex:1;padding:13px 8px;border-radius:12px;border:1px solid rgba(105,223,131,.45);background:#145a35;color:#fff;font-weight:900">NOT FOUND</button><button type="button" onclick="recordWithoutSatNav()" style="flex:1.55;padding:13px 8px;border-radius:12px;border:1px solid rgba(105,223,131,.45);background:#145a35;color:#fff;font-weight:900">RECORD WITHOUT SAT NAV</button></div><div id="postcodeChoices" class="postcode-choices hidden"><label for="streetChoice">OPTIONAL: ADD STREET / PROPERTY IF KNOWN</label><div class="street-picker"><button type="button" id="streetPickerTrigger" class="street-picker-trigger" onclick="toggleStreetPicker()">Looking up locations…</button><div id="streetPickerMenu" class="street-picker-menu hidden"></div><select id="streetChoice" class="hidden" onchange="syncSelectedAddress()"><option value="">Looking up locations…</option></select></div><div id="manualAddressWrap" class="hidden" style="margin-top:10px"><label for="manualAddress">OR ENTER A PROPERTY / FARM NAME IF KNOWN</label><input id="manualAddress" type="text" inputmode="text" enterkeyhint="done" autocomplete="street-address" autocapitalize="words" placeholder="e.g. Ty Mawr Farm (optional)" oninput="syncManualAddress()" onpointerdown="focusManualAddress(this)" onclick="focusManualAddress(this)" style="width:100%;margin-top:7px;touch-action:manipulation"></div></div></div></section>
-<section id="huntPanel" class="card hidden"><div class="section-head"><div><h2>Hunt in progress</h2><p class="muted">Breadcrumbs resolves the destination. SituSnap then uses your phone GPS for the final on-site confirmation.</p></div><span class="pill">ACTIVE</span></div><div class="location"><div class="pin">📍</div><div><b id="huntPc"></b><span id="targetStatus">Resolving precise postcode coordinate…</span></div></div><div id="targetBox" class="record" style="margin-top:9px"><h3>🎯 SituSnap target</h3><div class="meta" id="targetDetails">Waiting for postcode lookup.</div><div class="precision"><div class="precision-top"><div class="precision-title">DESTINATION ENGINE</div><span class="precision-badge" id="precisionBadge">CHECKING</span></div><div class="precision-bar"><div class="precision-fill" id="precisionFill"></div></div><div class="small-note" id="precisionNote">SituSnap will use the best available postcode coordinate, then measure the phone's live GPS against it. The field observation confirms the real-world location.</div></div></div><div class="quick" style="margin-top:10px"><div class="meta" style="text-align:center;width:100%;font-weight:800">Navigation and live GPS are started automatically.</div></div><div id="liveHunt" class="record hidden"><h3>Live hunt</h3>
+<section class="hero"><div class="eyebrow"></div><h1 style="font-size:clamp(22px,7vw,34px);letter-spacing:-.8px">Find it. Snap it. Update it.</h1><div class="find"><div style="font-size:13px;font-weight:950;color:#43566f;padding:3px 10px 6px;letter-spacing:.6px">POSTCODE</div><div class="find-row"><input id="huntPostcode" placeholder="e.g. CF36 3YW" autocomplete="postal-code" autocapitalize="characters" spellcheck="false" oninput="queuePostcodeLookup();syncRecordPostcode()"><button id="googleMapsBtn" type="button" onclick="googleMapsNow()" style="background:#145a35">GOOGLE MAPS</button></div><div id="bcMainWrap" style="display:block;margin-top:9px"><button id="bcMainBtn" type="button" onclick="openBreadcrumbsRoute()" disabled style="width:100%;background:#145a35;opacity:.45">BREADCRUMBS</button></div><div id="bcQuickStatus" style="font-size:12px;color:#61738b;font-weight:850;padding:7px 4px 0;display:block">Enter property / house name for Breadcrumbs</div><div style="display:flex;gap:8px;margin-top:9px"><button type="button" onclick="saveNotFound()" style="flex:1;padding:13px 8px;border-radius:12px;border:1px solid rgba(105,223,131,.45);background:#145a35;color:#fff;font-weight:900">NOT FOUND</button><button type="button" onclick="recordWithoutSatNav()" style="flex:1.55;padding:13px 8px;border-radius:12px;border:1px solid rgba(105,223,131,.45);background:#145a35;color:#fff;font-weight:900">RECORD WITHOUT SAT NAV</button></div><div id="postcodeChoices" class="postcode-choices hidden"><label for="streetChoice">OPTIONAL: ADD STREET / PROPERTY IF KNOWN</label><div class="street-picker"><button type="button" id="streetPickerTrigger" class="street-picker-trigger" onclick="toggleStreetPicker()">Looking up locations…</button><div id="streetPickerMenu" class="street-picker-menu hidden"></div><select id="streetChoice" class="hidden" onchange="syncSelectedAddress()"><option value="">Looking up locations…</option></select></div><div id="manualAddressWrap" class="hidden" style="margin-top:10px"><label for="manualAddress">PROPERTY / HOUSE NAME</label><input id="manualAddress" type="text" inputmode="text" enterkeyhint="done" autocomplete="street-address" autocapitalize="words" placeholder="e.g. Stephan" oninput="syncManualAddress()" onpointerdown="focusManualAddress(this)" onclick="focusManualAddress(this)" style="width:100%;margin-top:7px;touch-action:manipulation"></div></div></div></section>
+<section id="huntPanel" class="card hidden"><div class="section-head"><div><h2>Destination</h2></div><span class="pill">ACTIVE</span></div><div class="location"><div class="pin">📍</div><div><b id="huntPc"></b><span id="targetStatus">Checking destination…</span></div></div><div id="targetBox" class="record" style="margin-top:9px"><h3>🎯 SituSnap target</h3><div class="meta" id="targetDetails">Waiting for postcode lookup.</div><div class="precision"><div class="precision-top"><div class="precision-title">DESTINATION ENGINE</div><span class="precision-badge" id="precisionBadge">CHECKING</span></div><div class="precision-bar"><div class="precision-fill" id="precisionFill"></div></div><div class="small-note" id="precisionNote">SituSnap will use the best available postcode coordinate, then measure the phone's live GPS against it. The field observation confirms the real-world location.</div></div></div><div id="liveHunt" class="record hidden"><h3>Live hunt</h3>
 <div id="bcResolveCard" class="bc-resolve">
   <div class="bc-kicker">Resolved by Breadcrumbs</div>
-  <div id="bcResolveTitle" class="bc-title">Checking exact pinpoint…</div>
+  <div id="bcResolveTitle" class="bc-title">Ready when you are</div>
   <div id="bcResolveMeta" class="bc-meta">Property + postcode are checked against the secure Breadcrumbs resolver.</div>
   <div id="bcAlternativeActions" style="display:none"></div>
   <button id="bcResolveAction" class="bc-action investigate" type="button" style="display:none">INVESTIGATE →</button>
@@ -395,10 +395,9 @@ async function lookupPostcodeOptions(){
   const manual=document.getElementById("manualAddress");
   const recordBox=document.getElementById("recordPostcodeChoices");
   if(p.length<5){box.classList.add("hidden");if(recordBox)recordBox.classList.remove("hidden");select.dataset.options="";const dl=document.getElementById("streetSuggestions");if(dl)dl.innerHTML="";if(manualWrap)manualWrap.classList.add("hidden");setRecordStreetPickerStatus("Start typing the postcode…");return}
-  // Keep the hero lookup panel collapsed while background postcode lookup runs; avoids mobile scroll jumps.
-  if(box)box.classList.add("hidden");
-  if(manualWrap)manualWrap.classList.add("hidden");
-  if(manual)manual.value="";
+  // Keep property entry visible while background postcode lookup runs.
+  if(box)box.classList.remove("hidden");
+  if(manualWrap)manualWrap.classList.remove("hidden");
   select.disabled=false;
   select.innerHTML='<option value="">Finding locations…</option>';
   select.dataset.options="";
@@ -581,7 +580,13 @@ function queuePostcodeLookup(){
   const raw=normalisePc(document.getElementById("huntPostcode")?.value);
   // Do not run address services on partial postcodes: that was causing reflow and screen jumping.
   if(!isCompleteUkPostcode(raw))return;
-  // First fetch just the street names without changing layout, then quietly load richer property data.
+  // A complete postcode should immediately expose the human-friendly property-name box.
+  const box=document.getElementById("postcodeChoices");
+  const manualWrap=document.getElementById("manualAddressWrap");
+  if(box)box.classList.remove("hidden");
+  if(manualWrap)manualWrap.classList.remove("hidden");
+  bcSetMainAvailable(false,'Enter property / house name for Breadcrumbs');
+  // Mapping suggestions still load quietly in the background.
   postcodeWarmTimer=setTimeout(fastPostcodeStreetPrefetch,40);
   postcodeTimer=setTimeout(lookupPostcodeOptions,450);
 }
@@ -1092,9 +1097,11 @@ function bcFindVerified(property,postcode){
 }
 function bcSetMainAvailable(available,status=''){
   const wrap=document.getElementById('bcMainWrap');
+  const btn=document.getElementById('bcMainBtn');
   const quick=document.getElementById('bcQuickStatus');
-  if(wrap)wrap.style.display=available?'block':'none';
-  if(quick){quick.style.display=status?'block':'none';quick.textContent=status||'';}
+  if(wrap)wrap.style.display='block';
+  if(btn){btn.disabled=!available;btn.style.opacity=available?'1':'.45';}
+  if(quick){quick.style.display='block';quick.textContent=status||'Breadcrumbs ready';}
 }
 function bcUI(title,meta,verified,alternative=false){
   const card=document.getElementById('bcResolveCard');
@@ -1105,13 +1112,13 @@ function bcUI(title,meta,verified,alternative=false){
   card.style.display='block'; t.textContent=title; m.textContent=meta||''; a.style.display='none';
   const routeReady=bcResolution && Number.isFinite(Number(bcResolution.latitude)) && Number.isFinite(Number(bcResolution.longitude));
   if(routeReady && (alternative||verified)) bcSetMainAvailable(true,'');
-  else if(title==='Checking exact pinpoint…') bcSetMainAvailable(false,'Breadcrumbs checking…');
-  else bcSetMainAvailable(false,'');
+  else if(title==='Checking exact pinpoint…') bcSetMainAvailable(false,'Checking for a better pin…');
+  else bcSetMainAvailable(false,'No Breadcrumbs alternative found');
 }
 function bcQueueResolve(property,postcode){
   clearTimeout(bcTimer);
   if(!String(property||'').trim()||!String(postcode||'').trim())return;
-  bcSetMainAvailable(false,'Breadcrumbs checking…');
+  bcSetMainAvailable(false,'Checking for a better pin…');
   bcTimer=setTimeout(()=>bcResolve(property,postcode),350);
 }
 async function bcResolve(property,postcode){
@@ -1129,7 +1136,7 @@ async function bcResolve(property,postcode){
     bcUI('EXACT PINPOINT VERIFIED ✓','Previously verified on site in SituSnap',true);
     return;
   }
-  bcUI('Checking exact pinpoint…','Secure Breadcrumbs resolution in progress.',false);
+  bcUI('Checking exact pinpoint…','Looking for a better property pin.',false);
   try{
     const r=await fetch(BREADCRUMBS_RESOLVER_URL,{
       method:'POST',headers:{'Content-Type':'application/json'},
@@ -1142,11 +1149,11 @@ async function bcResolve(property,postcode){
       bcUI('BREADCRUMBS ALTERNATIVE',`${d.address||property} · possible better property location`,false,true);
     }else{
       bcResolution={verified:false};
-      bcUI('EXACT PINPOINT NOT CONFIRMED','Breadcrumbs has not established an exact destination. Investigation remains available.',false);
+      bcUI('NO ALTERNATIVE FOUND','Google Maps remains available.',false);
     }
   }catch(_){
     bcResolution={verified:false,unavailable:true};
-    bcUI('EXACT PINPOINT NOT CONFIRMED','Breadcrumbs could not complete the exact check. Investigation remains available.',false);
+    bcUI('BREADCRUMBS UNAVAILABLE','Google Maps remains available.',false);
   }
 }
 function bcReadInputs(){
