@@ -960,6 +960,19 @@ function useSituSnap(id){
   const dest=r.gps?`${r.gps.latitude},${r.gps.longitude}`:(r.address?`${r.address}${r.street?", "+r.street:""}, ${r.postcode}`:r.postcode);
   window.open("https://www.google.com/maps/dir/?api=1&destination="+encodeURIComponent(dest)+"&travelmode=driving","_blank");
 }
+function retryAttempt(id){
+  const r=getRecords().find(x=>x.id===id); if(!r)return;
+  editingRecordId=null;
+  huntPostcode=(r.postcode||"").trim().toUpperCase();
+  const hunt=document.getElementById("huntPostcode");
+  if(hunt)hunt.value=huntPostcode;
+  const pc=document.getElementById("postcode");
+  if(pc)pc.value=huntPostcode;
+  const manual=document.getElementById("manualAddress");
+  if(manual && r.address && r.address!=="Not located") manual.value=r.address;
+  window.scrollTo({top:0,behavior:"smooth"});
+  setTimeout(()=>startHunt(),250);
+}
 function render(){
   const q=(document.getElementById("search").value||"").toLowerCase();
   const f=getRecords().filter(r=>`${r.address} ${r.street||""} ${r.postcode} ${r.type} ${r.notes} ${r.entrance||""} ${r.approach||""} ${r.accessInfo||""} ${r.updateStatus||""} ${r.observedBy}`.toLowerCase().includes(q));
@@ -973,7 +986,11 @@ function render(){
       `${r.accessInfo?`<div class="meta"><b>Access:</b> ${esc(r.accessInfo)}</div>`:""}`+
       `<div class="meta">${esc(r.notes||"No additional intelligence.")}</div>`+
       `<div class="meta">📍 ${r.gps?"GPS verified"+accuracy:"GPS not captured"} · ${esc(r.observedBy||"Contributor")}${verified?" · "+esc(verified):""}</div>`+
-      `<div class="previous-edit-hint">Tap this SituSnap to review or edit its details</div><button type="button" onclick="event.stopPropagation();useSituSnap(${r.id})" style="margin-top:10px;width:100%;padding:11px;border-radius:10px;border:0;font-weight:900;background:#145a35;color:#fff">NAVIGATE TO VERIFIED LOCATION</button></article>`
+      `<div class="previous-edit-hint">${r.updateStatus==="Investigation attempt"?"Previous attempt retained · tap the card to review its details":"Tap this SituSnap to review or edit its details"}</div>`+
+      (r.updateStatus==="Investigation attempt"
+        ? `<button type="button" onclick="event.stopPropagation();retryAttempt(${r.id})" style="margin-top:10px;width:100%;padding:11px;border-radius:10px;border:0;font-weight:900;background:#145a35;color:#fff">TRY AGAIN</button>`
+        : `<button type="button" onclick="event.stopPropagation();useSituSnap(${r.id})" style="margin-top:10px;width:100%;padding:11px;border-radius:10px;border:0;font-weight:900;background:#145a35;color:#fff">NAVIGATE TO VERIFIED LOCATION</button>`)+
+      `</article>`
   }).join(""):'<div class="empty">No previous SituSnaps yet.</div>'
 }
 function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[c]))}
