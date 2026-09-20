@@ -654,17 +654,34 @@ function googleMapsNow(){
   window.open("https://www.google.com/maps/dir/?api=1&destination="+encodeURIComponent(huntAddressQuery)+"&travelmode=driving","_blank");
   // Breadcrumbs is deliberately independent and is triggered by postcode/name entry, not by this button.
 }
-function openBreadcrumbsRoute(){
-  if(bcResolution?.discoveryOnly){
-    const property=(bcResolution.property||'').trim();
-    const pc=(bcResolution.postcode||'').trim();
-    if(!property)return;
-    const q=[property,pc].filter(Boolean).join(' ');
-    window.open("https://www.google.com/search?q="+encodeURIComponent(q)," _blank".trim());
+async function openBreadcrumbsRoute(){
+  // One-tap field flow: if a verified pin already exists, navigate immediately.
+  if(bcResolution && Number.isFinite(Number(bcResolution.latitude)) && Number.isFinite(Number(bcResolution.longitude))){
+    window.open(`https://www.google.com/maps/dir/?api=1&destination=${Number(bcResolution.latitude)},${Number(bcResolution.longitude)}&travelmode=driving`,'_blank');
     return;
   }
-  if(!bcResolution || !Number.isFinite(Number(bcResolution.latitude)) || !Number.isFinite(Number(bcResolution.longitude)))return;
-  window.open(`https://www.google.com/maps/dir/?api=1&destination=${Number(bcResolution.latitude)},${Number(bcResolution.longitude)}&travelmode=driving`,'_blank');
+  const property=(document.getElementById('manualAddress')?.value||'').trim();
+  const pc=(document.getElementById('huntPostcode')?.value||'').trim().toUpperCase();
+  if(!property){alert('Enter the property name first.');return;}
+  if(!isCompleteUkPostcode(pc)){
+    const q=[property,pc].filter(Boolean).join(' ');
+    window.open('https://www.google.com/search?q='+encodeURIComponent(q),'_blank');
+    return;
+  }
+  // Open a blank tab while this click still has a user gesture. Mobile browsers may
+  // otherwise block Google Maps when the resolver finishes a moment later.
+  let navWindow=null;
+  try{navWindow=window.open('about:blank','_blank');}catch(_){navWindow=null;}
+  const btn=document.getElementById('bcMainBtn');
+  if(btn){btn.disabled=true;btn.style.opacity='.65';btn.textContent='FINDING VERIFIED PIN…';}
+  const result=await bcResolve(property,pc,undefined,true);
+  if(result && Number.isFinite(Number(result.latitude)) && Number.isFinite(Number(result.longitude))){
+    const url=`https://www.google.com/maps/dir/?api=1&destination=${Number(result.latitude)},${Number(result.longitude)}&travelmode=driving`;
+    if(navWindow && !navWindow.closed) navWindow.location.href=url;
+    else window.open(url,'_blank');
+  }else if(navWindow && !navWindow.closed){
+    navWindow.close();
+  }
 }
 async function startHunt(){
   const p=document.getElementById("huntPostcode").value.trim().toUpperCase();
@@ -1259,7 +1276,7 @@ async function bcResolve(property,postcode,requestSeq){
     bcResolution={verified:true,fieldVerified:true,address:remembered.address,latitude:remembered.gps?.latitude,longitude:remembered.gps?.longitude,source:'SituSnap verified memory',property,postcode};
     try{localStorage.setItem(BC_HUNT_CACHE,JSON.stringify(bcResolution))}catch(_){}
     bcUI('PIN VERIFIED ✓',bcRecordInstruction(remembered)||'Previously verified on site in SituSnap',true,false,'green');
-    return;
+    return bcResolution;
   }
   bcUI('Checking destination…','Breadcrumbs is checking the property and postcode.',false);
   try{
@@ -1270,7 +1287,7 @@ async function bcResolve(property,postcode,requestSeq){
       bcResolution={...d,fieldVerified:false,property,postcode};
       try{localStorage.setItem(BC_HUNT_CACHE,JSON.stringify(bcResolution))}catch(_){}
       bcUI('DESTINATION VERIFIED',d.address||property,true,true,'green');
-      return;
+      return bcResolution;
     }
     const useful=bcResolverInstruction(d);
     const collated=!!(r.ok&&d&&(d.status==='collated'||d.collated===true||useful));
@@ -1288,6 +1305,7 @@ async function bcResolve(property,postcode,requestSeq){
     bcResolution={verified:false,unavailable:true,property,postcode};
     bcUI('BREADCRUMBS UNAVAILABLE','Google Maps and field recording remain available.',false);
   }
+  return null;
 }
 function bcReadInputs(){
   const postcode=(document.getElementById('postcode')?.value||document.getElementById('huntPostcode')?.value||'').trim();
