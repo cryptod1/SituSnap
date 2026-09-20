@@ -1190,8 +1190,22 @@ function bcSetMainAvailable(available,status=''){
   const wrap=document.getElementById('bcMainWrap');
   const btn=document.getElementById('bcMainBtn');
   const quick=document.getElementById('bcQuickStatus');
+  const maps=document.getElementById('googleMapsBtn');
+  const verifiedRoute=!!(available && bcResolution && Number.isFinite(Number(bcResolution.latitude)) && Number.isFinite(Number(bcResolution.longitude)));
   if(wrap)wrap.style.display='block';
-  if(btn){btn.disabled=!available;btn.style.opacity=available?'1':'.45';}
+  if(btn){
+    btn.disabled=!available;
+    btn.style.opacity=available?'1':'.45';
+    btn.textContent=verifiedRoute?'NAVIGATE TO VERIFIED PIN':'BREADCRUMBS';
+  }
+  // Once Breadcrumbs has an exact pin, remove the competing postcode-only Maps route.
+  // If Breadcrumbs has no verified coordinate, Google Maps remains available as fallback.
+  if(maps){
+    maps.disabled=verifiedRoute;
+    maps.style.opacity=verifiedRoute?'.35':'1';
+    maps.style.cursor=verifiedRoute?'not-allowed':'pointer';
+    maps.title=verifiedRoute?'Verified Breadcrumbs pin ready — use NAVIGATE TO VERIFIED PIN':'';
+  }
   if(quick){quick.style.display='block';quick.textContent=status||'Breadcrumbs ready';}
 }
 function bcUI(title,meta,verified,alternative=false,state=''){
@@ -1206,7 +1220,7 @@ function bcUI(title,meta,verified,alternative=false,state=''){
   const resolvedState=state||(verified?'green':'');
   if(resolvedState){
     card.classList.add('bc-'+resolvedState);
-    if(badge){badge.style.display='inline-block';badge.textContent=resolvedState==='green'?'CONFIRMED. NAVIGATE.':resolvedState==='amber'?'USEFUL INFORMATION FOUND. CHECK DETAILS.':'NO RELIABLE INFORMATION FOUND.';}
+    if(badge){badge.style.display='inline-block';badge.textContent=resolvedState==='green'?'CONFIRMED PIN READY.':resolvedState==='amber'?'USEFUL INFORMATION FOUND. CHECK DETAILS.':'NO RELIABLE INFORMATION FOUND.';}
   }else if(badge){badge.style.display='none';badge.textContent='';}
   const routeReady=bcResolution && Number.isFinite(Number(bcResolution.latitude)) && Number.isFinite(Number(bcResolution.longitude));
   if(routeReady && (alternative||verified)) bcSetMainAvailable(true,resolvedState==='green'?'Confirmed destination ready':'');
