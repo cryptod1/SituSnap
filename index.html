@@ -60,8 +60,9 @@
 .postcode-choices{margin-top:8px;padding:9px 10px;border-radius:12px;background:rgba(255,255,255,.96);border:1px solid rgba(105,223,131,.45)}
 .postcode-choices label{display:block;font-size:9px;font-weight:900;letter-spacing:.5px;color:#31506b;margin-bottom:5px}
 .postcode-choices select{width:100%;min-height:40px;border-radius:9px;border:1px solid #cbd5e1;padding:8px 10px;font-weight:750;color:#10253d;background:#fff}
-#manualAddress{min-height:52px!important;background:#0d3525!important;color:#f3f7fc!important;-webkit-text-fill-color:#f3f7fc!important;caret-color:#69df83!important;font-size:16px!important;pointer-events:auto!important;user-select:text!important;-webkit-user-select:text!important}
+#manualAddress{min-height:52px!important;background:#fff!important;color:#111827!important;-webkit-text-fill-color:#111827!important;caret-color:#145a35!important;font-size:16px!important;pointer-events:auto!important;user-select:text!important;-webkit-user-select:text!important}
 #manualAddress:focus{outline:3px solid rgba(105,223,131,.22)!important}
+.property-split{display:grid;grid-template-columns:minmax(96px,22%) minmax(0,1fr);gap:10px;align-items:start}.property-split>div{min-width:0;display:flex;flex-direction:column}.property-split .property-label{display:block;height:32px;box-sizing:border-box;padding:0 4px 6px;font-size:10px;font-weight:950;color:#43566f;letter-spacing:.25px;line-height:13px;white-space:nowrap;overflow:hidden}.property-split input,.property-split #doorNumber,.property-split #manualAddress{box-sizing:border-box;width:100%!important;min-width:0;height:52px!important;min-height:52px!important;padding:11px 12px!important;background:#fff!important;color:#111827!important;-webkit-text-fill-color:#111827!important;border:1px solid #cbd5e1!important;border-radius:10px!important;font-size:16px!important}.property-split #doorNumber{padding-left:12px!important}@media(max-width:360px){.property-split{grid-template-columns:92px minmax(0,1fr);gap:8px}.property-split .property-label{font-size:9px;letter-spacing:0}}
 
 
 /* SituSnap custom dark-green location picker */
@@ -117,8 +118,10 @@ fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round"/>
 <section class="hero"><div class="eyebrow"></div><h1 style="font-size:clamp(22px,7vw,34px);letter-spacing:-.8px">Find it. Snap it. Update it.</h1><div class="find">
 <div style="font-size:13px;font-weight:950;color:#43566f;padding:3px 10px 6px;letter-spacing:.6px">POSTCODE <span style="font-weight:750;opacity:.72">(OPTIONAL)</span></div>
 <div class="find-row"><input id="huntPostcode" placeholder="Full or part postcode" autocomplete="postal-code" autocapitalize="characters" spellcheck="false" oninput="queuePostcodeLookup();syncRecordPostcode();bcQueueFromSimpleInputs()"><button id="googleMapsBtn" type="button" onclick="googleMapsNow()" style="background:#145a35">GOOGLE MAPS</button></div>
-<div style="font-size:13px;font-weight:950;color:#43566f;padding:10px 10px 6px;letter-spacing:.6px">PROPERTY NAME</div>
-<input id="manualAddress" type="text" inputmode="text" enterkeyhint="done" autocomplete="street-address" autocapitalize="words" placeholder="e.g. Belmont" oninput="syncManualAddress();bcQueueFromSimpleInputs();render()" style="width:100%;min-height:48px;background:#fff!important;color:#111827!important;-webkit-text-fill-color:#111827!important;border:1px solid #cbd5e1">
+<div class="property-split" style="margin-top:10px">
+<div><div class="property-label">NUMBER <span style="font-weight:750;opacity:.72">(OPTIONAL)</span></div><input id="doorNumber" type="text" inputmode="text" autocomplete="address-line1" placeholder="e.g. 1" oninput="syncManualAddress();bcQueueFromSimpleInputs();render()" style="min-height:48px"></div>
+<div><div class="property-label">HOUSE NAME OR STREET</div><div class="street-picker"><input id="manualAddress" type="text" inputmode="text" enterkeyhint="done" autocomplete="off" autocapitalize="words" placeholder="e.g. Nottage Mead" oninput="syncManualAddress();queueMainStreetSearch();bcQueueFromSimpleInputs();render()" onfocus="openMainStreetResults()" style="width:100%;min-height:48px"><div id="mainStreetResults" class="street-picker-menu hidden"></div></div></div>
+</div>
 <div id="bcMainWrap" style="display:block;margin-top:9px"><button id="bcMainBtn" type="button" onclick="openBreadcrumbsRoute()" disabled style="width:100%;background:#145a35;opacity:.45">BREADCRUMBS</button></div>
 <div id="bcQuickStatus" style="font-size:12px;color:#61738b;font-weight:850;padding:7px 4px 0;display:block">Enter property name</div>
 <div style="margin-top:9px"><button type="button" onclick="recordWithoutSatNav()" style="width:100%;padding:13px 8px;border-radius:12px;border:1px solid rgba(105,223,131,.45);background:#145a35;color:#fff;font-weight:900">RECORD WITHOUT SAT NAV</button></div>
@@ -203,6 +206,7 @@ document.addEventListener("click",e=>{
     const m=document.getElementById("streetPickerMenu");if(m)m.classList.add("hidden");
     const rm=document.getElementById("recordStreetPickerMenu");if(rm)rm.classList.add("hidden");
     const lr=document.getElementById("streetLiveResults");if(lr)lr.classList.add("hidden");
+    const mm=document.getElementById("mainStreetResults");if(mm)mm.classList.add("hidden");
   }
 });
 function setRecordStreetPickerStatus(text){
@@ -275,6 +279,46 @@ function refreshStreetDatalist(){
   dl.innerHTML=names.map(n=>'<option value="'+esc(n)+'"></option>').join('');
   const postcode=(document.getElementById("postcode")?.value||document.getElementById("huntPostcode")?.value||"").trim().toUpperCase();
   saveCachedStreetNames(postcode,names);
+}
+let mainStreetTimer=null;
+let mainStreetSeq=0;
+function mainStreetNames(){
+  const postcode=(document.getElementById("huntPostcode")?.value||"").trim().toUpperCase();
+  const names=[];const seen=new Set();
+  for(const o of getLoadedStreetOptions()){
+    const n=(o.road||((o.kind==="street")?o.label:"")||"").trim();
+    if(n&&!seen.has(n.toLowerCase())){seen.add(n.toLowerCase());names.push(n)}
+  }
+  for(const n of getCachedStreetNames(postcode)){const k=String(n).toLowerCase();if(n&&!seen.has(k)){seen.add(k);names.push(n)}}
+  return names;
+}
+function showMainStreetMatches(names,typed){
+  const box=document.getElementById("mainStreetResults");if(!box)return;
+  const q=String(typed||"").trim().toLowerCase();
+  const matches=[...new Set(names)].filter(n=>!q||n.toLowerCase().includes(q)).sort((a,b)=>{const ap=a.toLowerCase().startsWith(q)?0:1,bp=b.toLowerCase().startsWith(q)?0:1;return ap-bp||a.localeCompare(b)}).slice(0,6);
+  if(!matches.length){box.classList.add("hidden");box.innerHTML="";return}
+  box.innerHTML=matches.map(n=>'<button type="button" class="street-picker-item" onclick="applyMainStreetSuggestion('+JSON.stringify(n).replace(/"/g,'&quot;')+')">'+esc(n)+'</button>').join('');
+  box.classList.remove("hidden");
+}
+function openMainStreetResults(){const q=(document.getElementById("manualAddress")?.value||"").trim();if(q.length>=2)showMainStreetMatches(mainStreetNames(),q)}
+function applyMainStreetSuggestion(name){const i=document.getElementById("manualAddress");if(i)i.value=name;const b=document.getElementById("mainStreetResults");if(b){b.classList.add("hidden");b.innerHTML=""}syncManualAddress();bcQueueFromSimpleInputs();render()}
+function queueMainStreetSearch(){
+  clearTimeout(mainStreetTimer);const q=(document.getElementById("manualAddress")?.value||"").trim();const box=document.getElementById("mainStreetResults");
+  if(q.length<2){if(box){box.classList.add("hidden");box.innerHTML=""}return}
+  showMainStreetMatches(mainStreetNames(),q);mainStreetTimer=setTimeout(()=>mainStreetSearch(q),120);
+}
+async function mainStreetSearch(typed){
+  const seq=++mainStreetSeq;const raw=normalisePc(document.getElementById("huntPostcode")?.value);
+  if(!isCompleteUkPostcode(raw)||raw.startsWith("BT"))return; // NI deliberately parked for this phase.
+  const formatted=raw.slice(0,-3)+" "+raw.slice(-3);const controller=new AbortController();const timeout=setTimeout(()=>controller.abort(),1800);
+  try{
+    const url="https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&countrycodes=gb&limit=16&q="+encodeURIComponent(typed+" "+formatted);
+    const r=await fetch(url,{headers:{"Accept":"application/json"},signal:controller.signal});if(!r.ok)throw new Error();const data=await r.json();if(seq!==mainStreetSeq)return;
+    const names=[];const seen=new Set();
+    for(const item of (data||[])){const a=item.address||{};if(normalisePc(a.postcode||"")&&normalisePc(a.postcode)!==raw)continue;const road=(a.road||a.pedestrian||a.residential||"").trim();if(road&&!seen.has(road.toLowerCase())){seen.add(road.toLowerCase());names.push(road)}}
+    for(const n of mainStreetNames()){const k=n.toLowerCase();if(!seen.has(k)){seen.add(k);names.push(n)}}
+    if(names.length)saveCachedStreetNames(formatted,names);showMainStreetMatches(names,typed);
+  }catch(e){}finally{clearTimeout(timeout)}
 }
 let liveStreetTimer=null;
 let liveStreetSeq=0;
@@ -542,6 +586,7 @@ async function lookupPostcodeOptions(){
       autoFillStreetFromProperty();
     }
     renderStreetPicker(exactProperties,nearbyStreets,options,canonicalPc);
+    const mainTyped=(document.getElementById("manualAddress")?.value||"").trim();if(mainTyped.length>=2)showMainStreetMatches(mainStreetNames(),mainTyped);
     clearTimeout(slowLookupNotice);
     renderRecordStreetPicker(exactProperties,nearbyStreets,options,canonicalPc);
     if(manualWrap)manualWrap.classList.remove("hidden");
@@ -616,10 +661,24 @@ function queuePostcodeLookup(){
   postcodeWarmTimer=setTimeout(fastPostcodeStreetPrefetch,40);
   postcodeTimer=setTimeout(lookupPostcodeOptions,450);
 }
+function bcPropertyInput(){
+  const number=(document.getElementById("doorNumber")?.value||"").trim();
+  const name=(document.getElementById("manualAddress")?.value||"").trim();
+  return [number,name].filter(Boolean).join(" ").trim();
+}
+function bcRequestedDoorNumber(){return (document.getElementById("doorNumber")?.value||"").trim();}
+function bcReturnedMatchesDoorNumber(d){
+  const wanted=bcRequestedDoorNumber();
+  if(!wanted)return true;
+  const text=String(d?.address||d?.addressLine1||d?.matchedAddress||"").trim();
+  if(!text)return false;
+  const m=text.match(/^\s*([0-9]+[A-Za-z]?)\b/);
+  return !!m && m[1].toLowerCase()===wanted.toLowerCase();
+}
 function currentHuntInputs(){
   const p=(document.getElementById("huntPostcode")?.value||"").trim().toUpperCase();
   const choice=document.getElementById("streetChoice");
-  const manual=(document.getElementById("manualAddress")?.value||"").trim();
+  const manual=bcPropertyInput();
   let selected=null;
   if(choice && choice.dataset.options && choice.value!==""){
     try{selected=JSON.parse(choice.dataset.options)[Number(choice.value)]||null}catch(e){}
@@ -628,7 +687,7 @@ function currentHuntInputs(){
 }
 function bcQueueFromSimpleInputs(){
   clearTimeout(bcTimer);
-  const property=(document.getElementById('manualAddress')?.value||'').trim();
+  const property=bcPropertyInput();
   const pc=(document.getElementById('huntPostcode')?.value||'').trim().toUpperCase();
   if(!property){bcResolution=null;bcSetMainAvailable(false,'Enter property name');return;}
   if(isCompleteUkPostcode(pc)){
@@ -655,40 +714,31 @@ function googleMapsNow(){
   // Breadcrumbs is deliberately independent and is triggered by postcode/name entry, not by this button.
 }
 async function openBreadcrumbsRoute(){
-  // One-tap field flow: if a verified pin already exists, navigate immediately.
-  if(bcResolution && Number.isFinite(Number(bcResolution.latitude)) && Number.isFinite(Number(bcResolution.longitude))){
-    window.open(`https://www.google.com/maps/dir/?api=1&destination=${Number(bcResolution.latitude)},${Number(bcResolution.longitude)}&travelmode=driving`,'_blank');
-    return;
-  }
-  const property=(document.getElementById('manualAddress')?.value||'').trim();
+  const navigate=result=>{
+    if(!result||!Number.isFinite(Number(result.latitude))||!Number.isFinite(Number(result.longitude)))return false;
+    window.location.href=`https://www.google.com/maps/dir/?api=1&destination=${Number(result.latitude)},${Number(result.longitude)}&travelmode=driving`;
+    return true;
+  };
+  if(navigate(bcResolution))return;
+  const property=bcPropertyInput();
   const pc=(document.getElementById('huntPostcode')?.value||'').trim().toUpperCase();
-  if(!property){alert('Enter the property name first.');return;}
+  if(!property){alert('Enter the house name or street first.');return;}
   if(!isCompleteUkPostcode(pc)){
-    const q=[property,pc].filter(Boolean).join(' ');
-    window.open('https://www.google.com/search?q='+encodeURIComponent(q),'_blank');
+    window.location.href='https://www.google.com/search?q='+encodeURIComponent([property,pc].filter(Boolean).join(' '));
     return;
   }
-  // Open a blank tab while this click still has a user gesture. Mobile browsers may
-  // otherwise block Google Maps when the resolver finishes a moment later.
-  let navWindow=null;
-  try{navWindow=window.open('about:blank','_blank');}catch(_){navWindow=null;}
   const btn=document.getElementById('bcMainBtn');
   if(btn){btn.disabled=true;btn.style.opacity='.65';btn.textContent='FINDING VERIFIED PIN…';}
   const result=await bcResolve(property,pc,undefined,true);
-  if(result && Number.isFinite(Number(result.latitude)) && Number.isFinite(Number(result.longitude))){
-    const url=`https://www.google.com/maps/dir/?api=1&destination=${Number(result.latitude)},${Number(result.longitude)}&travelmode=driving`;
-    if(navWindow && !navWindow.closed) navWindow.location.href=url;
-    else window.open(url,'_blank');
-  }else if(navWindow && !navWindow.closed){
-    navWindow.close();
-  }
+  navigate(result);
 }
+
 async function startHunt(){
   const p=document.getElementById("huntPostcode").value.trim().toUpperCase();
   if(!p){alert("Enter the postcode you've been given.");return}
   huntPostcode=p;
   const choice=document.getElementById("streetChoice");
-  const manual=(document.getElementById("manualAddress")?.value||"").trim();
+  const manual=bcPropertyInput();
   let selected=null;
   if(choice && choice.dataset.options && choice.value!==""){
     try{selected=JSON.parse(choice.dataset.options)[Number(choice.value)]||null}catch(e){}
@@ -861,7 +911,7 @@ function focusManualAddress(el){
 }
 
 function syncManualAddress(){
-  const manual=(document.getElementById("manualAddress")?.value||"").trim();
+  const manual=bcPropertyInput();
   const pc=document.getElementById("huntPostcode").value.trim().toUpperCase();
   document.getElementById("address").value=manual;
   document.getElementById("postcode").value=pc;
@@ -1211,8 +1261,10 @@ function bcSetMainAvailable(available,status=''){
   const verifiedRoute=!!(available && bcResolution && Number.isFinite(Number(bcResolution.latitude)) && Number.isFinite(Number(bcResolution.longitude)));
   if(wrap)wrap.style.display='block';
   if(btn){
-    btn.disabled=!available;
-    btn.style.opacity=available?'1':'.45';
+    const canRequest=isCompleteUkPostcode(document.getElementById('huntPostcode')?.value||'') && !!bcPropertyInput();
+    const enabled=available||canRequest;
+    btn.disabled=!enabled;
+    btn.style.opacity=enabled?'1':'.45';
     btn.textContent=verifiedRoute?'NAVIGATE TO VERIFIED PIN':'BREADCRUMBS';
   }
   // Once Breadcrumbs has an exact pin, remove the competing postcode-only Maps route.
@@ -1243,7 +1295,7 @@ function bcUI(title,meta,verified,alternative=false,state=''){
   if(routeReady && (alternative||verified)) bcSetMainAvailable(true,resolvedState==='green'?'Confirmed destination ready':'');
   else if(title==='Checking destination…') bcSetMainAvailable(false,'Breadcrumbs checking…');
   else if(resolvedState==='amber') bcSetMainAvailable(false,'Check the useful information below');
-  else if(resolvedState==='red') bcSetMainAvailable(false,'No Breadcrumbs destination found');
+  else if(resolvedState==='red') bcSetMainAvailable(false,'No verified pin available');
   else bcSetMainAvailable(false,'Breadcrumbs checking…');
 }
 let bcRequestSeq=0;
@@ -1280,10 +1332,25 @@ async function bcResolve(property,postcode,requestSeq){
   }
   bcUI('Checking destination…','Breadcrumbs is checking the property and postcode.',false);
   try{
-    const r=await fetch(BREADCRUMBS_RESOLVER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({property,postcode})});
+    const controller=new AbortController();
+    const timeout=setTimeout(()=>controller.abort(),7000);
+    const r=await fetch(BREADCRUMBS_RESOLVER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({property,postcode}),signal:controller.signal});
+    clearTimeout(timeout);
     const d=await r.json().catch(()=>null);
     if(mySeq!==bcRequestSeq)return;
+    const candidateList=Array.isArray(d?.candidates)?d.candidates:(Array.isArray(d?.matches)?d.matches:(Array.isArray(d?.results)?d.results:[]));
+    const unresolvedAmbiguity=!!(d&&(d.ambiguous===true || d.status==='ambiguous' || (candidateList.length>1 && d.verified!==true)));
+    if(unresolvedAmbiguity){
+      bcResolution={...(d||{}),verified:false,fieldVerified:false,property,postcode,ambiguous:true};
+      bcUI('MORE THAN ONE MATCH','More than one property matches this search. Choose the exact property before navigation.',false,false,'amber');
+      return null;
+    }
     if(r.ok&&d&&d.verified===true&&d.uprn&&Number.isFinite(Number(d.latitude))&&Number.isFinite(Number(d.longitude))){
+      if(!bcReturnedMatchesDoorNumber(d)){
+        bcResolution={...d,verified:false,fieldVerified:false,property,postcode,numberMismatch:true};
+        bcUI('NOT EXACTLY VERIFIED','The returned address does not match the door number entered. Navigation has been withheld.',false,false,'amber');
+        return null;
+      }
       bcResolution={...d,fieldVerified:false,property,postcode};
       try{localStorage.setItem(BC_HUNT_CACHE,JSON.stringify(bcResolution))}catch(_){}
       bcUI('DESTINATION VERIFIED',d.address||property,true,true,'green');
@@ -1298,18 +1365,18 @@ async function bcResolve(property,postcode,requestSeq){
     }else{
       bcResolution={...(d||{}),verified:false,fieldVerified:false,property,postcode};
       try{localStorage.setItem(BC_HUNT_CACHE,JSON.stringify(bcResolution))}catch(_){}
-      bcUI('NOT VERIFIED','No reliable information found.',false,false,'red');
+      bcUI('NOT VERIFIED','No exact authoritative pin was returned for this address. Record it on site if found.',false,false,'red');
     }
   }catch(_){
     if(mySeq!==bcRequestSeq)return;
     bcResolution={verified:false,unavailable:true,property,postcode};
-    bcUI('BREADCRUMBS UNAVAILABLE','Google Maps and field recording remain available.',false);
+    bcUI('BREADCRUMBS UNAVAILABLE','No response after 7 seconds — Google Maps and field recording remain available.',false,false,'red');
   }
   return null;
 }
 function bcReadInputs(){
   const postcode=(document.getElementById('postcode')?.value||document.getElementById('huntPostcode')?.value||'').trim();
-  const property=(document.getElementById('manualAddress')?.value||document.getElementById('address')?.value||document.getElementById('property')?.value||'').trim();
+  const property=bcPropertyInput()||(document.getElementById('address')?.value||document.getElementById('property')?.value||'').trim();
   return {property,postcode};
 }
 function bcTry(){
