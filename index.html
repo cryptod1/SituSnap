@@ -83,6 +83,11 @@ input::placeholder,textarea::placeholder{color:#aeb9c7;opacity:1}
 .bc-meta{font-size:13px;line-height:1.45;opacity:.78;margin-top:5px}
 .bc-action{margin-top:12px;width:100%;border:0;border-radius:12px;padding:13px 14px;font-weight:900;background:#17663b;color:#fff}
 .bc-action.investigate{background:#26384f}
+.bc-resolve.bc-green{border:2px solid #69df83;background:rgba(20,90,53,.30)}
+.bc-resolve.bc-amber{border:2px solid #d79a35;background:rgba(115,76,18,.26)}
+.bc-resolve.bc-red{border:2px solid #d75b5b;background:rgba(100,28,28,.22)}
+.bc-state{display:inline-block;margin-top:8px;padding:5px 9px;border-radius:999px;font-size:10px;font-weight:950;letter-spacing:.04em}
+.bc-green .bc-state{background:#145a35;color:#dff8e3}.bc-amber .bc-state{background:#765016;color:#ffe7b0}.bc-red .bc-state{background:#6b2626;color:#ffd4d4}
 </style>
 
 </head>
@@ -123,6 +128,7 @@ fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round"/>
   <div class="bc-kicker">Resolved by Breadcrumbs</div>
   <div id="bcResolveTitle" class="bc-title">Ready when you are</div>
   <div id="bcResolveMeta" class="bc-meta">Property + postcode are checked against the secure Breadcrumbs resolver.</div>
+  <div id="bcResolveState" class="bc-state" style="display:none"></div>
   <div id="bcAlternativeActions" style="display:none"></div>
   <button id="bcResolveAction" class="bc-action investigate" type="button" style="display:none">INVESTIGATE →</button>
 </div>
@@ -1165,7 +1171,20 @@ function bcRecordInstruction(r){
   return bcUsefulInstruction(r.lastMile)||String(r.approach||r.entrance||r.notes||'').trim();
 }
 function bcResolverInstruction(d){
-  return bcUsefulInstruction(d?.lastMile)||bcUsefulInstruction(d);
+  if(!d)return '';
+  const direct=bcUsefulInstruction(d?.lastMile)||bcUsefulInstruction(d);
+  if(direct)return direct;
+  const brief=d.arrivalBrief;
+  if(typeof brief==='string')return brief.trim();
+  if(Array.isArray(brief)){
+    return brief.map(x=>typeof x==='string'?x:(x?.text||x?.snippet||x?.title||'')).filter(Boolean).slice(0,2).join(' · ');
+  }
+  if(brief&&typeof brief==='object'){
+    const items=brief.items||brief.clues||brief.results||brief.findings;
+    if(Array.isArray(items))return items.map(x=>typeof x==='string'?x:(x?.text||x?.snippet||x?.title||'')).filter(Boolean).slice(0,2).join(' · ');
+    return String(brief.summary||brief.text||brief.finalInstruction||'').trim();
+  }
+  return '';
 }
 function bcSetMainAvailable(available,status=''){
   const wrap=document.getElementById('bcMainWrap');
@@ -1175,17 +1194,26 @@ function bcSetMainAvailable(available,status=''){
   if(btn){btn.disabled=!available;btn.style.opacity=available?'1':'.45';}
   if(quick){quick.style.display='block';quick.textContent=status||'Breadcrumbs ready';}
 }
-function bcUI(title,meta,verified,alternative=false){
+function bcUI(title,meta,verified,alternative=false,state=''){
   const card=document.getElementById('bcResolveCard');
   const t=document.getElementById('bcResolveTitle');
   const m=document.getElementById('bcResolveMeta');
+  const badge=document.getElementById('bcResolveState');
   const a=document.getElementById('bcResolveAction');
   if(!card||!t||!m||!a)return;
   card.style.display='block'; t.textContent=title; m.textContent=meta||''; a.style.display='none';
+  card.classList.remove('bc-green','bc-amber','bc-red');
+  const resolvedState=state||(verified?'green':'');
+  if(resolvedState){
+    card.classList.add('bc-'+resolvedState);
+    if(badge){badge.style.display='inline-block';badge.textContent=resolvedState==='green'?'CONFIRMED. NAVIGATE.':resolvedState==='amber'?'USEFUL INFORMATION FOUND. CHECK DETAILS.':'NO RELIABLE INFORMATION FOUND.';}
+  }else if(badge){badge.style.display='none';badge.textContent='';}
   const routeReady=bcResolution && Number.isFinite(Number(bcResolution.latitude)) && Number.isFinite(Number(bcResolution.longitude));
-  if(routeReady && (alternative||verified)) bcSetMainAvailable(true,'');
-  else if(title==='Checking exact pinpoint…') bcSetMainAvailable(false,'Checking for a better pin…');
-  else bcSetMainAvailable(false,'No Breadcrumbs alternative found');
+  if(routeReady && (alternative||verified)) bcSetMainAvailable(true,resolvedState==='green'?'Confirmed destination ready':'');
+  else if(title==='Checking destination…') bcSetMainAvailable(false,'Breadcrumbs checking…');
+  else if(resolvedState==='amber') bcSetMainAvailable(false,'Check the useful information below');
+  else if(resolvedState==='red') bcSetMainAvailable(false,'No Breadcrumbs destination found');
+  else bcSetMainAvailable(false,'Breadcrumbs checking…');
 }
 let bcRequestSeq=0;
 function bcQueueResolve(property,postcode){
@@ -1214,42 +1242,37 @@ async function bcResolve(property,postcode,requestSeq){
   const remembered=bcFindVerified(property,postcode);
   if(remembered){
     if(mySeq!==bcRequestSeq)return;
-    bcResolution={
-      verified:true,fieldVerified:true,address:remembered.address,
-      latitude:remembered.gps?.latitude,longitude:remembered.gps?.longitude,
-      source:'SituSnap verified memory',property,postcode
-    };
+    bcResolution={verified:true,fieldVerified:true,address:remembered.address,latitude:remembered.gps?.latitude,longitude:remembered.gps?.longitude,source:'SituSnap verified memory',property,postcode};
     try{localStorage.setItem(BC_HUNT_CACHE,JSON.stringify(bcResolution))}catch(_){}
-    bcUI('PIN VERIFIED ✓',bcRecordInstruction(remembered)||'Previously verified on site in SituSnap',true);
+    bcUI('PIN VERIFIED ✓',bcRecordInstruction(remembered)||'Previously verified on site in SituSnap',true,false,'green');
     return;
   }
-  bcUI('Checking exact pinpoint…','Looking for a better property pin.',false);
+  bcUI('Checking destination…','Breadcrumbs is checking the property and postcode.',false);
   try{
-    const r=await fetch(BREADCRUMBS_RESOLVER_URL,{
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({property,postcode})
-    });
+    const r=await fetch(BREADCRUMBS_RESOLVER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({property,postcode})});
     const d=await r.json().catch(()=>null);
-    if(mySeq!==bcRequestSeq)return; // a newer name/postcode now owns the screen
+    if(mySeq!==bcRequestSeq)return;
     if(r.ok&&d&&d.verified===true&&d.uprn&&Number.isFinite(Number(d.latitude))&&Number.isFinite(Number(d.longitude))){
       bcResolution={...d,fieldVerified:false,property,postcode};
       try{localStorage.setItem(BC_HUNT_CACHE,JSON.stringify(bcResolution))}catch(_){}
-      bcUI('BREADCRUMBS ALTERNATIVE',`${d.address||property} · possible better property location`,false,true);
+      bcUI('DESTINATION VERIFIED',d.address||property,true,true,'green');
+      return;
+    }
+    const useful=bcResolverInstruction(d);
+    const collated=!!(r.ok&&d&&(d.status==='collated'||d.collated===true||useful));
+    if(collated&&useful){
+      bcResolution={...d,verified:false,fieldVerified:false,property,postcode,lastMileOnly:true};
+      try{localStorage.setItem(BC_HUNT_CACHE,JSON.stringify(bcResolution))}catch(_){}
+      bcUI('COLLATED — NOT CONFIRMED',useful,false,false,'amber');
     }else{
-      const useful=bcResolverInstruction(d);
-      if(r.ok&&d&&useful){
-        bcResolution={...d,verified:false,fieldVerified:false,property,postcode,lastMileOnly:true};
-        try{localStorage.setItem(BC_HUNT_CACHE,JSON.stringify(bcResolution))}catch(_){}
-        bcUI('USEFUL INFORMATION',useful,false);
-      }else{
-        bcResolution={verified:false};
-        bcUI('NO ALTERNATIVE FOUND','Google Maps remains available.',false);
-      }
+      bcResolution={...(d||{}),verified:false,fieldVerified:false,property,postcode};
+      try{localStorage.setItem(BC_HUNT_CACHE,JSON.stringify(bcResolution))}catch(_){}
+      bcUI('NOT VERIFIED','No reliable information found.',false,false,'red');
     }
   }catch(_){
     if(mySeq!==bcRequestSeq)return;
-    bcResolution={verified:false,unavailable:true};
-    bcUI('BREADCRUMBS UNAVAILABLE','Google Maps remains available.',false);
+    bcResolution={verified:false,unavailable:true,property,postcode};
+    bcUI('BREADCRUMBS UNAVAILABLE','Google Maps and field recording remain available.',false);
   }
 }
 function bcReadInputs(){
@@ -1269,10 +1292,10 @@ window.addEventListener('pageshow',()=>{
     if(bcNorm(saved.postcode).replace(/\s/g,'')!==bcNorm(p).replace(/\s/g,'') || bcNorm(saved.property)!==bcNorm(chosenLabel))return;
     if(Number.isFinite(Number(saved.latitude))&&Number.isFinite(Number(saved.longitude))){
       bcResolution=saved;
-      bcUI(saved.fieldVerified?'PIN VERIFIED ✓':'BREADCRUMBS ALTERNATIVE',saved.fieldVerified?(bcResolverInstruction(saved)||'Previously verified on site in SituSnap'):`${saved.address||saved.property} · possible better property location`,!!saved.fieldVerified,!saved.fieldVerified);
+      bcUI(saved.fieldVerified?'PIN VERIFIED ✓':'DESTINATION VERIFIED',saved.fieldVerified?(bcResolverInstruction(saved)||'Previously verified on site in SituSnap'):(saved.address||saved.property),true,!saved.fieldVerified,'green');
     }else if(saved.lastMileOnly && bcResolverInstruction(saved)){
       bcResolution=saved;
-      bcUI('USEFUL INFORMATION',bcResolverInstruction(saved),false);
+      bcUI('COLLATED — NOT CONFIRMED',bcResolverInstruction(saved),false,false,'amber');
     }
   }catch(_){}
 });
