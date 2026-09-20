@@ -1334,7 +1334,11 @@ async function bcResolve(property,postcode,requestSeq){
   try{
     const controller=new AbortController();
     const timeout=setTimeout(()=>controller.abort(),7000);
-    const r=await fetch(BREADCRUMBS_RESOLVER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({property,postcode}),signal:controller.signal});
+    const doorNumber=bcRequestedDoorNumber();
+    const resolverProperty=(doorNumber && property.toLowerCase().startsWith((doorNumber+' ').toLowerCase()))
+      ? property.slice(doorNumber.length).trim()
+      : property;
+    const r=await fetch(BREADCRUMBS_RESOLVER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({property:resolverProperty,postcode,doorNumber}),signal:controller.signal});
     clearTimeout(timeout);
     const d=await r.json().catch(()=>null);
     if(mySeq!==bcRequestSeq)return;
