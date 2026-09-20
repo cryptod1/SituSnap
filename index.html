@@ -57,7 +57,7 @@
 .find input#huntPostcode{padding:9px 10px;min-height:44px;font-size:14px}
 .find button{min-height:44px;padding:0 13px;border-radius:10px;font-size:12px}
 #targetBox{display:none !important}
-.postcode-choices{margin-top:8px;padding:9px 10px;border-radius:12px;background:rgba(255,255,255,.96);border:1px solid rgba(105,223,131,.45)}
+#postcodeChoices{display:none!important}.postcode-choices{margin-top:8px;padding:9px 10px;border-radius:12px;background:rgba(255,255,255,.96);border:1px solid rgba(105,223,131,.45)}
 .postcode-choices label{display:block;font-size:9px;font-weight:900;letter-spacing:.5px;color:#31506b;margin-bottom:5px}
 .postcode-choices select{width:100%;min-height:40px;border-radius:9px;border:1px solid #cbd5e1;padding:8px 10px;font-weight:750;color:#10253d;background:#fff}
 #manualAddress{min-height:52px!important;background:#fff!important;color:#111827!important;-webkit-text-fill-color:#111827!important;caret-color:#145a35!important;font-size:16px!important;pointer-events:auto!important;user-select:text!important;-webkit-user-select:text!important}
@@ -295,7 +295,7 @@ function mainStreetNames(){
 function showMainStreetMatches(names,typed){
   const box=document.getElementById("mainStreetResults");if(!box)return;
   const q=String(typed||"").trim().toLowerCase();
-  const matches=[...new Set(names)].filter(n=>!q||n.toLowerCase().includes(q)).sort((a,b)=>{const ap=a.toLowerCase().startsWith(q)?0:1,bp=b.toLowerCase().startsWith(q)?0:1;return ap-bp||a.localeCompare(b)}).slice(0,6);
+  const matches=[...new Set(names)].filter(n=>{const k=n.toLowerCase();return (!q||k.includes(q)) && k!==q}).sort((a,b)=>{const ap=a.toLowerCase().startsWith(q)?0:1,bp=b.toLowerCase().startsWith(q)?0:1;return ap-bp||a.localeCompare(b)}).slice(0,6);
   if(!matches.length){box.classList.add("hidden");box.innerHTML="";return}
   box.innerHTML=matches.map(n=>'<button type="button" class="street-picker-item" onclick="applyMainStreetSuggestion('+JSON.stringify(n).replace(/"/g,'&quot;')+')">'+esc(n)+'</button>').join('');
   box.classList.remove("hidden");
@@ -458,7 +458,7 @@ async function lookupPostcodeOptions(){
   const recordBox=document.getElementById("recordPostcodeChoices");
   if(p.length<5){box.classList.add("hidden");if(recordBox)recordBox.classList.remove("hidden");select.dataset.options="";const dl=document.getElementById("streetSuggestions");if(dl)dl.innerHTML="";if(manualWrap)manualWrap.classList.add("hidden");setRecordStreetPickerStatus("Start typing the postcode…");return}
   // Keep property entry visible while background postcode lookup runs.
-  if(box)box.classList.remove("hidden");
+  if(box)box.classList.add("hidden");
   if(manualWrap)manualWrap.classList.remove("hidden");
   select.disabled=false;
   select.innerHTML='<option value="">Finding locations…</option>';
