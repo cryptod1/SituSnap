@@ -156,7 +156,7 @@ fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round"/>
 <input id="photo1" type="file" accept="image/*" style="display:none">
 <div id="primaryPhotoStatus" class="small-note" style="margin-top:7px">No photo selected yet.</div></div>
 <div class="full"><details class="details" style="margin-top:4px"><summary>＋ Add more photos</summary><div class="inside"><input id="photo2" type="file" accept="image/*" capture="environment" multiple><div class="small-note" style="margin-top:7px">Optional — add approach, gate, landmark or access photos if useful.</div></div></details></div>
-<div class="full"><button class="save" id="detailsFoundBtn" onclick="confirmFoundFromDetails()" disabled style="opacity:.45;filter:saturate(.45);cursor:not-allowed">✓ PIN VERIFIED</button><div class="small-note" id="foundGpsNote" style="margin-top:8px;text-align:center">Confirm when physically at the property.</div></div>
+<div class="full"><button class="save" id="detailsFoundBtn" onclick="confirmFoundFromDetails()" disabled style="opacity:.45;filter:saturate(.45);cursor:not-allowed">✓ PIN VERIFIED</button><div class="small-note" id="foundGpsNote" style="margin-top:8px;text-align:center">Confirm when physically at the property.</div><div id="localSaveStatus" class="small-note" style="margin-top:7px;text-align:center;font-weight:900;color:#9ee9ad"></div></div>
 <div class="full"><details class="details" style="margin-top:4px"><summary>Couldn’t locate the property?</summary><div class="inside"><button type="button" onclick="saveNotFound()" style="width:100%;padding:13px 8px;border-radius:12px;border:0;background:#145a35;color:#fff;font-weight:950">NOT FOUND</button><div class="small-note" style="margin-top:7px">Save the attempt for handover without creating a verified pin.</div></div></details></div></div></div></details>
 <div style="height:8px"></div>
 <details class="details" id="reminderIdentify"><summary>🏠 Identify the property</summary><div class="inside">Record the number/name, building, entrance, gate or another clear identifier.</div></details>
@@ -164,11 +164,6 @@ fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round"/>
 <details class="details"><summary>📸 Take useful photos</summary><div class="inside">Capture the approach and the property/entrance so the next person can recognise the correct place.</div></details>
 <details class="details"><summary>⚠️ Add anything important</summary><div class="inside">Access restrictions, hazards, corrections and anything else that would save the next person time.</div></details></section>
 <div class="scroll-hint">MORE BELOW — SWIPE UP<span>⌄</span></div>
-<section class="card" id="localDiagnosticCard">
-<div class="section-head"><div><h2>Local record check</h2><p class="muted">Read-only check of records already saved on this phone.</p></div></div>
-<button type="button" onclick="ssRunLocalDiagnostic()" style="width:100%;padding:13px;border-radius:12px;border:0;font-weight:900;background:#145a35;color:#fff">CHECK THIS PROPERTY ON PHONE</button>
-<div id="localDiagnosticResult" class="empty" style="margin-top:10px">Nothing is changed or deleted by this check.</div>
-</section>
 <section class="card" id="recordsCard"><div class="section-head"><div><h2>Verified locations</h2><p class="muted">Previously verified properties for this postcode.</p></div></div><div id="records"></div></section>
 
 </main><nav class="bottom"><button class="nav active" onclick="window.scrollTo({top:0,behavior:'smooth'})"><span class="ico">⌂</span>Find</button><button class="nav" onclick="showForm()"><span class="ico">⌄</span>Reminder</button><button class="nav" onclick="document.getElementById('recordsCard').scrollIntoView({behavior:'smooth'})"><span class="ico">↻</span>Verified</button><button class="nav" onclick="alert('More options can be added as the platform develops.')"><span class="ico">☰</span>More</button></nav>
@@ -1059,9 +1054,24 @@ function persistFoundRecord(){
     gps:gps||previous?.gps||null,target:target||previous?.target||null,verifiedAt:new Date().toISOString(),createdAt:previous?.createdAt||new Date().toISOString()};
   if(existingIndex>=0)rs.splice(existingIndex,1);
   rs.unshift(record);
-  localStorage.setItem("situSnapRecords",JSON.stringify(rs));
+  try{
+    localStorage.setItem("situSnapRecords",JSON.stringify(rs));
+    const check=JSON.parse(localStorage.getItem("situSnapRecords")||"[]");
+    const confirmed=check.find(r=>String(r.id)===String(record.id));
+    const lat=Number(confirmed?.gps?.latitude ?? confirmed?.latitude);
+    const lon=Number(confirmed?.gps?.longitude ?? confirmed?.longitude);
+    if(!confirmed || confirmed.pinVerified!==true || !Number.isFinite(lat) || !Number.isFinite(lon)){
+      throw new Error("Local verified-pin read-back failed");
+    }
+  }catch(err){
+    alert("PIN NOT SAVED — keep this screen open and try PIN VERIFIED again.");
+    const b=document.getElementById("detailsFoundBtn");if(b){b.disabled=false;b.textContent="✓ PIN VERIFIED"}
+    return false;
+  }
   editingRecordId=null;
   const b=document.getElementById("detailsFoundBtn");if(b)b.textContent="✓ PIN VERIFIED";
+  const saveStatus=document.getElementById("localSaveStatus");
+  if(saveStatus)saveStatus.textContent=navigator.onLine?"✓ SAVED ON PHONE":"✓ SAVED ON PHONE · WAITING TO SYNC";
   render();
   return true;
 }
@@ -1201,31 +1211,6 @@ function render(){
 }
 function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[c]))}
 render();
-
-
-function ssRunLocalDiagnostic(){
- const out=document.getElementById('localDiagnosticResult');
- const property=(typeof bcPropertyInput==='function'?bcPropertyInput():'')||(document.getElementById('address')?.value||document.getElementById('manualAddress')?.value||'').trim();
- const postcode=(document.getElementById('huntPostcode')?.value||document.getElementById('postcode')?.value||'').trim();
- const canon=v=>String(v||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
- const pc=canon(postcode), wanted=canon(property);
- const safe=k=>{try{const v=JSON.parse(localStorage.getItem(k)||'[]');return Array.isArray(v)?v:[]}catch(_){return []}};
- const rows=safe('situSnapRecords'), pins=safe('situSnapVerifiedPinsV1');
- const samePc=v=>canon(v)===pc;
- const nameHit=(...vals)=>vals.filter(Boolean).map(canon).some(v=>v===wanted||(v&&wanted&&(v.includes(wanted)||wanted.includes(v))));
- const raw=rows.filter(r=>samePc(r.postcode)&&nameHit(r.address,r.street,r.property,r.propertyName,r.houseName,[r.address,r.street].filter(Boolean).join(' ')));
- const learned=pins.filter(p=>samePc(p.postcode)&&nameHit(p.propertyName,...(p.formerNames||[])));
- const rawGps=raw.find(r=>Number.isFinite(Number(r.gps?.latitude??r.latitude))&&Number.isFinite(Number(r.gps?.longitude??r.longitude)));
- const learnedGps=learned.find(p=>Number.isFinite(Number(p.fieldPin?.latitude))&&Number.isFinite(Number(p.fieldPin?.longitude)));
- const verifiedRaw=raw.some(r=>r.pinVerified===true||String(r.result||'').toUpperCase()==='LOCATION VERIFIED');
- const verifiedLearned=learned.some(p=>p.state==='field_verified');
- let title,detail;
- if(learnedGps){title='✓ VERIFIED PIN EXISTS IN LEARNED MEMORY';detail='The phone has a field-verified learned pin. Retrieval logic needs repair.';}
- else if(rawGps&&verifiedRaw){title='✓ VERIFIED PIN EXISTS IN ORIGINAL RECORDS';detail='The phone has the original verified GPS record. Migration/retrieval needs repair.';}
- else if(raw.length||learned.length){title='⚠ PROPERTY RECORD EXISTS — PIN DATA INCOMPLETE';detail='A matching local record exists, but it does not contain both a verified marker and usable field GPS.';}
- else{title='✕ NO MATCHING LOCAL RECORD FOUND';detail='This phone has no matching saved record for the entered property and postcode.';}
- if(out)out.innerHTML='<div style="font-weight:900;margin-bottom:6px">'+esc(title)+'</div><div>'+esc(detail)+'</div><div class="meta" style="margin-top:8px">Original records: '+raw.length+' · Learned pins: '+learned.length+' · Original GPS: '+(rawGps?'yes':'no')+' · Original verified marker: '+(verifiedRaw?'yes':'no')+' · Learned GPS: '+(learnedGps?'yes':'no')+' · Learned verified marker: '+(verifiedLearned?'yes':'no')+'</div>';
-}
 
 
 (function receiveBreadcrumbs(){
