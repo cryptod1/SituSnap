@@ -1095,11 +1095,18 @@ function persistFoundRecord(){
 }
 function finishFound(){
   if(!persistFoundRecord()) return;
-  hideForm();
+
+  // Show the success screen first. Keep the form/page untouched underneath it
+  // until the colleague has actually had time to see the confirmation.
   triggerCelebration();
-  const note=document.getElementById("foundGpsNote");
-  if(note) note.textContent=gps?(gps.accuracy<=10?"✓ PIN VERIFIED · Excellent GPS ±"+Math.round(gps.accuracy)+"m":gps.accuracy<=25?"✓ PIN VERIFIED · Good GPS ±"+Math.round(gps.accuracy)+"m":"✓ PIN VERIFIED · Best GPS ±"+Math.round(gps.accuracy)+"m"):"✓ PIN VERIFIED · Details saved; GPS unavailable";
-  document.getElementById("recordsCard").scrollIntoView({behavior:"smooth",block:"start"});
+
+  setTimeout(()=>{
+    hideForm();
+    const note=document.getElementById("foundGpsNote");
+    if(note) note.textContent=gps?(gps.accuracy<=10?"✓ PIN VERIFIED · Excellent GPS ±"+Math.round(gps.accuracy)+"m":gps.accuracy<=25?"✓ PIN VERIFIED · Good GPS ±"+Math.round(gps.accuracy)+"m":"✓ PIN VERIFIED · Best GPS ±"+Math.round(gps.accuracy)+"m"):"✓ PIN VERIFIED · Details saved; GPS unavailable";
+    const card=document.getElementById("recordsCard");
+    if(card)card.scrollIntoView({behavior:"smooth",block:"start"});
+  },4300);
 }
 
 
