@@ -92,7 +92,7 @@ input::placeholder,textarea::placeholder{color:#aeb9c7;opacity:1}
 
 </head>
 <body>
-<div id="ssBuildStamp" data-build="SS-2026-09-21-SURGICAL1" style="display:none">SS-2026-09-21-SURGICAL1</div>
+<div id="ssBuildStamp" data-build="SS-2026-09-21-PERSIST1" style="display:none">SS-2026-09-21-PERSIST1</div>
 <div id="offlineBanner" class="offline-banner hidden" role="status" aria-live="polite">No signal — continue offline.</div><div id="celebration" aria-hidden="true"><div class="celebrate-content"><div class="celebrate-title">PIN VERIFIED!</div><div class="celebrate-sub">SituSnap location confirmed</div></div></div><header><div class="brand"><div class="brand-mark" aria-label="SituSnap logo">
 <svg viewBox="0 0 100 100" role="img" aria-hidden="true">
 <defs>
@@ -169,7 +169,7 @@ fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round"/>
 <section class="card" id="celebrationTestCard">
   <div class="section-head"><div><h2>Display check</h2><p class="muted">Tests the PIN VERIFIED celebration only. No property or GPS record is saved.</p></div></div>
   <button type="button" onclick="triggerCelebration()" style="width:100%;padding:13px;border-radius:12px;border:0;font-weight:900;background:#145a35;color:#fff">TEST PIN VERIFIED CELEBRATION</button>
-  <div class="small-note" style="margin-top:8px;text-align:center">Build SS-2026-09-21-SURGICAL1 · display test only</div>
+  <div class="small-note" style="margin-top:8px;text-align:center">Build SS-2026-09-21-PERSIST1 · display test only</div>
   <div id="verifiedVaultStatus" class="small-note" style="margin-top:6px;text-align:center"></div>
 </section>
 </main><nav class="bottom"><button class="nav active" onclick="window.scrollTo({top:0,behavior:'smooth'})"><span class="ico">⌂</span>Find</button><button class="nav" onclick="showForm()"><span class="ico">⌄</span>Reminder</button><button class="nav" onclick="document.getElementById('recordsCard').scrollIntoView({behavior:'smooth'})"><span class="ico">↻</span>Verified</button><button class="nav" onclick="alert('More options can be added as the platform develops.')"><span class="ico">☰</span>More</button></nav>
@@ -188,14 +188,36 @@ function ssArchiveVerified(record){
   const check=ssVerifiedArchive().find(r=>String(r.id)===String(record.id));
   return !!check;
 }
+function ssLearnedAsRecords(){
+  // Emergency recovery path: V8 keeps its own verified-pin memory. If the
+  // display/archive copy is missing, surface the learned pin instead of zero.
+  return ssReadArray("situSnapVerifiedPinsV1").filter(p=>p&&p.state==="field_verified"&&p.fieldPin).map(p=>({
+    id:p.pinId||("learned_"+String(p.postcode||"")+"_"+String(p.propertyName||"")),
+    pinVerified:true,
+    postcode:p.postcode||"",
+    address:p.propertyName||"Verified property",
+    street:"",
+    observedBy:"MGroup",
+    result:"Location verified",
+    updateStatus:"Verified",
+    gps:p.fieldPin,
+    verifiedAt:p.lastSuccessfulVisit||p.verifiedAt||null,
+    createdAt:p.lastSuccessfulVisit||p.verifiedAt||null,
+    notes:p.handover?.notes||"",
+    __recoveredFromLearnedMemory:true
+  }));
+}
 const getRecords=()=>{
   const primary=ssReadArray("situSnapRecords");
   const archive=ssVerifiedArchive();
-  const seen=new Set(), merged=[];
-  for(const r of [...primary,...archive]){
-    const key=String(r?.id??"");
-    if(key&&seen.has(key))continue;
-    if(key)seen.add(key);
+  const learned=ssLearnedAsRecords();
+  const seenIds=new Set(), seenPlaces=new Set(), merged=[];
+  for(const r of [...primary,...archive,...learned]){
+    const id=String(r?.id??"");
+    const place=(String(r?.postcode||"").toUpperCase().replace(/\s+/g,"")+"|"+String(r?.address||"").toUpperCase().replace(/[^A-Z0-9]/g,""));
+    if((id&&seenIds.has(id))||(place!=="|"&&seenPlaces.has(place)))continue;
+    if(id)seenIds.add(id);
+    if(place!=="|")seenPlaces.add(place);
     merged.push(r);
   }
   return merged;
@@ -2067,7 +2089,9 @@ function ssUpdateVaultStatus(){
   const el=document.getElementById("verifiedVaultStatus"); if(!el)return;
   const primary=ssReadArray("situSnapRecords").filter(r=>r&&r.pinVerified===true).length;
   const archive=ssVerifiedArchive().length;
-  el.textContent="Verified memory: primary "+primary+" · safety copy "+archive;
+  const learned=ssReadArray("situSnapVerifiedPinsV1").filter(r=>r&&r.state==="field_verified"&&r.fieldPin).length;
+  const visible=getRecords().filter(r=>isVerifiedSituSnap(r)).length;
+  el.textContent="Verified memory: visible "+visible+" · primary "+primary+" · safety "+archive+" · learned "+learned;
 }
 window.addEventListener("pageshow",()=>{try{ssUpdateVaultStatus();render()}catch(e){}});
 setTimeout(()=>{try{ssUpdateVaultStatus()}catch(e){}},100);
