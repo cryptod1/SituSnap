@@ -1196,8 +1196,8 @@ function useSituSnap(id){
   window.open("https://www.google.com/maps/dir/?api=1&destination="+encodeURIComponent(dest)+"&travelmode=driving","_blank");
 }
 function render(){
-  const activePc=normPc((document.getElementById("huntPostcode")?.value||document.getElementById("postcode")?.value||"").trim());
-  const f=getRecords().filter(r=>isVerifiedSituSnap(r) && (!activePc || normPc(r.postcode)===activePc));
+  const activePc=normalisePc((document.getElementById("huntPostcode")?.value||document.getElementById("postcode")?.value||"").trim());
+  const f=getRecords().filter(r=>isVerifiedSituSnap(r) && (!activePc || normalisePc(r.postcode)===activePc));
   document.getElementById("records").innerHTML=f.length?f.map(r=>{
     const accuracy=r.gps?.accuracy?` ±${Math.round(r.gps.accuracy)}m`:"";
     const when=r.verifiedAt||r.createdAt;
