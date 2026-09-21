@@ -93,7 +93,7 @@ input::placeholder,textarea::placeholder{color:#aeb9c7;opacity:1}
 
 </head>
 <body>
-<div id="ssBuildStamp" data-build="SS-2026-09-21-CEL2" style="display:none">SS-2026-09-21-CEL2</div>
+<div id="ssBuildStamp" data-build="SS-2026-09-21-PARTY1" style="display:none">SS-2026-09-21-PARTY1</div>
 <div id="offlineBanner" class="offline-banner hidden" role="status" aria-live="polite">No signal — continue offline.</div><div id="celebration" aria-hidden="true"><div class="celebrate-content"><div class="celebrate-title">PIN VERIFIED!</div><div class="celebrate-sub">SituSnap location confirmed</div></div></div><header><div class="brand"><div class="brand-mark" aria-label="SituSnap logo">
 <svg viewBox="0 0 100 100" role="img" aria-hidden="true">
 <defs>
@@ -170,7 +170,7 @@ fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round"/>
 <section class="card" id="celebrationTestCard">
   <div class="section-head"><div><h2>Display check</h2><p class="muted">Tests the PIN VERIFIED celebration only. No property or GPS record is saved.</p></div></div>
   <button type="button" onclick="triggerCelebration()" style="width:100%;padding:13px;border-radius:12px;border:0;font-weight:900;background:#145a35;color:#fff">TEST PIN VERIFIED CELEBRATION</button>
-  <div class="small-note" style="margin-top:8px;text-align:center">Build SS-2026-09-21-CEL2 · display test only</div>
+  <div class="small-note" style="margin-top:8px;text-align:center">Build SS-2026-09-21-PARTY1 · display test only</div>
 </section>
 </main><nav class="bottom"><button class="nav active" onclick="window.scrollTo({top:0,behavior:'smooth'})"><span class="ico">⌂</span>Find</button><button class="nav" onclick="showForm()"><span class="ico">⌄</span>Reminder</button><button class="nav" onclick="document.getElementById('recordsCard').scrollIntoView({behavior:'smooth'})"><span class="ico">↻</span>Verified</button><button class="nav" onclick="alert('More options can be added as the platform develops.')"><span class="ico">☰</span>More</button></nav>
 <script>
@@ -954,31 +954,68 @@ function syncSelectedAddress(){
   }catch(e){}
 }
 function triggerCelebration(){
-  // Self-contained overlay: does not depend on the page's existing celebration CSS/state.
   document.getElementById("situSnapSuccessOverlay")?.remove();
+
   const overlay=document.createElement("div");
   overlay.id="situSnapSuccessOverlay";
   overlay.setAttribute("role","status");
   overlay.setAttribute("aria-live","assertive");
-  overlay.style.cssText="position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;overflow:hidden;background:radial-gradient(circle at 50% 42%,rgba(35,105,72,.98),rgba(7,26,51,.99) 68%);color:white;text-align:center;padding:24px;box-sizing:border-box";
-  overlay.innerHTML='<div style="position:relative;z-index:2"><div style="font-size:clamp(42px,12vw,76px);font-weight:1000;line-height:.95;letter-spacing:-2px;text-shadow:0 5px 25px #0008;margin-bottom:12px">PIN VERIFIED!</div><div style="font-size:clamp(16px,4.5vw,22px);font-weight:900;color:#dff2ff">✓ SAVED ON PHONE</div></div>';
+  overlay.style.cssText="position:fixed;inset:0;z-index:2147483647;overflow:hidden;background:radial-gradient(circle at 50% 45%,rgba(31,111,72,.98),rgba(6,23,47,.995) 70%);color:white;text-align:center;display:flex;align-items:center;justify-content:center;padding:24px;box-sizing:border-box";
+  overlay.innerHTML='<div style="position:relative;z-index:20;animation:ssPop .55s cubic-bezier(.2,1.4,.4,1) both"><div style="font-size:clamp(48px,13vw,88px);font-weight:1000;line-height:.92;letter-spacing:-2px;text-shadow:0 6px 30px #000a;margin-bottom:14px">PIN<br>VERIFIED!</div><div style="font-size:clamp(18px,5vw,25px);font-weight:950;color:#dfffe9">✓ SAVED ON PHONE</div><div style="font-size:clamp(14px,4vw,18px);font-weight:800;margin-top:9px;color:#d9e9ff">Destination captured</div></div>';
+
+  const style=document.createElement("style");
+  style.textContent="@keyframes ssPop{0%{transform:scale(.45);opacity:0}70%{transform:scale(1.08);opacity:1}100%{transform:scale(1)}}@keyframes ssGlow{0%,100%{box-shadow:0 0 0 0 #fff0}50%{box-shadow:0 0 90px 35px #fff5}}";
+  overlay.appendChild(style);
   document.body.appendChild(overlay);
 
-  const colours=["#62e184","#ffd45c","#ffffff","#74c7ff","#ff8fb1"];
-  for(let i=0;i<90;i++){
+  // Heavy confetti burst.
+  const colours=["#62e184","#ffd45c","#ffffff","#74c7ff","#ff8fb1","#ff9e57","#b88cff"];
+  for(let i=0;i<220;i++){
     const p=document.createElement("i");
-    p.style.cssText="position:absolute;top:-20px;width:8px;height:14px;border-radius:2px;pointer-events:none";
+    const size=5+Math.random()*7;
+    p.style.cssText="position:absolute;top:-25px;pointer-events:none;border-radius:"+(Math.random()>.55?"50%":"2px")+";width:"+size+"px;height:"+(size*(.8+Math.random()*1.3))+"px";
     p.style.left=(Math.random()*100)+"%";
     p.style.background=colours[i%colours.length];
     p.style.transform="rotate("+Math.floor(Math.random()*360)+"deg)";
     p.animate(
-      [{transform:p.style.transform+" translateY(-10vh)",opacity:1},
-       {transform:"rotate("+(720+Math.floor(Math.random()*360))+"deg) translateY(115vh)",opacity:1}],
-      {duration:2600+Math.random()*1800,delay:Math.random()*500,easing:"cubic-bezier(.2,.7,.3,1)",fill:"forwards"}
+      [{transform:"translate3d(0,-8vh,0) rotate(0deg)",opacity:1},
+       {transform:"translate3d("+((Math.random()-.5)*180)+"px,112vh,0) rotate("+(720+Math.random()*1080)+"deg)",opacity:.95}],
+      {duration:2600+Math.random()*2600,delay:Math.random()*900,easing:"cubic-bezier(.15,.65,.35,1)",fill:"forwards"}
     );
     overlay.appendChild(p);
   }
-  setTimeout(()=>overlay.remove(),4200);
+
+  // Firework generator: expanding coloured sparks from random points.
+  const firework=(x,y,colour)=>{
+    const flash=document.createElement("b");
+    flash.style.cssText="position:absolute;z-index:5;left:"+x+"%;top:"+y+"%;width:10px;height:10px;border-radius:50%;background:white;transform:translate(-50%,-50%);animation:ssGlow .7s ease-out";
+    overlay.appendChild(flash);
+    setTimeout(()=>flash.remove(),800);
+    for(let j=0;j<34;j++){
+      const spark=document.createElement("span");
+      const angle=(Math.PI*2*j/34)+(Math.random()*.08);
+      const distance=55+Math.random()*115;
+      const dx=Math.cos(angle)*distance, dy=Math.sin(angle)*distance;
+      spark.style.cssText="position:absolute;z-index:6;left:"+x+"%;top:"+y+"%;width:5px;height:5px;border-radius:50%;background:"+colour+";box-shadow:0 0 9px "+colour+";transform:translate(-50%,-50%);pointer-events:none";
+      spark.animate(
+        [{transform:"translate(-50%,-50%) scale(1)",opacity:1},
+         {transform:"translate(calc(-50% + "+dx+"px),calc(-50% + "+(dy+35)+"px)) scale(.25)",opacity:0}],
+        {duration:900+Math.random()*650,easing:"cubic-bezier(.1,.7,.25,1)",fill:"forwards"}
+      );
+      overlay.appendChild(spark);
+      setTimeout(()=>spark.remove(),1700);
+    }
+  };
+
+  const bursts=[
+    [18,24,"#ffd45c",150],[81,27,"#74c7ff",500],[25,68,"#ff8fb1",900],
+    [76,66,"#62e184",1250],[50,18,"#ffffff",1650],[14,48,"#ff9e57",2050],
+    [87,48,"#b88cff",2400],[50,76,"#ffd45c",2800]
+  ];
+  bursts.forEach(([x,y,c,d])=>setTimeout(()=>firework(x,y,c),d));
+
+  // Keep the real celebration on screen long enough to enjoy it.
+  setTimeout(()=>overlay.remove(),6000);
 }
 function clearRecordForm(){
   editingRecordId=null;
@@ -1112,7 +1149,7 @@ function finishFound(){
     if(note) note.textContent=gps?(gps.accuracy<=10?"✓ PIN VERIFIED · Excellent GPS ±"+Math.round(gps.accuracy)+"m":gps.accuracy<=25?"✓ PIN VERIFIED · Good GPS ±"+Math.round(gps.accuracy)+"m":"✓ PIN VERIFIED · Best GPS ±"+Math.round(gps.accuracy)+"m"):"✓ PIN VERIFIED · Details saved; GPS unavailable";
     const card=document.getElementById("recordsCard");
     if(card)card.scrollIntoView({behavior:"smooth",block:"start"});
-  },4300);
+  },6100);
 }
 
 
