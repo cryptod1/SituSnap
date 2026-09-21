@@ -117,7 +117,7 @@ fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round"/>
 <main><div id="breadcrumbsBridge" class="card hidden" style="border:2px solid #69df83;margin-top:12px"><div class="eyebrow">BREADCRUMBS</div><h2 id="bridgeTitle" style="margin:5px 0">Continue</h2><div class="meta" id="bridgeText"></div></div>
 <section class="hero"><div class="eyebrow"></div><h1 style="font-size:clamp(22px,7vw,34px);letter-spacing:-.8px">Find it. Snap it. Update it.</h1><div class="find">
 <div style="font-size:13px;font-weight:950;color:#43566f;padding:3px 10px 6px;letter-spacing:.6px">POSTCODE <span style="font-weight:750;opacity:.72">(OPTIONAL)</span></div>
-<div class="find-row"><input id="huntPostcode" placeholder="Full or part postcode" autocomplete="postal-code" autocapitalize="characters" spellcheck="false" oninput="queuePostcodeLookup();syncRecordPostcode();bcQueueFromSimpleInputs()"><button id="googleMapsBtn" type="button" onclick="googleMapsNow()" style="background:#145a35">GOOGLE MAPS</button></div>
+<div class="find-row"><input id="huntPostcode" placeholder="Full or part postcode" autocomplete="postal-code" autocapitalize="characters" spellcheck="false" oninput="queuePostcodeLookup();syncRecordPostcode();bcQueueFromSimpleInputs()"><button id="googleMapsBtn" type="button" onclick="googleMapsNow()" disabled style="background:#52606d;opacity:.45;cursor:not-allowed">GOOGLE MAPS — UNVERIFIED</button></div>
 <div class="property-split" style="margin-top:10px">
 <div><div class="property-label">NUMBER <span style="font-weight:750;opacity:.72">(OPTIONAL)</span></div><input id="doorNumber" type="text" inputmode="text" autocomplete="address-line1" placeholder="e.g. 1" oninput="syncManualAddress();bcQueueFromSimpleInputs();render()" style="min-height:48px"></div>
 <div><div class="property-label">HOUSE NAME OR STREET</div><div class="street-picker"><input id="manualAddress" type="text" inputmode="text" enterkeyhint="done" autocomplete="off" autocapitalize="words" placeholder="e.g. Nottage Mead" oninput="syncManualAddress();queueMainStreetSearch();bcQueueFromSimpleInputs();render()" onfocus="openMainStreetResults()" style="width:100%;min-height:48px"><div id="mainStreetResults" class="street-picker-menu hidden"></div></div></div>
@@ -146,7 +146,7 @@ fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round"/>
 <div class="full"><label>Access / directions</label><textarea id="accessDirections" placeholder="e.g. first long drive on left, narrow lane, locked gate"></textarea></div>
 <div class="full"><label>Confirmation</label><select id="localSource"><option>Not applicable</option><option>Local resident</option><option>Postie / delivery driver</option><option>Other</option></select></div><div class="full"><label>Handover notes</label><textarea id="notes" placeholder="Optional — anything useful for the next visit"></textarea></div>
 
-<div class="full"><label>Photo — property / entrance</label><input id="photo1" type="file" accept="image/*" capture="environment"></div>
+<div class="full"><label>Photo — property / entrance</label><div class="small-note" style="margin:0 0 7px">Take photo or choose file</div><input id="photo1" type="file" accept="image/*"></div>
 <div class="full"><details class="details" style="margin-top:4px"><summary>＋ Add more photos</summary><div class="inside"><input id="photo2" type="file" accept="image/*" capture="environment" multiple><div class="small-note" style="margin-top:7px">Optional — add approach, gate, landmark or access photos if useful.</div></div></details></div>
 <div class="full"><button class="save" id="detailsFoundBtn" onclick="confirmFoundFromDetails()" disabled style="opacity:.45;filter:saturate(.45);cursor:not-allowed">✓ PIN VERIFIED</button><div class="small-note" id="foundGpsNote" style="margin-top:8px;text-align:center">Confirm when physically at the property.</div></div>
 <div class="full"><details class="details" style="margin-top:4px"><summary>Couldn’t locate the property?</summary><div class="inside"><button type="button" onclick="saveNotFound()" style="width:100%;padding:13px 8px;border-radius:12px;border:0;background:#145a35;color:#fff;font-weight:950">NOT FOUND</button><div class="small-note" style="margin-top:7px">Save the attempt for handover without creating a verified pin.</div></div></details></div></div></div></details>
@@ -687,6 +687,7 @@ function currentHuntInputs(){
 }
 function bcQueueFromSimpleInputs(){
   clearTimeout(bcTimer);
+  bcResolution=null;
   const property=bcPropertyInput();
   const pc=(document.getElementById('huntPostcode')?.value||'').trim().toUpperCase();
   if(!property){bcResolution=null;bcSetMainAvailable(false,'Enter property name');return;}
@@ -1224,8 +1225,11 @@ function bcFindVerified(property,postcode){
   return bcRecords().find(r=>{
     const rpc=bcNorm(r.postcode).replace(/\s/g,'');
     const ra=bcNorm(r.address);
+    const rs=bcNorm(r.street);
+    const combined=bcNorm([r.address,r.street].filter(Boolean).join(' '));
     const verified=(r.pinVerified===true || r.result==='Location verified');
-    return verified && rpc===pc && (ra===p || (ra&&p&&(ra.includes(p)||p.includes(ra))));
+    const hasPin=Number.isFinite(Number(r.gps?.latitude)) && Number.isFinite(Number(r.gps?.longitude));
+    return verified && hasPin && rpc===pc && (ra===p || combined===p || (rs && ra && p===bcNorm(ra+' '+rs)));
   })||null;
 }
 function bcUsefulInstruction(v){
@@ -1258,22 +1262,27 @@ function bcSetMainAvailable(available,status=''){
   const btn=document.getElementById('bcMainBtn');
   const quick=document.getElementById('bcQuickStatus');
   const maps=document.getElementById('googleMapsBtn');
-  const verifiedRoute=!!(available && bcResolution && Number.isFinite(Number(bcResolution.latitude)) && Number.isFinite(Number(bcResolution.longitude)));
+  const hasInputs=isCompleteUkPostcode(document.getElementById('huntPostcode')?.value||'') && !!bcPropertyInput();
+  const verifiedRoute=!!(bcResolution && bcResolution.verified===true && Number.isFinite(Number(bcResolution.latitude)) && Number.isFinite(Number(bcResolution.longitude)));
+  const checkFinished=!!(bcResolution && bcResolution.verified!==undefined && !bcResolution.discoveryOnly);
   if(wrap)wrap.style.display='block';
   if(btn){
-    const canRequest=isCompleteUkPostcode(document.getElementById('huntPostcode')?.value||'') && !!bcPropertyInput();
-    const enabled=available||canRequest;
+    const enabled=verifiedRoute || hasInputs;
     btn.disabled=!enabled;
     btn.style.opacity=enabled?'1':'.45';
     btn.textContent=verifiedRoute?'NAVIGATE TO VERIFIED PIN':'BREADCRUMBS';
   }
-  // Once Breadcrumbs has an exact pin, remove the competing postcode-only Maps route.
-  // If Breadcrumbs has no verified coordinate, Google Maps remains available as fallback.
   if(maps){
-    maps.disabled=verifiedRoute;
-    maps.style.opacity=verifiedRoute?'.35':'1';
-    maps.style.cursor=verifiedRoute?'not-allowed':'pointer';
-    maps.title=verifiedRoute?'Verified Breadcrumbs pin ready — use NAVIGATE TO VERIFIED PIN':'';
+    // Never present Google Maps as the verified result. It is only an explicitly
+    // unverified fallback after Breadcrumbs/SituSnap has finished without a pin.
+    const allowFallback=checkFinished && !verifiedRoute;
+    maps.disabled=!allowFallback;
+    maps.style.display=verifiedRoute?'none':'block';
+    maps.style.opacity=allowFallback?'1':'.45';
+    maps.style.cursor=allowFallback?'pointer':'not-allowed';
+    maps.style.background=allowFallback?'#52606d':'#52606d';
+    maps.textContent='GOOGLE MAPS — UNVERIFIED';
+    maps.title=allowFallback?'Fallback only — Google Maps has not been verified by Breadcrumbs or SituSnap':'Complete the verified-pin check first';
   }
   if(quick){quick.style.display='block';quick.textContent=status||'Breadcrumbs ready';}
 }
@@ -1294,7 +1303,7 @@ function bcUI(title,meta,verified,alternative=false,state=''){
   const routeReady=bcResolution && Number.isFinite(Number(bcResolution.latitude)) && Number.isFinite(Number(bcResolution.longitude));
   if(routeReady && (alternative||verified)) bcSetMainAvailable(true,resolvedState==='green'?'Confirmed destination ready':'');
   else if(title==='Checking destination…') bcSetMainAvailable(false,'Breadcrumbs checking…');
-  else if(resolvedState==='amber') bcSetMainAvailable(false,'Check the useful information below');
+  else if(resolvedState==='amber') bcSetMainAvailable(false,meta?'Useful information found — check the details shown':'No verified pin yet');
   else if(resolvedState==='red') bcSetMainAvailable(false,'No verified pin available');
   else bcSetMainAvailable(false,'Breadcrumbs checking…');
 }
@@ -1374,7 +1383,7 @@ async function bcResolve(property,postcode,requestSeq){
   }catch(_){
     if(mySeq!==bcRequestSeq)return;
     bcResolution={verified:false,unavailable:true,property,postcode};
-    bcUI('BREADCRUMBS UNAVAILABLE','No response after 7 seconds — Google Maps and field recording remain available.',false,false,'red');
+    bcUI('BREADCRUMBS UNAVAILABLE','No response after 7 seconds — field recording remains available. Google Maps is an unverified fallback.',false,false,'red');
   }
   return null;
 }
