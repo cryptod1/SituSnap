@@ -1018,7 +1018,7 @@ function updateFoundButton(){
   const postcode=(document.getElementById("postcode")?.value||"").trim();
   const address=(document.getElementById("address")?.value||"").trim();
   const street=(document.getElementById("street")?.value||"").trim();
-  const mainPhoto=!!document.getElementById("photo1")?.files?.length;
+  const mainPhoto=!!(document.getElementById("photoCamera")?.files?.length||document.getElementById("photo1")?.files?.length);
   // Rural-first: street remains optional. A verified pin requires the main property/entrance photo.
   const ready=!!(postcode&&address&&mainPhoto);
   btn.disabled=!ready;
@@ -1039,7 +1039,7 @@ function persistFoundRecord(){
   const address=document.getElementById("address").value.trim();
   const street=(document.getElementById("street")?.value||"").trim();
   if(!postcode||!address){alert("Please complete the postcode and property number/name or location before confirming.");return false}
-  const mainPhoto=!!document.getElementById("photo1")?.files?.length;
+  const mainPhoto=!!(document.getElementById("photoCamera")?.files?.length||document.getElementById("photo1")?.files?.length);
   if(editingRecordId===null && !mainPhoto){alert("Please add the property / entrance photo before verifying the pin.");return false}
   const rs=getRecords();
   const existingIndex=editingRecordId===null?-1:rs.findIndex(r=>r.id===editingRecordId);
@@ -1049,7 +1049,7 @@ function persistFoundRecord(){
   const approach=accessDirections;
   const accessInfo="";
   const notes=document.getElementById("notes").value.trim();
-  const record={id:previous?.id||Date.now(),postcode,address,street,type:document.getElementById("type").value,observedBy:document.getElementById("observedBy").value,updateStatus:document.getElementById("updateStatus").value,result:document.getElementById("result").value,entrance,approach,accessInfo,visibility:"My Team",localSource:(document.getElementById("localSource")?.value||"Not applicable"),notes,
+  const record={id:previous?.id||Date.now(),pinVerified:true,postcode,address,street,type:document.getElementById("type").value,observedBy:document.getElementById("observedBy").value,updateStatus:document.getElementById("updateStatus").value,result:document.getElementById("result").value,entrance,approach,accessInfo,visibility:"My Team",localSource:(document.getElementById("localSource")?.value||"Not applicable"),notes,
     lastMile:{vehicleApproach:approach||null,entrance:entrance||null,hazard:accessInfo||null,handoverNote:notes||null,source:"SituSnap field handover",fieldConfirmed:true},
     gps:gps||previous?.gps||null,target:target||previous?.target||null,verifiedAt:new Date().toISOString(),createdAt:previous?.createdAt||new Date().toISOString()};
   if(existingIndex>=0)rs.splice(existingIndex,1);
@@ -1234,7 +1234,7 @@ const BC_HUNT_CACHE='situSnapBreadcrumbsHuntV1';
 function bcNorm(v){return String(v||'').trim().toUpperCase().replace(/\s+/g,' ')}
 function bcRecords(){try{return JSON.parse(localStorage.getItem('situSnapRecords')||'[]')}catch(_){return []}}
 function bcIdentity(v){
-  return bcNorm(v).replace(/[^a-z0-9]/g,'');
+  return bcNorm(v).toLowerCase().replace(/[^a-z0-9]/g,'');
 }
 function bcFindVerified(property,postcode){
   const wanted=bcIdentity(property), pc=bcNorm(postcode).replace(/\s/g,'');
@@ -1356,7 +1356,7 @@ async function bcResolve(property,postcode,requestSeq){
   const remembered=bcFindVerified(property,postcode);
   if(remembered){
     if(mySeq!==bcRequestSeq)return;
-    bcResolution={verified:true,fieldVerified:true,address:remembered.address,latitude:remembered.gps?.latitude,longitude:remembered.gps?.longitude,source:'SituSnap verified memory',property,postcode};
+    bcResolution={verified:true,fieldVerified:true,address:remembered.address,latitude:Number(remembered.gps?.latitude ?? remembered.latitude),longitude:Number(remembered.gps?.longitude ?? remembered.longitude),source:'SituSnap verified memory',property,postcode};
     try{localStorage.setItem(BC_HUNT_CACHE,JSON.stringify(bcResolution))}catch(_){}
     bcUI('PIN VERIFIED ✓',bcRecordInstruction(remembered)||'Previously verified on site in SituSnap',true,false,'green');
     return bcResolution;
