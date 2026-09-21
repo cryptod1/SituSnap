@@ -1561,18 +1561,38 @@ function ssLookupLearned(property,postcode){
 /* Upgrade V7's local-memory lookup to the durable verification schema. */
 if(typeof bcFindVerified==='function'){
   bcFindVerified=function(property,postcode){
-    const learned=ssLookupLearned(property,postcode);
-    if(learned&&learned.state==='field_verified'&&!learned.reviewRequired){
+    const wanted=bcIdentity(property), pc=bcNorm(postcode).replace(/\s/g,'');
+    if(!wanted||!pc)return null;
+
+    // First check the durable learned-pin store.
+    const learned=ssSafeJSON(SS_LEARNING_KEY,[]).find(x=>{
+      if(ssCanonPostcode(x.postcode)!==ssCanonPostcode(postcode))return false;
+      const names=[x.propertyName,...(x.formerNames||[])].map(bcIdentity).filter(Boolean);
+      return names.includes(wanted);
+    });
+    if(learned&&learned.state==='field_verified'&&!learned.reviewRequired&&learned.fieldPin){
       return {
         id:learned.pinId,address:learned.propertyName,postcode:learned.postcode,
         result:'Location verified',pinVerified:true,
         gps:learned.fieldPin,learnedPin:learned
       };
     }
-    const p=bcNorm(property),pc=bcNorm(postcode).replace(/\s/g,'');
+
+    // Then check the original field records. Important: older records can have the
+    // house/development split between address and street, e.g. Belmont + Court.
     return bcRecords().find(r=>{
-      const rpc=bcNorm(r.postcode).replace(/\s/g,''),ra=bcNorm(r.address);
-      return (r.pinVerified===true||r.result==='Location verified')&&rpc===pc&&(ra===p||(ra&&p&&(ra.includes(p)||p.includes(ra))));
+      const rpc=bcNorm(r.postcode).replace(/\s/g,'');
+      if(rpc!==pc)return false;
+      const verified=(r.pinVerified===true || bcNorm(r.result)==='LOCATION VERIFIED');
+      const lat=Number(r.gps?.latitude ?? r.latitude), lon=Number(r.gps?.longitude ?? r.longitude);
+      if(!verified || !Number.isFinite(lat) || !Number.isFinite(lon))return false;
+      const candidates=[
+        r.address,r.street,r.property,r.propertyName,r.houseName,
+        [r.address,r.street].filter(Boolean).join(' '),
+        [r.doorNumber,r.address].filter(Boolean).join(' '),
+        [r.doorNumber,r.street].filter(Boolean).join(' ')
+      ].map(bcIdentity).filter(Boolean);
+      return candidates.includes(wanted);
     })||null;
   };
 }
