@@ -93,7 +93,7 @@ input::placeholder,textarea::placeholder{color:#aeb9c7;opacity:1}
 
 </head>
 <body>
-<div id="ssBuildStamp" data-build="SS-2026-09-21-PARTY1" style="display:none">SS-2026-09-21-PARTY1</div>
+<div id="ssBuildStamp" data-build="SS-2026-09-21-BONFIRE1" style="display:none">SS-2026-09-21-BONFIRE1</div>
 <div id="offlineBanner" class="offline-banner hidden" role="status" aria-live="polite">No signal — continue offline.</div><div id="celebration" aria-hidden="true"><div class="celebrate-content"><div class="celebrate-title">PIN VERIFIED!</div><div class="celebrate-sub">SituSnap location confirmed</div></div></div><header><div class="brand"><div class="brand-mark" aria-label="SituSnap logo">
 <svg viewBox="0 0 100 100" role="img" aria-hidden="true">
 <defs>
@@ -170,7 +170,7 @@ fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round"/>
 <section class="card" id="celebrationTestCard">
   <div class="section-head"><div><h2>Display check</h2><p class="muted">Tests the PIN VERIFIED celebration only. No property or GPS record is saved.</p></div></div>
   <button type="button" onclick="triggerCelebration()" style="width:100%;padding:13px;border-radius:12px;border:0;font-weight:900;background:#145a35;color:#fff">TEST PIN VERIFIED CELEBRATION</button>
-  <div class="small-note" style="margin-top:8px;text-align:center">Build SS-2026-09-21-PARTY1 · display test only</div>
+  <div class="small-note" style="margin-top:8px;text-align:center">Build SS-2026-09-21-BONFIRE1 · display test only</div>
 </section>
 </main><nav class="bottom"><button class="nav active" onclick="window.scrollTo({top:0,behavior:'smooth'})"><span class="ico">⌂</span>Find</button><button class="nav" onclick="showForm()"><span class="ico">⌄</span>Reminder</button><button class="nav" onclick="document.getElementById('recordsCard').scrollIntoView({behavior:'smooth'})"><span class="ico">↻</span>Verified</button><button class="nav" onclick="alert('More options can be added as the platform develops.')"><span class="ico">☰</span>More</button></nav>
 <script>
@@ -970,7 +970,7 @@ function triggerCelebration(){
 
   // Heavy confetti burst.
   const colours=["#62e184","#ffd45c","#ffffff","#74c7ff","#ff8fb1","#ff9e57","#b88cff"];
-  for(let i=0;i<220;i++){
+  for(let i=0;i<360;i++){
     const p=document.createElement("i");
     const size=5+Math.random()*7;
     p.style.cssText="position:absolute;top:-25px;pointer-events:none;border-radius:"+(Math.random()>.55?"50%":"2px")+";width:"+size+"px;height:"+(size*(.8+Math.random()*1.3))+"px";
@@ -1008,9 +1008,13 @@ function triggerCelebration(){
   };
 
   const bursts=[
-    [18,24,"#ffd45c",150],[81,27,"#74c7ff",500],[25,68,"#ff8fb1",900],
-    [76,66,"#62e184",1250],[50,18,"#ffffff",1650],[14,48,"#ff9e57",2050],
-    [87,48,"#b88cff",2400],[50,76,"#ffd45c",2800]
+    [12,20,"#ffd45c",100],[88,22,"#74c7ff",300],[25,35,"#ff8fb1",520],
+    [73,36,"#62e184",720],[50,15,"#ffffff",940],[10,55,"#ff9e57",1160],
+    [90,54,"#b88cff",1380],[35,68,"#ffd45c",1600],[67,70,"#74c7ff",1820],
+    [20,78,"#62e184",2040],[82,80,"#ff8fb1",2260],[50,48,"#ffffff",2480],
+    [8,34,"#74c7ff",2700],[93,35,"#ffd45c",2920],[30,18,"#ff9e57",3140],
+    [70,18,"#b88cff",3360],[48,78,"#62e184",3580],[17,45,"#ffffff",3800],
+    [83,44,"#ff8fb1",4020],[50,27,"#ffd45c",4240]
   ];
   bursts.forEach(([x,y,c,d])=>setTimeout(()=>firework(x,y,c),d));
 
@@ -1264,8 +1268,9 @@ function useSituSnap(id){
   window.open("https://www.google.com/maps/dir/?api=1&destination="+encodeURIComponent(dest)+"&travelmode=driving","_blank");
 }
 function render(){
-  const activePc=normalisePc((document.getElementById("huntPostcode")?.value||document.getElementById("postcode")?.value||"").trim());
-  const f=getRecords().filter(r=>isVerifiedSituSnap(r) && (!activePc || normalisePc(r.postcode)===activePc));
+  // Verified locations is the phone's learned-pin memory, not a search-result panel.
+  // Always show every locally verified record; postcode filtering belongs in the Find workflow.
+  const f=getRecords().filter(r=>isVerifiedSituSnap(r));
   document.getElementById("records").innerHTML=f.length?f.map(r=>{
     const accuracy=r.gps?.accuracy?` ±${Math.round(r.gps.accuracy)}m`:"";
     const when=r.verifiedAt||r.createdAt;
@@ -1275,7 +1280,7 @@ function render(){
       `${r.entrance?`<div class="meta"><b>Entrance:</b> ${esc(r.entrance)}</div>`:""}${r.approach?`<div class="meta"><b>Approach:</b> ${esc(r.approach)}</div>`:""}${r.accessInfo?`<div class="meta"><b>Access:</b> ${esc(r.accessInfo)}</div>`:""}`+
       `<div class="meta">${esc(r.notes||"No additional handover notes.")}</div><div class="meta">📍 ${gpsLabel} · ${esc(r.observedBy||"MGroup")}${stamp?" · "+esc(stamp):""}</div>`+
       `<button type="button" onclick="event.stopPropagation();useSituSnap(${r.id})" style="margin-top:10px;width:100%;padding:11px;border-radius:10px;border:0;font-weight:900;background:#145a35;color:#fff">PIN ROUTE</button></article>`;
-  }).join(""):`<div class="empty">${activePc?"No verified locations yet for "+esc(activePc)+".":"Enter a postcode to see verified locations."}</div>`;
+  }).join(""):`<div class="empty">No verified locations saved on this phone yet.</div>`;
 }
 function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[c]))}
 render();
