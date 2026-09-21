@@ -948,13 +948,31 @@ function syncSelectedAddress(){
   }catch(e){}
 }
 function triggerCelebration(){
-  const c=document.getElementById("celebration");
-  c.classList.remove("show");
-  c.innerHTML='<div class="celebrate-content"><div class="celebrate-title">PIN VERIFIED!</div><div class="celebrate-sub">SituSnap location confirmed</div></div>';
-  for(let i=0;i<120;i++){const e=document.createElement("i");e.className="celebrate-particle";e.style.left=(Math.random()*100)+"%";e.style.top=(-10-Math.random()*20)+"%";e.style.setProperty("--dx",((Math.random()-.5)*70)+"vw");e.style.animationDelay=(Math.random()*1.2)+"s";e.style.width=(5+Math.random()*8)+"px";e.style.height=(5+Math.random()*12)+"px";e.style.background="hsl("+Math.floor(Math.random()*360)+" 90% 65%)";c.appendChild(e)}
-  [0,700,1400].forEach((delay,i)=>setTimeout(()=>{const e=document.createElement("i");e.className="celebrate-firework";e.style.left=(20+i*30)+"%";e.style.top=(25+(i%2)*18)+"%";e.style.background="rgba(255,255,255,.95)";c.appendChild(e)},delay));
-  c.classList.add("show");
-  setTimeout(()=>{c.classList.remove("show");c.innerHTML='';},6500);
+  // Self-contained overlay: does not depend on the page's existing celebration CSS/state.
+  document.getElementById("situSnapSuccessOverlay")?.remove();
+  const overlay=document.createElement("div");
+  overlay.id="situSnapSuccessOverlay";
+  overlay.setAttribute("role","status");
+  overlay.setAttribute("aria-live","assertive");
+  overlay.style.cssText="position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;overflow:hidden;background:radial-gradient(circle at 50% 42%,rgba(35,105,72,.98),rgba(7,26,51,.99) 68%);color:white;text-align:center;padding:24px;box-sizing:border-box";
+  overlay.innerHTML='<div style="position:relative;z-index:2"><div style="font-size:clamp(42px,12vw,76px);font-weight:1000;line-height:.95;letter-spacing:-2px;text-shadow:0 5px 25px #0008;margin-bottom:12px">PIN VERIFIED!</div><div style="font-size:clamp(16px,4.5vw,22px);font-weight:900;color:#dff2ff">✓ SAVED ON PHONE</div></div>';
+  document.body.appendChild(overlay);
+
+  const colours=["#62e184","#ffd45c","#ffffff","#74c7ff","#ff8fb1"];
+  for(let i=0;i<90;i++){
+    const p=document.createElement("i");
+    p.style.cssText="position:absolute;top:-20px;width:8px;height:14px;border-radius:2px;pointer-events:none";
+    p.style.left=(Math.random()*100)+"%";
+    p.style.background=colours[i%colours.length];
+    p.style.transform="rotate("+Math.floor(Math.random()*360)+"deg)";
+    p.animate(
+      [{transform:p.style.transform+" translateY(-10vh)",opacity:1},
+       {transform:"rotate("+(720+Math.floor(Math.random()*360))+"deg) translateY(115vh)",opacity:1}],
+      {duration:2600+Math.random()*1800,delay:Math.random()*500,easing:"cubic-bezier(.2,.7,.3,1)",fill:"forwards"}
+    );
+    overlay.appendChild(p);
+  }
+  setTimeout(()=>overlay.remove(),4200);
 }
 function clearRecordForm(){
   editingRecordId=null;
