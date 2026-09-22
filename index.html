@@ -92,7 +92,7 @@ input::placeholder,textarea::placeholder{color:#aeb9c7;opacity:1}
 
 </head>
 <body>
-<div id="ssBuildStamp" data-build="SS-2026-09-22-CLOUD4" style="display:none">SS-2026-09-21-PERSIST1</div>
+<div id="ssBuildStamp" data-build="SS-2026-09-22-CLOUD5" style="display:none">SS-2026-09-21-PERSIST1</div>
 <div id="offlineBanner" class="offline-banner hidden" role="status" aria-live="polite">No signal — continue offline.</div><div id="celebration" aria-hidden="true"><div class="celebrate-content"><div class="celebrate-title">PIN VERIFIED!</div><div class="celebrate-sub">SituSnap location confirmed</div></div></div><header><div class="brand"><div class="brand-mark" aria-label="SituSnap logo">
 <svg viewBox="0 0 100 100" role="img" aria-hidden="true">
 <defs>
@@ -173,7 +173,7 @@ fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round"/>
 <section class="card" id="celebrationTestCard">
   <div class="section-head"><div><h2>Display check</h2><p class="muted">Tests the PIN VERIFIED celebration only. No property or GPS record is saved.</p></div></div>
   <button type="button" onclick="triggerCelebration()" style="width:100%;padding:13px;border-radius:12px;border:0;font-weight:900;background:#145a35;color:#fff">TEST PIN VERIFIED CELEBRATION</button>
-  <div class="small-note" style="margin-top:8px;text-align:center">Build SS-2026-09-22-CLOUD4 · display test only</div>
+  <div class="small-note" style="margin-top:8px;text-align:center">Build SS-2026-09-22-CLOUD5 · display test only</div>
   <div id="verifiedVaultStatus" class="small-note" style="margin-top:6px;text-align:center"></div>
 </section>
 </main><nav class="bottom"><button class="nav active" onclick="window.scrollTo({top:0,behavior:'smooth'})"><span class="ico">⌂</span>Find</button><button class="nav" onclick="showForm()"><span class="ico">⌄</span>Reminder</button><button class="nav" onclick="document.getElementById('recordsCard').scrollIntoView({behavior:'smooth'})"><span class="ico">↻</span>Verified</button><button class="nav" onclick="alert('More options can be added as the platform develops.')"><span class="ico">☰</span>More</button></nav>
@@ -182,11 +182,36 @@ let gps=null,huntPostcode="",huntAddressQuery="",target=null,watchId=null,postco
 const SS_VERIFIED_ARCHIVE="situSnapVerifiedArchiveV1";
 const SS_VAULT_ENDPOINT="https://holy-frost-eda0.stopjunkmail35.workers.dev/api/situ-vault";
 const SS_VAULT_QUEUE="situSnapVaultQueueV1";
+const SS_CLOUDINARY_CLOUD="wizvgv9a";
+const SS_CLOUDINARY_PRESET="situsnap_verified";
+async function ssUploadVerifiedPhoto(record){
+  if(!navigator.onLine)return {ok:false,reason:"offline"};
+  const file=document.getElementById("photoCamera")?.files?.[0]||document.getElementById("photo1")?.files?.[0]||null;
+  if(!file)return {ok:false,reason:"no_file"};
+  const fd=new FormData();
+  fd.append("file",file);
+  fd.append("upload_preset",SS_CLOUDINARY_PRESET);
+  fd.append("tags","situsnap_verified");
+  fd.append("context",`record_id=${String(record?.id||"")}|postcode=${String(record?.postcode||"")}`);
+  const r=await fetch(`https://api.cloudinary.com/v1_1/${SS_CLOUDINARY_CLOUD}/image/upload`,{method:"POST",body:fd});
+  const d=await r.json().catch(()=>({}));
+  if(!r.ok||!d?.secure_url)throw new Error(d?.error?.message||("Photo upload HTTP "+r.status));
+  record.photoUrl=String(d.secure_url);
+  record.photoPublicId=String(d.public_id||"");
+  return {ok:true,url:record.photoUrl,publicId:record.photoPublicId};
+}
+function ssPersistPhotoReference(record){
+  if(!record?.id||!record?.photoUrl)return;
+  const rows=ssReadArray("situSnapRecords");
+  const i=rows.findIndex(r=>String(r?.id)===String(record.id));
+  if(i>=0){rows[i]={...rows[i],photoUrl:record.photoUrl,photoPublicId:record.photoPublicId||""};localStorage.setItem("situSnapRecords",JSON.stringify(rows))}
+  ssArchiveVerified({...record,pinVerified:true});
+}
 function ssVaultStatus(text){const el=document.getElementById("localSaveStatus");if(el)el.textContent=text}
 function ssVaultPayload(record){
   const lat=Number(record?.gps?.latitude ?? record?.gps?.lat ?? record?.latitude);
   const lon=Number(record?.gps?.longitude ?? record?.gps?.lon ?? record?.longitude);
-  return {recordId:String(record?.id||""),property:String(record?.address||""),postcode:String(record?.postcode||""),latitude:lat,longitude:lon,pinVerified:record?.pinVerified===true,verifiedAt:record?.verifiedAt||new Date().toISOString(),notes:String(record?.notes||""),street:String(record?.street||""),approach:String(record?.approach||""),observedBy:String(record?.observedBy||"MGroup")};
+  return {recordId:String(record?.id||""),property:String(record?.address||""),postcode:String(record?.postcode||""),latitude:lat,longitude:lon,pinVerified:record?.pinVerified===true,verifiedAt:record?.verifiedAt||new Date().toISOString(),notes:String(record?.notes||""),street:String(record?.street||""),approach:String(record?.approach||""),observedBy:String(record?.observedBy||"MGroup"),photoUrl:String(record?.photoUrl||""),photoPublicId:String(record?.photoPublicId||"")};
 }
 function ssVaultQueueRead(){return ssReadArray(SS_VAULT_QUEUE)}
 function ssVaultQueuePut(record){
@@ -224,7 +249,7 @@ async function ssVaultFlush(){
 function ssVaultRecordToLocal(v){
   const lat=Number(v?.latitude ?? v?.gps?.lat ?? v?.gps?.latitude),lon=Number(v?.longitude ?? v?.gps?.lon ?? v?.gps?.longitude);
   if(!v||v.pinVerified!==true||!v.recordId||!Number.isFinite(lat)||!Number.isFinite(lon))return null;
-  return {id:v.recordId,pinVerified:true,postcode:v.postcode||"",address:v.property||"Verified property",street:v.street||"",observedBy:v.observedBy||"MGroup",result:"Location verified",updateStatus:"Verified",gps:{latitude:lat,longitude:lon},verifiedAt:v.verifiedAt||v.cloudSavedAt||null,createdAt:v.verifiedAt||v.cloudSavedAt||null,notes:v.notes||"",approach:v.approach||"",__restoredFromCloud:true};
+  return {id:v.recordId,pinVerified:true,postcode:v.postcode||"",address:v.property||"Verified property",street:v.street||"",observedBy:v.observedBy||"MGroup",result:"Location verified",updateStatus:"Verified",gps:{latitude:lat,longitude:lon},verifiedAt:v.verifiedAt||v.cloudSavedAt||null,createdAt:v.verifiedAt||v.cloudSavedAt||null,notes:v.notes||"",approach:v.approach||"",photoUrl:v.photoUrl||"",photoPublicId:v.photoPublicId||"",__restoredFromCloud:true};
 }
 async function ssVaultRestore(){
   if(!navigator.onLine)return {ok:false,reason:"offline"};
@@ -783,7 +808,7 @@ function ssRenderVerifiedFirst(postcode){
   if(!rows.length){panel.classList.add("hidden");list.innerHTML="";return}
   list.innerHTML=rows.map(r=>{
     const label=[r.address,r.street].filter(Boolean).join(" · ");
-    return `<button type="button" onclick='ssChooseVerifiedFirst(${JSON.stringify(String(r.id))})' style="width:100%;margin-top:6px;padding:12px;border-radius:10px;border:0;background:#145a35;color:#fff;font-weight:900;text-align:left">✓ ${esc(label||"Verified property")}<br><span style="font-size:11px;font-weight:700;opacity:.86">${esc(r.postcode||"")} · ROUTE TO VERIFIED PIN →</span></button>`;
+    return `<button type="button" onclick='ssChooseVerifiedFirst(${JSON.stringify(String(r.id))})' style="width:100%;margin-top:6px;padding:12px;border-radius:10px;border:0;background:#145a35;color:#fff;font-weight:900;text-align:left">✓ ${esc(label||"Verified property")}<br><span style="font-size:11px;font-weight:700;opacity:.86">${esc(r.postcode||"")} · ROUTE TO VERIFIED PIN →</span></button>${r.photoUrl?`<button type="button" onclick='ssViewVerifiedPhoto(${JSON.stringify(String(r.id))})' style="width:100%;margin-top:5px;padding:9px;border-radius:9px;border:1px solid #145a35;background:#fff;color:#145a35;font-weight:900">📷 VIEW VERIFIED PHOTO</button>`:""}`;
   }).join("");
   panel.classList.remove("hidden");
 }
@@ -1294,7 +1319,20 @@ function persistFoundRecord(){
 function finishFound(){
   if(!persistFoundRecord()) return;
   const cloudRecord=window.__ssLastVerifiedRecord||getRecords().find(r=>r&&r.pinVerified===true);
-  if(cloudRecord)ssVaultSaveRecord(cloudRecord);
+  if(cloudRecord){
+    (async()=>{
+      try{
+        if(navigator.onLine){
+          ssVaultStatus("✓ PIN SAVED ON PHONE · Securing verified photo…");
+          const photo=await ssUploadVerifiedPhoto(cloudRecord);
+          if(photo.ok)ssPersistPhotoReference(cloudRecord);
+        }
+      }catch(err){console.warn("Verified photo upload failed",err)}
+      await ssVaultSaveRecord(cloudRecord);
+      render();
+      ssRenderVerifiedFirst(document.getElementById("huntPostcode")?.value||"");
+    })();
+  }
 
   // Show the success screen first. Keep the form/page untouched underneath it
   // until the colleague has actually had time to see the confirmation.
@@ -1414,6 +1452,11 @@ function retrySituSnap(id){
   window.scrollTo({top:0,behavior:"smooth"});
   setTimeout(()=>{if(typeof startHunt==="function")startHunt();},250);
 }
+function ssViewVerifiedPhoto(id){
+  const r=getRecords().find(x=>String(x.id)===String(id));
+  if(!r?.photoUrl)return;
+  window.location.href=r.photoUrl;
+}
 function useSituSnap(id){
   const r=getRecords().find(x=>String(x.id)===String(id)); if(!r)return;
   if(!isVerifiedSituSnap(r)){retrySituSnap(id);return;}
@@ -1436,6 +1479,7 @@ function render(){
     return `<article class="record" onclick="editSituSnap(${r.id})" title="Tap to review or edit"><h3>${esc(r.address)}${r.street?` · ${esc(r.street)}`:""}</h3><div class="pills"><span class="pill">${esc(r.postcode)}</span><span class="pill">PIN VERIFIED</span></div>`+
       `${r.entrance?`<div class="meta"><b>Entrance:</b> ${esc(r.entrance)}</div>`:""}${r.approach?`<div class="meta"><b>Approach:</b> ${esc(r.approach)}</div>`:""}${r.accessInfo?`<div class="meta"><b>Access:</b> ${esc(r.accessInfo)}</div>`:""}`+
       `<div class="meta">${esc(r.notes||"No additional handover notes.")}</div><div class="meta">📍 ${gpsLabel} · ${esc(r.observedBy||"MGroup")}${stamp?" · "+esc(stamp):""}</div>`+
+      `${r.photoUrl?`<button type="button" onclick='event.stopPropagation();ssViewVerifiedPhoto(${JSON.stringify(String(r.id))})' style="margin-top:10px;width:100%;padding:11px;border-radius:10px;border:0;font-weight:900;background:#26384f;color:#fff">📷 VIEW VERIFIED PHOTO</button>`:""}`+
       `<button type="button" onclick='event.stopPropagation();useSituSnap(${JSON.stringify(String(r.id))})' style="margin-top:10px;width:100%;padding:11px;border-radius:10px;border:0;font-weight:900;background:#145a35;color:#fff">ROUTE TO VERIFIED PIN →</button></article>`;
   }).join(""):`<div class="empty">No verified locations saved on this phone yet.</div>`;
 }
