@@ -92,7 +92,7 @@ input::placeholder,textarea::placeholder{color:#aeb9c7;opacity:1}
 
 </head>
 <body>
-<div id="ssBuildStamp" data-build="SS-2026-09-22-CLOUD5" style="display:none">SS-2026-09-21-PERSIST1</div>
+<div id="ssBuildStamp" data-build="SS-2026-09-22-CLOUD6" style="display:none">SS-2026-09-21-PERSIST1</div>
 <div id="offlineBanner" class="offline-banner hidden" role="status" aria-live="polite">No signal — continue offline.</div><div id="celebration" aria-hidden="true"><div class="celebrate-content"><div class="celebrate-title">PIN VERIFIED!</div><div class="celebrate-sub">SituSnap location confirmed</div></div></div><header><div class="brand"><div class="brand-mark" aria-label="SituSnap logo">
 <svg viewBox="0 0 100 100" role="img" aria-hidden="true">
 <defs>
@@ -173,7 +173,7 @@ fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round"/>
 <section class="card" id="celebrationTestCard">
   <div class="section-head"><div><h2>Display check</h2><p class="muted">Tests the PIN VERIFIED celebration only. No property or GPS record is saved.</p></div></div>
   <button type="button" onclick="triggerCelebration()" style="width:100%;padding:13px;border-radius:12px;border:0;font-weight:900;background:#145a35;color:#fff">TEST PIN VERIFIED CELEBRATION</button>
-  <div class="small-note" style="margin-top:8px;text-align:center">Build SS-2026-09-22-CLOUD5 · display test only</div>
+  <div class="small-note" style="margin-top:8px;text-align:center">Build SS-2026-09-22-CLOUD6 · display test only</div>
   <div id="verifiedVaultStatus" class="small-note" style="margin-top:6px;text-align:center"></div>
 </section>
 </main><nav class="bottom"><button class="nav active" onclick="window.scrollTo({top:0,behavior:'smooth'})"><span class="ico">⌂</span>Find</button><button class="nav" onclick="showForm()"><span class="ico">⌄</span>Reminder</button><button class="nav" onclick="document.getElementById('recordsCard').scrollIntoView({behavior:'smooth'})"><span class="ico">↻</span>Verified</button><button class="nav" onclick="alert('More options can be added as the platform develops.')"><span class="ico">☰</span>More</button></nav>
@@ -198,8 +198,15 @@ async function ssUploadVerifiedPhoto(record){
   if(!r.ok||!d?.secure_url)throw new Error(d?.error?.message||("Photo upload HTTP "+r.status));
   record.photoUrl=String(d.secure_url);
   record.photoPublicId=String(d.public_id||"");
+  try{await ssCachePhotoBlob(record.id,file)}catch(e){console.warn("Fresh verified photo cache failed",e)}
   return {ok:true,url:record.photoUrl,publicId:record.photoPublicId};
 }
+const SS_PHOTO_DB="SituSnapOfflinePhotosV1";
+function ssPhotoDb(){return new Promise((resolve,reject)=>{const q=indexedDB.open(SS_PHOTO_DB,1);q.onupgradeneeded=()=>{const db=q.result;if(!db.objectStoreNames.contains("photos"))db.createObjectStore("photos")};q.onsuccess=()=>resolve(q.result);q.onerror=()=>reject(q.error)})}
+async function ssCachePhotoBlob(id,blob){if(!id||!blob)return false;const db=await ssPhotoDb();return new Promise((resolve,reject)=>{const tx=db.transaction("photos","readwrite");tx.objectStore("photos").put(blob,String(id));tx.oncomplete=()=>{db.close();resolve(true)};tx.onerror=()=>{db.close();reject(tx.error)}})}
+async function ssGetCachedPhoto(id){const db=await ssPhotoDb();return new Promise((resolve,reject)=>{const tx=db.transaction("photos","readonly"),q=tx.objectStore("photos").get(String(id));q.onsuccess=()=>{db.close();resolve(q.result||null)};q.onerror=()=>{db.close();reject(q.error)}})}
+async function ssCacheRemotePhoto(record){if(!record?.id||!record?.photoUrl||!navigator.onLine)return false;try{if(await ssGetCachedPhoto(record.id))return true;const r=await fetch(record.photoUrl,{mode:"cors",cache:"force-cache"});if(!r.ok)throw new Error("photo_http_"+r.status);return await ssCachePhotoBlob(record.id,await r.blob())}catch(e){console.warn("SituSnap photo cache deferred",e);return false}}
+async function ssPrepareOfflinePhotos(){if(!navigator.onLine)return;for(const r of getRecords().filter(r=>isVerifiedSituSnap(r)&&r.photoUrl))await ssCacheRemotePhoto(r)}
 function ssPersistPhotoReference(record){
   if(!record?.id||!record?.photoUrl)return;
   const rows=ssReadArray("situSnapRecords");
@@ -263,6 +270,7 @@ async function ssVaultRestore(){
     for(const rec of cloud)ssArchiveVerified(rec);
     render();
     ssRenderVerifiedFirst(document.getElementById("huntPostcode")?.value||"");
+    ssPrepareOfflinePhotos();
     return {ok:true,count:cloud.length};
   }catch(err){console.warn("SituSnap vault restore deferred",err);return {ok:false,reason:String(err?.message||err)}}
 }
@@ -1452,10 +1460,11 @@ function retrySituSnap(id){
   window.scrollTo({top:0,behavior:"smooth"});
   setTimeout(()=>{if(typeof startHunt==="function")startHunt();},250);
 }
-function ssViewVerifiedPhoto(id){
-  const r=getRecords().find(x=>String(x.id)===String(id));
-  if(!r?.photoUrl)return;
-  window.location.href=r.photoUrl;
+async function ssViewVerifiedPhoto(id){
+  const r=getRecords().find(x=>String(x.id)===String(id));if(!r)return;
+  try{const blob=await ssGetCachedPhoto(id);if(blob){const url=URL.createObjectURL(blob);const w=window.open(url,"_blank");if(!w)window.location.href=url;setTimeout(()=>URL.revokeObjectURL(url),60000);return}}catch(e){console.warn("Offline photo read failed",e)}
+  if(r.photoUrl&&navigator.onLine){window.location.href=r.photoUrl;return}
+  alert("Verified photo is not cached on this phone yet. Open SituSnap online before entering the dead zone.");
 }
 function useSituSnap(id){
   const r=getRecords().find(x=>String(x.id)===String(id)); if(!r)return;
@@ -2102,7 +2111,7 @@ ssLearnNotFound=function(record){
 
 /* Recovery runs on every launch; network return never blocks field work. */
 ssRecover();
-window.addEventListener('online',()=>{ssSyncSafely();ssVaultFlush();ssVaultRestore()});
+window.addEventListener('online',()=>{ssSyncSafely();ssVaultFlush();ssVaultRestore();ssPrepareOfflinePhotos()});
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&navigator.onLine)ssSyncSafely()});
 window.addEventListener('pageshow',()=>ssRecover());
 
