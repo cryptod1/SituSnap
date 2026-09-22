@@ -1,0 +1,16 @@
+name: SituSnap APK
+on: workflow_dispatch
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Create Android project
+      run: python3 .github/scripts/make_android.py
+    - name: Build APK
+      run: gradle assembleDebug
+    - name: Save APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: SituSnap-Android
+        path: app/build/outputs/apk/debug/app-debug.apk
