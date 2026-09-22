@@ -92,7 +92,7 @@ input::placeholder,textarea::placeholder{color:#aeb9c7;opacity:1}
 
 </head>
 <body>
-<div id="ssBuildStamp" data-build="SS-2026-09-22-CLOUD2" style="display:none">SS-2026-09-21-PERSIST1</div>
+<div id="ssBuildStamp" data-build="SS-2026-09-22-CLOUD3" style="display:none">SS-2026-09-21-PERSIST1</div>
 <div id="offlineBanner" class="offline-banner hidden" role="status" aria-live="polite">No signal — continue offline.</div><div id="celebration" aria-hidden="true"><div class="celebrate-content"><div class="celebrate-title">PIN VERIFIED!</div><div class="celebrate-sub">SituSnap location confirmed</div></div></div><header><div class="brand"><div class="brand-mark" aria-label="SituSnap logo">
 <svg viewBox="0 0 100 100" role="img" aria-hidden="true">
 <defs>
@@ -169,7 +169,7 @@ fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round"/>
 <section class="card" id="celebrationTestCard">
   <div class="section-head"><div><h2>Display check</h2><p class="muted">Tests the PIN VERIFIED celebration only. No property or GPS record is saved.</p></div></div>
   <button type="button" onclick="triggerCelebration()" style="width:100%;padding:13px;border-radius:12px;border:0;font-weight:900;background:#145a35;color:#fff">TEST PIN VERIFIED CELEBRATION</button>
-  <div class="small-note" style="margin-top:8px;text-align:center">Build SS-2026-09-22-CLOUD2 · display test only</div>
+  <div class="small-note" style="margin-top:8px;text-align:center">Build SS-2026-09-22-CLOUD3 · display test only</div>
   <div id="verifiedVaultStatus" class="small-note" style="margin-top:6px;text-align:center"></div>
 </section>
 </main><nav class="bottom"><button class="nav active" onclick="window.scrollTo({top:0,behavior:'smooth'})"><span class="ico">⌂</span>Find</button><button class="nav" onclick="showForm()"><span class="ico">⌄</span>Reminder</button><button class="nav" onclick="document.getElementById('recordsCard').scrollIntoView({behavior:'smooth'})"><span class="ico">↻</span>Verified</button><button class="nav" onclick="alert('More options can be added as the platform develops.')"><span class="ico">☰</span>More</button></nav>
@@ -1375,10 +1375,14 @@ function retrySituSnap(id){
   setTimeout(()=>{if(typeof startHunt==="function")startHunt();},250);
 }
 function useSituSnap(id){
-  const r=getRecords().find(x=>x.id===id); if(!r)return;
+  const r=getRecords().find(x=>String(x.id)===String(id)); if(!r)return;
   if(!isVerifiedSituSnap(r)){retrySituSnap(id);return;}
-  const dest=r.gps?`${r.gps.latitude},${r.gps.longitude}`:(r.address?`${r.address}${r.street?", "+r.street:""}, ${r.postcode}`:r.postcode);
-  window.open("https://www.google.com/maps/dir/?api=1&destination="+encodeURIComponent(dest)+"&travelmode=driving","_blank");
+  const lat=Number(r.gps?.latitude ?? r.gps?.lat);
+  const lon=Number(r.gps?.longitude ?? r.gps?.lon);
+  const dest=(Number.isFinite(lat)&&Number.isFinite(lon))
+    ? `${lat},${lon}`
+    : (r.address?`${r.address}${r.street?", "+r.street:""}, ${r.postcode}`:r.postcode);
+  window.location.href="https://www.google.com/maps/dir/?api=1&destination="+encodeURIComponent(dest)+"&travelmode=driving";
 }
 function render(){
   // Verified locations is the phone's learned-pin memory, not a search-result panel.
@@ -1392,7 +1396,7 @@ function render(){
     return `<article class="record" onclick="editSituSnap(${r.id})" title="Tap to review or edit"><h3>${esc(r.address)}${r.street?` · ${esc(r.street)}`:""}</h3><div class="pills"><span class="pill">${esc(r.postcode)}</span><span class="pill">PIN VERIFIED</span></div>`+
       `${r.entrance?`<div class="meta"><b>Entrance:</b> ${esc(r.entrance)}</div>`:""}${r.approach?`<div class="meta"><b>Approach:</b> ${esc(r.approach)}</div>`:""}${r.accessInfo?`<div class="meta"><b>Access:</b> ${esc(r.accessInfo)}</div>`:""}`+
       `<div class="meta">${esc(r.notes||"No additional handover notes.")}</div><div class="meta">📍 ${gpsLabel} · ${esc(r.observedBy||"MGroup")}${stamp?" · "+esc(stamp):""}</div>`+
-      `<button type="button" onclick="event.stopPropagation();useSituSnap(${r.id})" style="margin-top:10px;width:100%;padding:11px;border-radius:10px;border:0;font-weight:900;background:#145a35;color:#fff">PIN ROUTE</button></article>`;
+      `<button type="button" onclick='event.stopPropagation();useSituSnap(${JSON.stringify(String(r.id))})' style="margin-top:10px;width:100%;padding:11px;border-radius:10px;border:0;font-weight:900;background:#145a35;color:#fff">ROUTE TO VERIFIED PIN →</button></article>`;
   }).join(""):`<div class="empty">No verified locations saved on this phone yet.</div>`;
 }
 function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[c]))}
