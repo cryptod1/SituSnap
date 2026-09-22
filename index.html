@@ -92,7 +92,7 @@ input::placeholder,textarea::placeholder{color:#aeb9c7;opacity:1}
 
 </head>
 <body>
-<div id="ssBuildStamp" data-build="SS-2026-09-22-CLOUD6" style="display:none">SS-2026-09-21-PERSIST1</div>
+<div id="ssBuildStamp" data-build="SS-2026-09-22-CLOUD7" style="display:none">SS-2026-09-21-PERSIST1</div>
 <div id="offlineBanner" class="offline-banner hidden" role="status" aria-live="polite">No signal — continue offline.</div><div id="celebration" aria-hidden="true"><div class="celebrate-content"><div class="celebrate-title">PIN VERIFIED!</div><div class="celebrate-sub">SituSnap location confirmed</div></div></div><header><div class="brand"><div class="brand-mark" aria-label="SituSnap logo">
 <svg viewBox="0 0 100 100" role="img" aria-hidden="true">
 <defs>
@@ -173,7 +173,7 @@ fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round"/>
 <section class="card" id="celebrationTestCard">
   <div class="section-head"><div><h2>Display check</h2><p class="muted">Tests the PIN VERIFIED celebration only. No property or GPS record is saved.</p></div></div>
   <button type="button" onclick="triggerCelebration()" style="width:100%;padding:13px;border-radius:12px;border:0;font-weight:900;background:#145a35;color:#fff">TEST PIN VERIFIED CELEBRATION</button>
-  <div class="small-note" style="margin-top:8px;text-align:center">Build SS-2026-09-22-CLOUD6 · display test only</div>
+  <div class="small-note" style="margin-top:8px;text-align:center">Build SS-2026-09-22-CLOUD7 · display test only</div>
   <div id="verifiedVaultStatus" class="small-note" style="margin-top:6px;text-align:center"></div>
 </section>
 </main><nav class="bottom"><button class="nav active" onclick="window.scrollTo({top:0,behavior:'smooth'})"><span class="ico">⌂</span>Find</button><button class="nav" onclick="showForm()"><span class="ico">⌄</span>Reminder</button><button class="nav" onclick="document.getElementById('recordsCard').scrollIntoView({behavior:'smooth'})"><span class="ico">↻</span>Verified</button><button class="nav" onclick="alert('More options can be added as the platform develops.')"><span class="ico">☰</span>More</button></nav>
@@ -1460,11 +1460,44 @@ function retrySituSnap(id){
   window.scrollTo({top:0,behavior:"smooth"});
   setTimeout(()=>{if(typeof startHunt==="function")startHunt();},250);
 }
+function ssEnsurePhotoModal(){
+  let m=document.getElementById("ssPhotoModal");
+  if(m)return m;
+  m=document.createElement("div");m.id="ssPhotoModal";
+  m.style.cssText="display:none;position:fixed;inset:0;z-index:12000;background:rgba(2,12,24,.96);padding:18px;align-items:center;justify-content:center";
+  m.innerHTML='<div style="width:min(620px,96vw);max-height:94vh;background:#0b2440;border:2px solid #2f8151;border-radius:18px;padding:12px;overflow:auto"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px"><b style="color:#fff">VERIFIED PHOTO</b><button type="button" onclick="ssClosePhotoModal()" style="border:0;border-radius:10px;padding:9px 14px;font-weight:900">CLOSE</button></div><img id="ssPhotoModalImg" alt="Verified property photo" style="display:block;width:100%;height:auto;max-height:78vh;object-fit:contain;border-radius:12px;background:#000"><div id="ssPhotoModalStatus" style="color:#bfe8ca;text-align:center;font-weight:800;margin-top:9px"></div></div>';
+  document.body.appendChild(m);return m;
+}
+function ssClosePhotoModal(){
+  const m=document.getElementById("ssPhotoModal"),img=document.getElementById("ssPhotoModalImg");
+  if(img?.dataset?.blobUrl){URL.revokeObjectURL(img.dataset.blobUrl);delete img.dataset.blobUrl;img.removeAttribute("src")}
+  if(m)m.style.display="none";
+}
+async function ssPhotoReadyOffline(id){
+  try{return !!(await ssGetCachedPhoto(id))}catch(_){return false}
+}
+async function ssShowPhotoBlob(blob,label){
+  const m=ssEnsurePhotoModal(),img=document.getElementById("ssPhotoModalImg"),status=document.getElementById("ssPhotoModalStatus");
+  if(img?.dataset?.blobUrl)URL.revokeObjectURL(img.dataset.blobUrl);
+  const url=URL.createObjectURL(blob);img.src=url;img.dataset.blobUrl=url;
+  if(status)status.textContent=label||"PHOTO READY OFFLINE ✓";
+  m.style.display="flex";
+}
 async function ssViewVerifiedPhoto(id){
   const r=getRecords().find(x=>String(x.id)===String(id));if(!r)return;
-  try{const blob=await ssGetCachedPhoto(id);if(blob){const url=URL.createObjectURL(blob);const w=window.open(url,"_blank");if(!w)window.location.href=url;setTimeout(()=>URL.revokeObjectURL(url),60000);return}}catch(e){console.warn("Offline photo read failed",e)}
-  if(r.photoUrl&&navigator.onLine){window.location.href=r.photoUrl;return}
-  alert("Verified photo is not cached on this phone yet. Open SituSnap online before entering the dead zone.");
+  try{
+    let blob=await ssGetCachedPhoto(id);
+    if(blob){await ssShowPhotoBlob(blob,"PHOTO READY OFFLINE ✓");return}
+    if(r.photoUrl&&navigator.onLine){
+      const resp=await fetch(r.photoUrl,{mode:"cors",cache:"no-store"});
+      if(!resp.ok)throw new Error("photo_http_"+resp.status);
+      blob=await resp.blob();
+      await ssCachePhotoBlob(id,blob);
+      const check=await ssGetCachedPhoto(id);
+      if(check){await ssShowPhotoBlob(check,"PHOTO READY OFFLINE ✓");render();return}
+    }
+  }catch(e){console.warn("Verified photo unavailable",e)}
+  alert(navigator.onLine?"Verified photo could not be cached. Try again while online.":"Verified photo is not ready offline on this phone. Open it once while online before entering the dead zone.");
 }
 function useSituSnap(id){
   const r=getRecords().find(x=>String(x.id)===String(id)); if(!r)return;
@@ -1488,9 +1521,15 @@ function render(){
     return `<article class="record" onclick="editSituSnap(${r.id})" title="Tap to review or edit"><h3>${esc(r.address)}${r.street?` · ${esc(r.street)}`:""}</h3><div class="pills"><span class="pill">${esc(r.postcode)}</span><span class="pill">PIN VERIFIED</span></div>`+
       `${r.entrance?`<div class="meta"><b>Entrance:</b> ${esc(r.entrance)}</div>`:""}${r.approach?`<div class="meta"><b>Approach:</b> ${esc(r.approach)}</div>`:""}${r.accessInfo?`<div class="meta"><b>Access:</b> ${esc(r.accessInfo)}</div>`:""}`+
       `<div class="meta">${esc(r.notes||"No additional handover notes.")}</div><div class="meta">📍 ${gpsLabel} · ${esc(r.observedBy||"MGroup")}${stamp?" · "+esc(stamp):""}</div>`+
-      `${r.photoUrl?`<button type="button" onclick='event.stopPropagation();ssViewVerifiedPhoto(${JSON.stringify(String(r.id))})' style="margin-top:10px;width:100%;padding:11px;border-radius:10px;border:0;font-weight:900;background:#26384f;color:#fff">📷 VIEW VERIFIED PHOTO</button>`:""}`+
+      `${r.photoUrl?`<div id="photoReady_${esc(String(r.id))}" class="small-note" style="margin-top:8px;text-align:center">📷 Checking offline photo…</div><button type="button" onclick='event.stopPropagation();ssViewVerifiedPhoto(${JSON.stringify(String(r.id))})' style="margin-top:7px;width:100%;padding:11px;border-radius:10px;border:0;font-weight:900;background:#26384f;color:#fff">📷 VIEW VERIFIED PHOTO</button>`:""}`+
       `<button type="button" onclick='event.stopPropagation();useSituSnap(${JSON.stringify(String(r.id))})' style="margin-top:10px;width:100%;padding:11px;border-radius:10px;border:0;font-weight:900;background:#145a35;color:#fff">ROUTE TO VERIFIED PIN →</button></article>`;
   }).join(""):`<div class="empty">No verified locations saved on this phone yet.</div>`;
+  for(const r of f.filter(x=>x.photoUrl)){
+    ssPhotoReadyOffline(r.id).then(ok=>{
+      const el=document.getElementById("photoReady_"+String(r.id));
+      if(el)el.textContent=ok?"📷 PHOTO READY OFFLINE ✓":"📷 Photo online only";
+    });
+  }
 }
 function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[c]))}
 render();
