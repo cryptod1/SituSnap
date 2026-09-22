@@ -92,7 +92,7 @@ input::placeholder,textarea::placeholder{color:#aeb9c7;opacity:1}
 
 </head>
 <body>
-<div id="ssBuildStamp" data-build="SS-2026-09-21-PERSIST1" style="display:none">SS-2026-09-21-PERSIST1</div>
+<div id="ssBuildStamp" data-build="SS-2026-09-22-CLOUD1" style="display:none">SS-2026-09-21-PERSIST1</div>
 <div id="offlineBanner" class="offline-banner hidden" role="status" aria-live="polite">No signal — continue offline.</div><div id="celebration" aria-hidden="true"><div class="celebrate-content"><div class="celebrate-title">PIN VERIFIED!</div><div class="celebrate-sub">SituSnap location confirmed</div></div></div><header><div class="brand"><div class="brand-mark" aria-label="SituSnap logo">
 <svg viewBox="0 0 100 100" role="img" aria-hidden="true">
 <defs>
@@ -169,13 +169,72 @@ fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round"/>
 <section class="card" id="celebrationTestCard">
   <div class="section-head"><div><h2>Display check</h2><p class="muted">Tests the PIN VERIFIED celebration only. No property or GPS record is saved.</p></div></div>
   <button type="button" onclick="triggerCelebration()" style="width:100%;padding:13px;border-radius:12px;border:0;font-weight:900;background:#145a35;color:#fff">TEST PIN VERIFIED CELEBRATION</button>
-  <div class="small-note" style="margin-top:8px;text-align:center">Build SS-2026-09-21-PERSIST1 · display test only</div>
+  <div class="small-note" style="margin-top:8px;text-align:center">Build SS-2026-09-22-CLOUD1 · display test only</div>
   <div id="verifiedVaultStatus" class="small-note" style="margin-top:6px;text-align:center"></div>
 </section>
 </main><nav class="bottom"><button class="nav active" onclick="window.scrollTo({top:0,behavior:'smooth'})"><span class="ico">⌂</span>Find</button><button class="nav" onclick="showForm()"><span class="ico">⌄</span>Reminder</button><button class="nav" onclick="document.getElementById('recordsCard').scrollIntoView({behavior:'smooth'})"><span class="ico">↻</span>Verified</button><button class="nav" onclick="alert('More options can be added as the platform develops.')"><span class="ico">☰</span>More</button></nav>
 <script>
 let gps=null,huntPostcode="",huntAddressQuery="",target=null,watchId=null,postcodeTimer=null,editingRecordId=null;
 const SS_VERIFIED_ARCHIVE="situSnapVerifiedArchiveV1";
+const SS_VAULT_ENDPOINT="https://holy-frost-eda0.stopjunkmail35.workers.dev/api/situ-vault";
+const SS_VAULT_QUEUE="situSnapVaultQueueV1";
+function ssVaultStatus(text){const el=document.getElementById("localSaveStatus");if(el)el.textContent=text}
+function ssVaultPayload(record){
+  const lat=Number(record?.gps?.latitude ?? record?.gps?.lat ?? record?.latitude);
+  const lon=Number(record?.gps?.longitude ?? record?.gps?.lon ?? record?.longitude);
+  return {recordId:String(record?.id||""),property:String(record?.address||""),postcode:String(record?.postcode||""),latitude:lat,longitude:lon,pinVerified:record?.pinVerified===true,verifiedAt:record?.verifiedAt||new Date().toISOString(),notes:String(record?.notes||""),street:String(record?.street||""),approach:String(record?.approach||""),observedBy:String(record?.observedBy||"MGroup")};
+}
+function ssVaultQueueRead(){return ssReadArray(SS_VAULT_QUEUE)}
+function ssVaultQueuePut(record){
+  const payload=ssVaultPayload(record); if(!payload.recordId)return;
+  const q=ssVaultQueueRead().filter(x=>String(x.recordId)!==payload.recordId);q.unshift(payload);
+  try{localStorage.setItem(SS_VAULT_QUEUE,JSON.stringify(q.slice(0,50)))}catch(_){}
+}
+async function ssVaultPostPayload(payload){
+  const r=await fetch(SS_VAULT_ENDPOINT,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(payload)});
+  const data=await r.json().catch(()=>({}));
+  if(!r.ok||data?.ok!==true||data?.cloudSaved!==true)throw new Error(data?.message||("Vault HTTP "+r.status));
+  return data;
+}
+async function ssVaultSaveRecord(record){
+  if(!record?.pinVerified)return false;
+  ssVaultQueuePut(record);
+  if(!navigator.onLine){ssVaultStatus("✓ PIN SAVED OFFLINE · Cloud pending");return false}
+  ssVaultStatus("✓ PIN SAVED ON PHONE · Securing cloud copy…");
+  try{
+    const payload=ssVaultPayload(record);await ssVaultPostPayload(payload);
+    const q=ssVaultQueueRead().filter(x=>String(x.recordId)!==payload.recordId);
+    localStorage.setItem(SS_VAULT_QUEUE,JSON.stringify(q));
+    ssVaultStatus("✓ PIN SECURED · Cloud ✓ · Offline copy ✓");return true;
+  }catch(err){console.warn("SituSnap vault save deferred",err);ssVaultStatus("✓ PIN SAVED ON PHONE · Cloud pending");return false}
+}
+async function ssVaultFlush(){
+  if(!navigator.onLine)return false;
+  const q=ssVaultQueueRead(); if(!q.length)return true;
+  let remaining=[];
+  for(const payload of q){try{await ssVaultPostPayload(payload)}catch(_){remaining.push(payload)}}
+  try{localStorage.setItem(SS_VAULT_QUEUE,JSON.stringify(remaining))}catch(_){}
+  if(!remaining.length)ssVaultStatus("✓ Cloud sync complete");
+  return !remaining.length;
+}
+function ssVaultRecordToLocal(v){
+  const lat=Number(v?.latitude ?? v?.gps?.lat ?? v?.gps?.latitude),lon=Number(v?.longitude ?? v?.gps?.lon ?? v?.gps?.longitude);
+  if(!v||v.pinVerified!==true||!v.recordId||!Number.isFinite(lat)||!Number.isFinite(lon))return null;
+  return {id:v.recordId,pinVerified:true,postcode:v.postcode||"",address:v.property||"Verified property",street:v.street||"",observedBy:v.observedBy||"MGroup",result:"Location verified",updateStatus:"Verified",gps:{latitude:lat,longitude:lon},verifiedAt:v.verifiedAt||v.cloudSavedAt||null,createdAt:v.verifiedAt||v.cloudSavedAt||null,notes:v.notes||"",approach:v.approach||"",__restoredFromCloud:true};
+}
+async function ssVaultRestore(){
+  if(!navigator.onLine)return {ok:false,reason:"offline"};
+  try{
+    const r=await fetch(SS_VAULT_ENDPOINT,{headers:{"accept":"application/json"}});const data=await r.json();
+    if(!r.ok||data?.ok!==true||!Array.isArray(data.records))throw new Error(data?.message||"Vault restore failed");
+    const cloud=data.records.map(ssVaultRecordToLocal).filter(Boolean);if(!cloud.length)return {ok:true,count:0};
+    const local=ssReadArray("situSnapRecords");const byId=new Map(local.map(x=>[String(x?.id),x]));
+    for(const rec of cloud){if(!byId.has(String(rec.id)))byId.set(String(rec.id),rec)}
+    const merged=[...byId.values()];localStorage.setItem("situSnapRecords",JSON.stringify(merged));
+    for(const rec of cloud)ssArchiveVerified(rec);
+    render();return {ok:true,count:cloud.length};
+  }catch(err){console.warn("SituSnap vault restore deferred",err);return {ok:false,reason:String(err?.message||err)}}
+}
 function ssReadArray(key){try{const v=JSON.parse(localStorage.getItem(key)||"[]");return Array.isArray(v)?v:[]}catch(_){return []}}
 function ssVerifiedArchive(){return ssReadArray(SS_VERIFIED_ARCHIVE)}
 function ssArchiveVerified(record){
@@ -1187,12 +1246,15 @@ function persistFoundRecord(){
   editingRecordId=null;
   const b=document.getElementById("detailsFoundBtn");if(b)b.textContent="✓ PIN VERIFIED";
   const saveStatus=document.getElementById("localSaveStatus");
-  if(saveStatus)saveStatus.textContent=navigator.onLine?"✓ SAVED TWICE ON PHONE":"✓ SAVED TWICE ON PHONE · WAITING TO SYNC";
+  if(saveStatus)saveStatus.textContent=navigator.onLine?"✓ PIN SAVED ON PHONE · Cloud pending":"✓ PIN SAVED OFFLINE · Cloud pending";
+  window.__ssLastVerifiedRecord=record;
   render();
   return true;
 }
 function finishFound(){
   if(!persistFoundRecord()) return;
+  const cloudRecord=window.__ssLastVerifiedRecord||getRecords().find(r=>r&&r.pinVerified===true);
+  if(cloudRecord)ssVaultSaveRecord(cloudRecord);
 
   // Show the success screen first. Keep the form/page untouched underneath it
   // until the colleague has actually had time to see the confirmation.
@@ -1952,7 +2014,7 @@ ssLearnNotFound=function(record){
 
 /* Recovery runs on every launch; network return never blocks field work. */
 ssRecover();
-window.addEventListener('online',()=>ssSyncSafely());
+window.addEventListener('online',()=>{ssSyncSafely();ssVaultFlush();ssVaultRestore()});
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&navigator.onLine)ssSyncSafely()});
 window.addEventListener('pageshow',()=>ssRecover());
 
@@ -2095,5 +2157,9 @@ function ssUpdateVaultStatus(){
 }
 window.addEventListener("pageshow",()=>{try{ssUpdateVaultStatus();render()}catch(e){}});
 setTimeout(()=>{try{ssUpdateVaultStatus()}catch(e){}},100);
+</script>
+
+<script>
+window.addEventListener("load",()=>{if(navigator.onLine){ssVaultRestore().then(()=>ssVaultFlush())}});
 </script>
 </body></html>
