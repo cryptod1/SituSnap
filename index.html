@@ -92,7 +92,7 @@ input::placeholder,textarea::placeholder{color:#aeb9c7;opacity:1}
 
 </head>
 <body>
-<div id="ssBuildStamp" data-build="SituSnap-V1.0.1" style="display:none">SituSnap-V1.0.1</div>
+<div id="ssBuildStamp" data-build="SituSnap-V1.0.2" style="display:none">SituSnap-V1.0.2</div>
 <div id="offlineBanner" class="offline-banner hidden" role="status" aria-live="polite">No signal — continue offline.</div><div id="celebration" aria-hidden="true"><div class="celebrate-content"><div class="celebrate-title">PIN VERIFIED!</div><div class="celebrate-sub">SituSnap location confirmed</div></div></div><header><div class="brand"><div class="brand-mark" aria-label="SituSnap logo">
 <svg viewBox="0 0 100 100" role="img" aria-hidden="true">
 <defs>
@@ -178,16 +178,42 @@ const SS_APP_VERSION="1.0";
 function ssShowMore(){document.getElementById("ssMorePanel")?.classList.remove("hidden");ssCheckForUpdate()}
 function ssHideMore(){document.getElementById("ssMorePanel")?.classList.add("hidden")}
 async function ssCheckForUpdate(){
- const state=document.getElementById("ssUpdateState"),btn=document.getElementById("ssUpdateBtn");
- if(btn)btn.classList.add("hidden");
- if(!navigator.onLine){if(state)state.textContent="Version 1.0 · Offline — update check unavailable.";return}
- try{
-  const r=await fetch("https://cryptod1.github.io/SituSnap/?ss_update_check="+Date.now(),{cache:"no-store"});
-  const html=await r.text(),m=html.match(/id=["']ssBuildStamp["'][^>]*data-build=["']([^"']+)/i);
-  const live=(m?.[1]||"").trim(),current=document.getElementById("ssBuildStamp")?.dataset?.build||"";
-  if(live&&current&&live!==current){if(state)state.textContent="A newer SituSnap version is available.";if(btn)btn.classList.remove("hidden")}
-  else if(state)state.textContent="Version 1.0 · Up to date ✓";
- }catch(e){if(state)state.textContent="Version 1.0 · Could not check for updates."}
+  const btn=document.getElementById("ssUpdateBtn");
+  const status=document.getElementById("ssUpdateStatus");
+  try{
+    if(!navigator.onLine){
+      if(status) status.textContent="Offline — update check paused";
+      if(btn) btn.style.display="none";
+      return;
+    }
+    const res=await fetch(SS_CANONICAL_URL+"?update_check="+Date.now(),{cache:"no-store"});
+    if(!res.ok) throw new Error("update check failed");
+    const html=await res.text();
+    const match=html.match(/id=["']ssBuildStamp["'][^>]*data-build=["']([^"']+)["']/i);
+    const latest=match ? match[1] : "";
+    const current=(document.getElementById("ssBuildStamp")?.dataset.build||"").trim();
+
+    if(latest && current && latest!==current){
+      if(status) status.textContent="Update available: "+latest;
+      if(btn) btn.style.display="block";
+
+      // One automatic prompt per newly detected version.
+      const promptKey="ssUpdatePrompted:"+latest;
+      if(!sessionStorage.getItem(promptKey)){
+        sessionStorage.setItem(promptKey,"1");
+        setTimeout(()=>{
+          const now=confirm("SituSnap update available\\n\\nA newer version ("+latest+") is ready.\\n\\nTap OK to update now, or Cancel for later.");
+          if(now) ssApplyUpdate();
+        },350);
+      }
+    }else{
+      if(status) status.textContent="SituSnap is up to date";
+      if(btn) btn.style.display="none";
+    }
+  }catch(e){
+    if(status) status.textContent="Update check unavailable";
+    if(btn) btn.style.display="none";
+  }
 }
 function ssApplyUpdate(){location.replace("https://cryptod1.github.io/SituSnap/?ss_update="+Date.now())}
 const SS_VERIFIED_ARCHIVE="situSnapVerifiedArchiveV1";
