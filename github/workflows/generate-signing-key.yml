@@ -1,0 +1,28 @@
+name: Generate SituSnap Signing Key
+
+on:
+  workflow_dispatch:
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate permanent SituSnap keystore
+        env:
+          STORE_PASS: ${{ secrets.SITUSNAP_KEYSTORE_PASSWORD }}
+          KEY_PASS: ${{ secrets.SITUSNAP_KEY_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.SITUSNAP_KEY_ALIAS }}
+        run: |
+          keytool -genkeypair \
+            -keystore situsnap-release.jks \
+            -storepass "$STORE_PASS" \
+            -keypass "$KEY_PASS" \
+            -alias "$KEY_ALIAS" \
+            -keyalg RSA \
+            -keysize 4096 \
+            -validity 10000 \
+            -dname "CN=SituSnap, O=SituSnap, C=GB"
+
+      - name: Upload keystore
+        uses: actions/upload-artifact@v4
+        with
