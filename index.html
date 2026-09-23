@@ -92,7 +92,7 @@ input::placeholder,textarea::placeholder{color:#aeb9c7;opacity:1}
 
 </head>
 <body>
-<div id="ssBuildStamp" data-build="SS-2026-09-23-CLOUD9" style="display:none">SS-2026-09-23-CLOUD9</div>
+<div id="ssBuildStamp" data-build="SS-2026-09-23-CLOUD9.1" style="display:none">SS-2026-09-23-CLOUD9.1</div>
 <div id="offlineBanner" class="offline-banner hidden" role="status" aria-live="polite">No signal — continue offline.</div><div id="celebration" aria-hidden="true"><div class="celebrate-content"><div class="celebrate-title">PIN VERIFIED!</div><div class="celebrate-sub">SituSnap location confirmed</div></div></div><header><div class="brand"><div class="brand-mark" aria-label="SituSnap logo">
 <svg viewBox="0 0 100 100" role="img" aria-hidden="true">
 <defs>
@@ -117,14 +117,14 @@ fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round"/>
 <main><div id="breadcrumbsBridge" class="card hidden" style="border:2px solid #69df83;margin-top:12px"><div class="eyebrow">BREADCRUMBS</div><h2 id="bridgeTitle" style="margin:5px 0">Continue</h2><div class="meta" id="bridgeText"></div></div>
 <section class="hero"><div class="eyebrow"></div><h1 style="font-size:clamp(22px,7vw,34px);letter-spacing:-.8px">Find it. Snap it. Update it.</h1><div class="find">
 <div style="font-size:13px;font-weight:950;color:#43566f;padding:3px 10px 6px;letter-spacing:.6px">POSTCODE <span style="font-weight:750;opacity:.72">(OPTIONAL)</span></div>
-<div class="find-row"><input id="huntPostcode" placeholder="Full or part postcode" autocomplete="off" autocapitalize="characters" spellcheck="false" oninput="queuePostcodeLookup();syncRecordPostcode();bcQueueFromSimpleInputs()"><button id="googleMapsBtn" type="button" onclick="googleMapsNow()" disabled style="background:#52606d;opacity:.45;cursor:not-allowed">GOOGLE MAPS — UNVERIFIED</button></div>
+<div class="find-row"><input id="huntPostcode" placeholder="" autocomplete="off" autocapitalize="characters" spellcheck="false" oninput="queuePostcodeLookup();syncRecordPostcode();bcQueueFromSimpleInputs()"><button id="googleMapsBtn" type="button" onclick="googleMapsNow()" disabled style="background:#52606d;opacity:.45;cursor:not-allowed">GOOGLE MAPS — UNVERIFIED</button></div>
 <div id="verifiedFirstPanel" class="hidden" style="margin-top:10px;padding:10px;border-radius:12px;background:#eef8f1;border:1px solid #b9dfc4">
   <div style="font-weight:950;color:#145a35;margin-bottom:6px">✓ PREVIOUSLY VERIFIED</div>
   <div id="verifiedFirstList"></div>
 </div>
 <div class="property-split" style="margin-top:10px">
-<div><div class="property-label">NUMBER <span style="font-weight:750;opacity:.72">(OPTIONAL)</span></div><input id="doorNumber" type="text" inputmode="text" autocomplete="off" placeholder="e.g. 1" oninput="syncManualAddress();bcQueueFromSimpleInputs();render()" style="min-height:48px"></div>
-<div><div class="property-label">HOUSE NAME OR STREET</div><div class="street-picker"><input id="manualAddress" type="text" inputmode="text" enterkeyhint="done" autocomplete="off" autocapitalize="words" placeholder="e.g. Nottage Mead" oninput="syncManualAddress();queueMainStreetSearch();bcQueueFromSimpleInputs();render()" onfocus="openMainStreetResults()" style="width:100%;min-height:48px"><div id="mainStreetResults" class="street-picker-menu hidden"></div></div></div>
+<div><div class="property-label">NUMBER <span style="font-weight:750;opacity:.72">(OPTIONAL)</span></div><input id="doorNumber" type="text" inputmode="text" autocomplete="off" placeholder="" oninput="syncManualAddress();bcQueueFromSimpleInputs();render()" style="min-height:48px"></div>
+<div><div class="property-label">HOUSE NAME OR STREET</div><div class="street-picker"><input id="manualAddress" type="text" inputmode="text" enterkeyhint="done" autocomplete="off" autocapitalize="words" placeholder="" oninput="syncManualAddress();queueMainStreetSearch();bcQueueFromSimpleInputs();render()" onfocus="openMainStreetResults()" style="width:100%;min-height:48px"><div id="mainStreetResults" class="street-picker-menu hidden"></div></div></div>
 </div>
 <div id="bcMainWrap" style="display:block;margin-top:9px"><button id="bcMainBtn" type="button" onclick="openBreadcrumbsRoute()" disabled style="width:100%;background:#145a35;opacity:.45">BREADCRUMBS</button></div>
 <div id="bcQuickStatus" style="font-size:12px;color:#61738b;font-weight:850;padding:7px 4px 0;display:block">Enter property name</div>
