@@ -92,7 +92,7 @@ input::placeholder,textarea::placeholder{color:#aeb9c7;opacity:1}
 
 </head>
 <body>
-<div id="ssBuildStamp" data-build="SituSnap-V1.0" style="display:none">SituSnap-V1.0</div>
+<div id="ssBuildStamp" data-build="SituSnap-V1.0.1" style="display:none">SituSnap-V1.0.1</div>
 <div id="offlineBanner" class="offline-banner hidden" role="status" aria-live="polite">No signal — continue offline.</div><div id="celebration" aria-hidden="true"><div class="celebrate-content"><div class="celebrate-title">PIN VERIFIED!</div><div class="celebrate-sub">SituSnap location confirmed</div></div></div><header><div class="brand"><div class="brand-mark" aria-label="SituSnap logo">
 <svg viewBox="0 0 100 100" role="img" aria-hidden="true">
 <defs>
@@ -142,12 +142,12 @@ fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round"/>
 <div class="live-grid"><div class="metric"><b id="distanceMetric">—</b><span>From target</span></div><div class="metric"><b id="accuracyMetric">—</b><span>GPS accuracy</span></div></div><div class="meta" id="liveStatus" style="margin-top:9px">Waiting for GPS…</div></div><div class="quick" id="huntActions" style="margin-top:10px;display:flex;gap:10px"><button id="retryGpsBtn" type="button" onclick="startLiveHunt()" style="display:none;flex:1;padding:12px 10px;border-radius:10px;border:0;font-weight:900;background:#145a35;color:#fff">RETRY GPS</button></div></section>
 <section class="card" id="reminderCard"><div class="section-head"><div><h2>Found / Not Found Handover</h2><p class="muted">Record or update the property here. Sat Nav is optional; reminders are available underneath if you need them.</p></div></div>
 <details class="details" id="recordDetails"><summary>✓ Update the found property</summary><div class="inside"><div class="form-grid">
-<div><label>Postcode given</label><input id="postcode" placeholder="Enter postcode" autocomplete="off" autocapitalize="characters" spellcheck="false" oninput="syncHuntPostcodeFromRecord();queuePostcodeLookup();render()"></div><div><label>First line of address</label><input id="address" placeholder="e.g. 38 Heol Bryncethin or Ty Du Farm" autocomplete="off"></div><input type="hidden" id="street" value=""><div id="recordPostcodeChoices" class="hidden"><div id="recordStreetPickerMenu" class="hidden"></div><div id="streetLiveResults" class="hidden"></div><div id="streetMatchHint" class="hidden"></div></div>
+<div><label>Postcode given</label><input id="postcode" placeholder="Enter postcode" autocomplete="off" autocapitalize="characters" spellcheck="false" oninput="syncHuntPostcodeFromRecord();queuePostcodeLookup();render()"></div><div><label>First line of address</label><input id="address" placeholder="" autocomplete="off"></div><input type="hidden" id="street" value=""><div id="recordPostcodeChoices" class="hidden"><div id="recordStreetPickerMenu" class="hidden"></div><div id="streetLiveResults" class="hidden"></div><div id="streetMatchHint" class="hidden"></div></div>
 
 <input type="hidden" id="type" value="Property / building"><input type="hidden" id="updateStatus" value="New location found"><div><label>Observed by</label><select id="observedBy"><option>MGroup</option><option>Courier partner</option><option>Verified contributor</option><option>Utility partner</option><option>Emergency service</option><option>Professional survey</option></select></div>
 
 <input type="hidden" id="result" value="Location verified">
-<div class="full"><label>Access / directions</label><textarea id="accessDirections" placeholder="e.g. first long drive on left, narrow lane, locked gate"></textarea></div>
+<div class="full"><label>Access / directions</label><textarea id="accessDirections" placeholder=""></textarea></div>
 <div class="full"><label>Confirmation</label><select id="localSource"><option>Not applicable</option><option>Local resident</option><option>Postie / delivery driver</option><option>Other</option></select></div><div class="full"><label>Handover notes</label><textarea id="notes" placeholder="Optional — anything useful for the next visit"></textarea></div>
 
 <div class="full"><label>Photo — property / entrance <span style="opacity:.72">(1 REQUIRED)</span></label>
