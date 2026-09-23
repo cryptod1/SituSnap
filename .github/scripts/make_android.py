@@ -26,11 +26,16 @@ android {
         applicationId 'com.situsnap.app'
         minSdk 26
         targetSdk 35
-        versionCode 3
-        versionName '1.0'
+        versionCode 4
+        versionName '1.0.1'
     }
 }
 """)
+
+splash_source=Path(".github/assets/situsnap-splash.png")
+splash_target=Path("app/src/main/res/drawable-nodpi/situsnap_splash.png")
+splash_target.parent.mkdir(parents=True,exist_ok=True)
+splash_target.write_bytes(splash_source.read_bytes())
 
 put("app/src/main/res/values/styles.xml", """<resources>
 <style name="AppTheme" parent="android:style/Theme.Material.Light.NoActionBar">
@@ -73,6 +78,8 @@ put("app/src/main/res/values/colors.xml", """<resources>
 </resources>
 """)
 
+put("app/src/main/res/layout/activity_main.xml", """<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:background="#07192B"><WebView android:id="@+id/webview" android:layout_width="match_parent" android:layout_height="match_parent" android:background="#07192B" android:visibility="invisible"/><ImageView android:id="@+id/splash" android:layout_width="match_parent" android:layout_height="match_parent" android:src="@drawable/situsnap_splash" android:scaleType="centerCrop" android:contentDescription="SituSnap"/></FrameLayout>""")
+
 put("app/src/main/AndroidManifest.xml", """<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 <uses-permission android:name="android.permission.INTERNET"/>
 <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
@@ -95,6 +102,10 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.view.View;
+import android.widget.ImageView;
 import android.webkit.GeolocationPermissions;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
@@ -108,6 +119,8 @@ import java.util.Map;
 
 public class MainActivity extends Activity {
     private WebView webView;
+    private ImageView splash;
+    private long splashStarted;
     private ValueCallback<Uri[]> fileCallback;
     private static final int FILE_CHOOSER = 1001;
 
@@ -121,8 +134,11 @@ public class MainActivity extends Activity {
             Manifest.permission.CAMERA
         }, 1002);
 
-        webView = new WebView(this);
-        setContentView(webView);
+        setContentView(R.layout.activity_main);
+        webView = findViewById(R.id.webview);
+        splash = findViewById(R.id.splash);
+        splashStarted = System.currentTimeMillis();
+        webView.setBackgroundColor(android.graphics.Color.rgb(7,25,43));
 
         WebSettings s = webView.getSettings();
         s.setJavaScriptEnabled(true);
@@ -136,6 +152,17 @@ public class MainActivity extends Activity {
         s.setCacheMode(WebSettings.LOAD_DEFAULT);
 
         webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                long delay = Math.max(0, 2000 - (System.currentTimeMillis() - splashStarted));
+                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                    webView.setVisibility(View.VISIBLE);
+                    webView.setAlpha(0f);
+                    webView.animate().alpha(1f).setDuration(250).start();
+                    if (splash != null) splash.animate().alpha(0f).setDuration(250).withEndAction(() -> splash.setVisibility(View.GONE)).start();
+                }, delay);
+            }
+
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
                 if (url.startsWith("https://cryptod1.github.io/SituSnap/")
