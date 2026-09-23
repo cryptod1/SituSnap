@@ -26,8 +26,8 @@ android {
         applicationId 'com.situsnap.app'
         minSdk 26
         targetSdk 35
-        versionCode 2
-        versionName '0.2-CLOUD8'
+        versionCode 3
+        versionName '1.0'
     }
 }
 """)
@@ -101,6 +101,10 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.webkit.WebResourceRequest;
+import android.webkit.WebResourceResponse;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MainActivity extends Activity {
     private WebView webView;
@@ -128,6 +132,8 @@ public class MainActivity extends Activity {
         s.setTextZoom(100);
         s.setUseWideViewPort(true);
         s.setLoadWithOverviewMode(false);
+        // Prefer the network when online, but retain WebView's cache for dead-zone/offline use.
+        s.setCacheMode(WebSettings.LOAD_DEFAULT);
 
         webView.setWebViewClient(new WebViewClient() {
             @Override
@@ -170,7 +176,27 @@ public class MainActivity extends Activity {
             }
         });
 
-        webView.loadUrl("https://cryptod1.github.io/SituSnap/");
+        // Cache-bust the HTML shell on each online launch so a newly deployed SituSnap
+        // version is picked up immediately. If offline, fall back to the cached page.
+        if (isOnline()) {
+            webView.loadUrl("https://cryptod1.github.io/SituSnap/?app_launch=" + System.currentTimeMillis());
+        } else {
+            s.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
+            webView.loadUrl("https://cryptod1.github.io/SituSnap/");
+        }
+    }
+
+    private boolean isOnline() {
+        try {
+            android.net.ConnectivityManager cm =
+                (android.net.ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+            android.net.Network n = cm.getActiveNetwork();
+            if (n == null) return false;
+            android.net.NetworkCapabilities c = cm.getNetworkCapabilities(n);
+            return c != null && c.hasCapability(android.net.NetworkCapabilities.NET_CAPABILITY_INTERNET);
+        } catch (Exception e) {
+            return true;
+        }
     }
 
     @Override
