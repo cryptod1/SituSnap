@@ -75,6 +75,29 @@
 label{color:#d5deea;font-size:11px}
 input::placeholder,textarea::placeholder{color:#aeb9c7;opacity:1}
 #accessDirections{min-height:96px;line-height:1.45}
+
+/* V1.0.5 — professional front-page refresh. Engine IDs/functions deliberately preserved. */
+.ss-home-shell{position:relative;overflow:hidden;background:linear-gradient(155deg,rgba(7,26,51,.98),rgba(10,54,37,.97) 68%,rgba(20,90,53,.96));border:1px solid rgba(143,231,161,.20);border-radius:24px;padding:22px 17px 18px;box-shadow:0 22px 55px rgba(0,0,0,.34);margin-bottom:13px}
+.ss-home-shell:before{content:"";position:absolute;width:220px;height:220px;border-radius:50%;right:-105px;top:-125px;background:radial-gradient(circle,rgba(105,223,131,.20),transparent 68%);pointer-events:none}
+.ss-home-kicker{position:relative;font-size:10px;letter-spacing:2px;font-weight:950;color:#8fe7a1;text-transform:uppercase}
+.ss-home-title{position:relative;margin:6px 0 5px;font-size:clamp(29px,8vw,42px);line-height:1.02;letter-spacing:-1.2px;color:#fff}
+.ss-home-copy{position:relative;margin:0 0 18px;color:#d8e8e0;font-size:13px;line-height:1.5;max-width:480px}
+.ss-find-card{position:relative;background:#f8fbf9;color:#10233f;border-radius:18px;padding:14px;box-shadow:0 14px 32px rgba(0,0,0,.22)}
+.ss-field-label{display:block;min-height:30px;margin:0 0 6px;font-size:10px;font-weight:950;letter-spacing:.35px;line-height:1.25;color:#43566f;white-space:normal}
+.ss-optional{font-weight:800;opacity:.62;letter-spacing:0}
+.ss-find-card input{background:#fff!important;color:#111827!important;-webkit-text-fill-color:#111827!important;border:1px solid #cbd5e1!important;border-radius:12px!important;min-height:54px!important;padding:12px 13px!important;font-size:16px!important;box-shadow:0 1px 0 rgba(16,35,63,.03)}
+.ss-find-card input:focus{outline:3px solid rgba(105,223,131,.24)!important;border-color:#69df83!important}
+.ss-field{margin-top:12px}
+.ss-address-row{display:grid;grid-template-columns:minmax(72px,26%) minmax(0,1fr);gap:10px;align-items:start}
+.ss-find-primary{width:100%;min-height:56px;margin-top:15px;border-radius:13px;background:linear-gradient(135deg,#1c8d4b,#69df83);color:#061a10;font-size:14px;font-weight:1000;letter-spacing:.35px;box-shadow:0 10px 22px rgba(28,141,75,.24)}
+.ss-find-primary:active{transform:translateY(1px)}
+.ss-trust{display:flex;align-items:flex-start;gap:8px;margin-top:11px;padding:10px 11px;border-radius:11px;background:#eaf6ee;color:#285943;font-size:11px;font-weight:850;line-height:1.35}
+.ss-secondary{width:100%;min-height:48px;margin-top:10px;border-radius:12px;background:transparent;color:#dff8e3;border:1px solid rgba(143,231,161,.34);font-size:12px;font-weight:900}
+.ss-engine-hidden{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;opacity:0!important;pointer-events:none!important}
+.ss-home-shell #verifiedFirstPanel{margin-top:12px!important;border-radius:12px!important}
+.ss-home-shell #mainStreetResults{z-index:80}
+@media(max-width:360px){.ss-address-row{grid-template-columns:minmax(68px,25%) minmax(0,1fr);gap:8px}.ss-field-label{font-size:9px;letter-spacing:.2px}.ss-home-shell{padding:19px 13px 15px}}
+
 </style>
 <style>
 .bc-resolve{margin:12px 0 14px;padding:15px 16px;border-radius:16px;background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.13)}
@@ -92,7 +115,7 @@ input::placeholder,textarea::placeholder{color:#aeb9c7;opacity:1}
 
 </head>
 <body>
-<div id="ssBuildStamp" data-build="SituSnap-V1.0.4" style="display:none">SituSnap-V1.0.4</div>
+<div id="ssBuildStamp" data-build="SituSnap-V1.0.5a" style="display:none">SituSnap-V1.0.5a</div>
 <div id="offlineBanner" class="offline-banner hidden" role="status" aria-live="polite">No signal — continue offline.</div><div id="celebration" aria-hidden="true"><div class="celebrate-content"><div class="celebrate-title">PIN VERIFIED!</div><div class="celebrate-sub">SituSnap location confirmed</div></div></div><header><div class="brand"><div class="brand-mark" aria-label="SituSnap logo">
 <svg viewBox="0 0 100 100" role="img" aria-hidden="true">
 <defs>
@@ -115,21 +138,55 @@ fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/>
 fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round"/>
 </svg></div><div><div class="brand-name"><span style="color:#fff">Situ</span><span style="color:#69df83">Snap</span></div><div class="tag">WHERE SATNAV STOPS.</div></div></div><div class="menu">☰</div></header>
 <main><div id="breadcrumbsBridge" class="card hidden" style="border:2px solid #69df83;margin-top:12px"><div class="eyebrow">BREADCRUMBS</div><h2 id="bridgeTitle" style="margin:5px 0">Continue</h2><div class="meta" id="bridgeText"></div></div>
-<section class="hero"><div class="eyebrow"></div><h1 style="font-size:clamp(22px,7vw,34px);letter-spacing:-.8px">Find it. Snap it. Update it.</h1><div class="find">
-<div style="font-size:13px;font-weight:950;color:#43566f;padding:3px 10px 6px;letter-spacing:.6px">POSTCODE <span style="font-weight:750;opacity:.72">(OPTIONAL)</span></div>
-<div class="find-row"><input id="huntPostcode" placeholder="" autocomplete="off" autocapitalize="characters" spellcheck="false" oninput="queuePostcodeLookup();syncRecordPostcode();bcQueueFromSimpleInputs()"><button id="googleMapsBtn" type="button" onclick="googleMapsNow()" disabled style="background:#52606d;opacity:.45;cursor:not-allowed">GOOGLE MAPS — UNVERIFIED</button></div>
-<div id="verifiedFirstPanel" class="hidden" style="margin-top:10px;padding:10px;border-radius:12px;background:#eef8f1;border:1px solid #b9dfc4">
-  <div style="font-weight:950;color:#145a35;margin-bottom:6px">✓ PREVIOUSLY VERIFIED</div>
-  <div id="verifiedFirstList"></div>
+<section class="ss-home-shell" aria-labelledby="ssHomeTitle">
+<div class="ss-home-kicker">WHERE SATNAV STOPS.</div>
+<h1 class="ss-home-title" id="ssHomeTitle">Find a destination</h1>
+<div class="ss-find-card">
+  <div class="ss-field" style="margin-top:0">
+    <div class="ss-field-label">POSTCODE</div>
+    <input id="huntPostcode" placeholder="e.g. CF32 0NR" autocomplete="off" autocapitalize="characters" spellcheck="false" oninput="queuePostcodeLookup();syncRecordPostcode();bcQueueFromSimpleInputs()">
+  </div>
+
+  <div id="verifiedFirstPanel" class="hidden" style="padding:10px;background:#eef8f1;border:1px solid #b9dfc4">
+    <div style="font-weight:950;color:#145a35;margin-bottom:6px">✓ PREVIOUSLY VERIFIED</div>
+    <div id="verifiedFirstList"></div>
+  </div>
+
+  <div class="ss-address-row">
+    <div class="ss-field">
+      <div class="ss-field-label">NUMBER</div>
+      <input id="doorNumber" type="text" inputmode="text" autocomplete="off" placeholder="" oninput="syncManualAddress();bcQueueFromSimpleInputs();render()">
+    </div>
+    <div class="ss-field">
+      <div class="ss-field-label">HOUSE NAME OR STREET</div>
+      <div class="street-picker">
+        <input id="manualAddress" type="text" inputmode="text" enterkeyhint="done" autocomplete="off" autocapitalize="words" placeholder="Property, farm or street" oninput="syncManualAddress();queueMainStreetSearch();bcQueueFromSimpleInputs();render()" onfocus="openMainStreetResults()">
+        <div id="mainStreetResults" class="street-picker-menu hidden"></div>
+      </div>
+    </div>
+  </div>
+
+  <button class="ss-find-primary" type="button" onclick="ssFindDestination()">FIND DESTINATION</button>
+
+  <!-- Existing engine controls stay in the DOM because current resolver code updates them. -->
+  <div class="ss-engine-hidden" aria-hidden="true">
+    <button id="googleMapsBtn" type="button" onclick="googleMapsNow()" disabled>GOOGLE MAPS — UNVERIFIED</button>
+    <div id="bcMainWrap"><button id="bcMainBtn" type="button" onclick="openBreadcrumbsRoute()" disabled>BREADCRUMBS</button></div>
+    <div id="bcQuickStatus">Enter property name</div>
+  </div>
+
+  <div id="postcodeChoices" class="postcode-choices hidden">
+    <label for="streetChoice">DESTINATIONS FOR THIS POSTCODE</label>
+    <div class="street-picker">
+      <button type="button" id="streetPickerTrigger" class="street-picker-trigger" onclick="toggleStreetPicker()">Looking up locations…</button>
+      <div id="streetPickerMenu" class="street-picker-menu hidden"></div>
+      <select id="streetChoice" class="hidden" onchange="syncSelectedAddress()"><option value="">Looking up locations…</option></select>
+    </div>
+  </div>
 </div>
-<div class="property-split" style="margin-top:10px">
-<div><div class="property-label">NUMBER <span style="font-weight:750;opacity:.72">(OPTIONAL)</span></div><input id="doorNumber" type="text" inputmode="text" autocomplete="off" placeholder="" oninput="syncManualAddress();bcQueueFromSimpleInputs();render()" style="min-height:48px"></div>
-<div><div class="property-label">HOUSE NAME OR STREET</div><div class="street-picker"><input id="manualAddress" type="text" inputmode="text" enterkeyhint="done" autocomplete="off" autocapitalize="words" placeholder="" oninput="syncManualAddress();queueMainStreetSearch();bcQueueFromSimpleInputs();render()" onfocus="openMainStreetResults()" style="width:100%;min-height:48px"><div id="mainStreetResults" class="street-picker-menu hidden"></div></div></div>
-</div>
-<div id="bcMainWrap" style="display:block;margin-top:9px"><button id="bcMainBtn" type="button" onclick="openBreadcrumbsRoute()" disabled style="width:100%;background:#145a35;opacity:.45">BREADCRUMBS</button></div>
-<div id="bcQuickStatus" style="font-size:12px;color:#61738b;font-weight:850;padding:7px 4px 0;display:block">Enter property name</div>
-<div style="margin-top:9px"><button type="button" onclick="recordWithoutSatNav()" style="width:100%;padding:13px 8px;border-radius:12px;border:1px solid rgba(105,223,131,.45);background:#145a35;color:#fff;font-weight:900">RECORD WITHOUT SAT NAV</button></div>
-<div id="postcodeChoices" class="postcode-choices hidden"><label for="streetChoice">DESTINATIONS FOR THIS POSTCODE</label><div class="street-picker"><button type="button" id="streetPickerTrigger" class="street-picker-trigger" onclick="toggleStreetPicker()">Looking up locations…</button><div id="streetPickerMenu" class="street-picker-menu hidden"></div><select id="streetChoice" class="hidden" onchange="syncSelectedAddress()"><option value="">Looking up locations…</option></select></div></div></div></section>
+
+<button class="ss-secondary" type="button" onclick="recordWithoutSatNav()">RECORD WITHOUT SAT NAV</button>
+</section>
 <section id="huntPanel" class="card hidden"><div class="section-head"><div><h2>Destination</h2></div><span class="pill">ACTIVE</span></div><div class="location"><div class="pin">📍</div><div><b id="huntPc"></b><span id="targetStatus">Checking destination…</span></div></div><div id="targetBox" class="record" style="margin-top:9px"><h3>🎯 SituSnap target</h3><div class="meta" id="targetDetails">Waiting for postcode lookup.</div><div class="precision"><div class="precision-top"><div class="precision-title">DESTINATION ENGINE</div><span class="precision-badge" id="precisionBadge">CHECKING</span></div><div class="precision-bar"><div class="precision-fill" id="precisionFill"></div></div><div class="small-note" id="precisionNote">SituSnap will use the best available postcode coordinate, then measure the phone's live GPS against it. The field observation confirms the real-world location.</div></div></div><div id="liveHunt" class="record hidden"><h3>Live hunt</h3>
 <div id="bcResolveCard" class="bc-resolve">
   <div class="bc-kicker">Resolved by Breadcrumbs</div>
@@ -171,10 +228,10 @@ fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round"/>
 <section class="card" id="recordsCard"><div class="section-head"><div><h2>Verified locations</h2><p class="muted">Previously verified properties for this postcode.</p></div></div><div id="records"></div></section>
 
 </main><nav class="bottom"><button class="nav active" onclick="window.scrollTo({top:0,behavior:'smooth'})"><span class="ico">⌂</span>Find</button><button class="nav" onclick="showForm()"><span class="ico">⌄</span>Reminder</button><button class="nav" onclick="document.getElementById('recordsCard').scrollIntoView({behavior:'smooth'})"><span class="ico">↻</span>Verified</button><button class="nav" onclick="ssShowMore()"><span class="ico">☰</span>More</button></nav>
-<div id="ssMorePanel" class="hidden" style="position:fixed;inset:0;z-index:900;background:rgba(2,9,20,.72);padding:90px 16px;overflow:auto" onclick="if(event.target===this)ssHideMore()"><div style="max-width:520px;margin:auto;background:#0a1934;border:1px solid rgba(126,177,235,.25);border-radius:18px;padding:18px"><div style="display:flex;justify-content:space-between;align-items:center"><div><b>SituSnap</b><div id="ssVisibleVersion" style="font-size:12px;color:#a9bad0">Version 1.0.4</div></div><button type="button" onclick="ssHideMore()" style="min-height:40px;padding:6px 12px;border-radius:10px;background:#26384f;color:#fff">CLOSE</button></div><div id="ssUpdateStatus" style="margin-top:16px;padding:13px;border-radius:12px;background:#103d29;color:#dff8e3;font-size:12px;font-weight:850">Checking for updates…</div><button id="ssUpdateBtn" type="button" class="hidden" onclick="ssApplyUpdate()" style="width:100%;margin-top:10px;padding:13px;border-radius:12px;background:#69df83;color:#071a33;font-weight:950">UPDATE AVAILABLE — TAP TO UPDATE</button></div></div>
+<div id="ssMorePanel" class="hidden" style="position:fixed;inset:0;z-index:900;background:rgba(2,9,20,.72);padding:90px 16px;overflow:auto" onclick="if(event.target===this)ssHideMore()"><div style="max-width:520px;margin:auto;background:#0a1934;border:1px solid rgba(126,177,235,.25);border-radius:18px;padding:18px"><div style="display:flex;justify-content:space-between;align-items:center"><div><b>SituSnap</b><div id="ssVisibleVersion" style="font-size:12px;color:#a9bad0">Version 1.0.5a</div></div><button type="button" onclick="ssHideMore()" style="min-height:40px;padding:6px 12px;border-radius:10px;background:#26384f;color:#fff">CLOSE</button></div><div id="ssUpdateStatus" style="margin-top:16px;padding:13px;border-radius:12px;background:#103d29;color:#dff8e3;font-size:12px;font-weight:850">Checking for updates…</div><button id="ssUpdateBtn" type="button" class="hidden" onclick="ssApplyUpdate()" style="width:100%;margin-top:10px;padding:13px;border-radius:12px;background:#69df83;color:#071a33;font-weight:950">UPDATE AVAILABLE — TAP TO UPDATE</button></div></div>
 <script>
 let gps=null,huntPostcode="",huntAddressQuery="",target=null,watchId=null,postcodeTimer=null,editingRecordId=null;
-const SS_APP_VERSION="1.0.4";
+const SS_APP_VERSION="1.0.5a";
 const SS_CANONICAL_URL="https://cryptod1.github.io/SituSnap/";
 function ssShowMore(){document.getElementById("ssMorePanel")?.classList.remove("hidden");ssCheckForUpdate()}
 function ssHideMore(){document.getElementById("ssMorePanel")?.classList.add("hidden")}
@@ -995,6 +1052,20 @@ async function openBreadcrumbsRoute(){
   if(btn){btn.disabled=true;btn.style.opacity='.65';btn.textContent='FINDING VERIFIED PIN…';}
   const result=await bcResolve(property,pc,undefined,true);
   navigate(result);
+}
+
+function ssFindDestination(){
+  const pc=(document.getElementById("huntPostcode")?.value||"").trim().toUpperCase();
+  const property=bcPropertyInput();
+  if(!pc && !property){
+    alert("Enter a postcode or property name.");
+    document.getElementById("huntPostcode")?.focus();
+    return;
+  }
+  // Preserve the existing property-only discovery route when no postcode is available.
+  if(!pc && property){ openBreadcrumbsRoute(); return; }
+  // The established hunt flow owns verified lookup, destination fallback, navigation and live GPS.
+  startHunt();
 }
 
 async function startHunt(){
