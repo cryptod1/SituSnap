@@ -19,15 +19,33 @@ put("build.gradle", """plugins {
 put("app/build.gradle", """plugins {
     id 'com.android.application'
 }
+
 android {
     namespace 'com.situsnap.app'
     compileSdk 35
+
     defaultConfig {
         applicationId 'com.situsnap.app'
         minSdk 26
         targetSdk 35
-        versionCode 4
-        versionName '1.0.1'
+        versionCode 5
+        versionName '1.0.2'
+    }
+
+    signingConfigs {
+        release {
+            storeFile rootProject.file('situsnap-release.jks')
+            storePassword System.getenv('SITUSNAP_STORE_PASSWORD')
+            keyAlias System.getenv('SITUSNAP_KEY_ALIAS')
+            keyPassword System.getenv('SITUSNAP_KEY_PASSWORD')
+        }
+    }
+
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+            minifyEnabled false
+        }
     }
 }
 """)
@@ -96,6 +114,7 @@ put("app/src/main/AndroidManifest.xml", """<manifest xmlns:android="http://schem
 </application>
 </manifest>
 """)
+
 put("app/src/main/java/com/situsnap/app/MainActivity.java", """package com.situsnap.app;
 import android.Manifest;
 import android.app.Activity;
