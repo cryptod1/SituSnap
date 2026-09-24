@@ -116,6 +116,11 @@ input::placeholder,textarea::placeholder{color:#aeb9c7;opacity:1}
 #ssFindResult{animation:ssResultIn .18s ease-out both}
 @keyframes ssResultIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
 
+
+/* V1.0.5f — non-interrupting update notification. */
+#ssUpdateBadge{position:absolute;top:5px;right:7px;padding:2px 5px;border-radius:999px;background:#69df83;color:#071a33;font-size:7px;line-height:1.25;font-weight:1000;letter-spacing:.35px;box-shadow:0 2px 7px rgba(0,0,0,.28)}
+#ssUpdateBadge.hidden{display:none!important}
+
 </style>
 <style>
 .bc-resolve{margin:12px 0 14px;padding:15px 16px;border-radius:16px;background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.13)}
@@ -133,7 +138,7 @@ input::placeholder,textarea::placeholder{color:#aeb9c7;opacity:1}
 
 </head>
 <body>
-<div id="ssBuildStamp" data-build="SituSnap-V1.0.5e" style="display:none">SituSnap-V1.0.5e</div>
+<div id="ssBuildStamp" data-build="SituSnap-V1.0.5f" style="display:none">SituSnap-V1.0.5f</div>
 <div id="offlineBanner" class="offline-banner hidden" role="status" aria-live="polite">No signal — continue offline.</div><div id="celebration" aria-hidden="true"><div class="celebrate-content"><div class="celebrate-title">PIN VERIFIED!</div><div class="celebrate-sub">SituSnap location confirmed</div></div></div><header><div class="brand"><div class="brand-mark" aria-label="SituSnap logo">
 <svg viewBox="0 0 100 100" role="img" aria-hidden="true">
 <defs>
@@ -248,17 +253,18 @@ fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round"/>
 <div class="scroll-hint">MORE BELOW — SWIPE UP<span>⌄</span></div>
 <section class="card" id="recordsCard"><div class="section-head"><div><h2>Verified locations</h2><p class="muted">Previously verified properties for this postcode.</p></div></div><div id="records"></div></section>
 
-</main><nav class="bottom"><button class="nav active" onclick="window.scrollTo({top:0,behavior:'smooth'})"><span class="ico">⌂</span>Find</button><button class="nav" onclick="showForm()"><span class="ico">⌄</span>Reminder</button><button class="nav" onclick="document.getElementById('recordsCard').scrollIntoView({behavior:'smooth'})"><span class="ico">↻</span>Verified</button><button class="nav" onclick="ssShowMore()"><span class="ico">☰</span>More</button></nav>
-<div id="ssMorePanel" class="hidden" style="position:fixed;inset:0;z-index:900;background:rgba(2,9,20,.72);padding:90px 16px;overflow:auto" onclick="if(event.target===this)ssHideMore()"><div style="max-width:520px;margin:auto;background:#0a1934;border:1px solid rgba(126,177,235,.25);border-radius:18px;padding:18px"><div style="display:flex;justify-content:space-between;align-items:center"><div><b>SituSnap</b><div id="ssVisibleVersion" style="font-size:12px;color:#a9bad0">Version 1.0.5e</div></div><button type="button" onclick="ssHideMore()" style="min-height:40px;padding:6px 12px;border-radius:10px;background:#26384f;color:#fff">CLOSE</button></div><div id="ssUpdateStatus" style="margin-top:16px;padding:13px;border-radius:12px;background:#103d29;color:#dff8e3;font-size:12px;font-weight:850">Checking for updates…</div><button id="ssUpdateBtn" type="button" class="hidden" onclick="ssApplyUpdate()" style="width:100%;margin-top:10px;padding:13px;border-radius:12px;background:#69df83;color:#071a33;font-weight:950">UPDATE AVAILABLE — TAP TO UPDATE</button></div></div>
+</main><nav class="bottom"><button class="nav active" onclick="window.scrollTo({top:0,behavior:'smooth'})"><span class="ico">⌂</span>Find</button><button class="nav" onclick="showForm()"><span class="ico">⌄</span>Reminder</button><button class="nav" onclick="document.getElementById('recordsCard').scrollIntoView({behavior:'smooth'})"><span class="ico">↻</span>Verified</button><button id="ssMoreNavBtn" class="nav" onclick="ssShowMore()" style="position:relative"><span class="ico">☰</span>More<span id="ssUpdateBadge" class="hidden" aria-label="Update available">UPDATE</span></button></nav>
+<div id="ssMorePanel" class="hidden" style="position:fixed;inset:0;z-index:900;background:rgba(2,9,20,.72);padding:90px 16px;overflow:auto" onclick="if(event.target===this)ssHideMore()"><div style="max-width:520px;margin:auto;background:#0a1934;border:1px solid rgba(126,177,235,.25);border-radius:18px;padding:18px"><div style="display:flex;justify-content:space-between;align-items:center"><div><b>SituSnap</b><div id="ssVisibleVersion" style="font-size:12px;color:#a9bad0">Version 1.0.5f</div></div><button type="button" onclick="ssHideMore()" style="min-height:40px;padding:6px 12px;border-radius:10px;background:#26384f;color:#fff">CLOSE</button></div><div id="ssUpdateStatus" style="margin-top:16px;padding:13px;border-radius:12px;background:#103d29;color:#dff8e3;font-size:12px;font-weight:850">Checking for updates…</div><button id="ssUpdateBtn" type="button" class="hidden" onclick="ssApplyUpdate()" style="width:100%;margin-top:10px;padding:13px;border-radius:12px;background:#69df83;color:#071a33;font-weight:950">UPDATE AVAILABLE — TAP TO UPDATE</button></div></div>
 <script>
 let gps=null,huntPostcode="",huntAddressQuery="",target=null,watchId=null,postcodeTimer=null,editingRecordId=null;
-const SS_APP_VERSION="1.0.5e";
+const SS_APP_VERSION="1.0.5f";
 const SS_CANONICAL_URL="https://cryptod1.github.io/SituSnap/";
 function ssShowMore(){document.getElementById("ssMorePanel")?.classList.remove("hidden");ssCheckForUpdate()}
 function ssHideMore(){document.getElementById("ssMorePanel")?.classList.add("hidden")}
 async function ssCheckForUpdate(){
   const btn=document.getElementById("ssUpdateBtn");
   const status=document.getElementById("ssUpdateStatus");
+  const badge=document.getElementById("ssUpdateBadge");
   try{
     if(!navigator.onLine){
       if(status) status.textContent="Offline — update check paused";
@@ -267,27 +273,22 @@ async function ssCheckForUpdate(){
     }
     const res=await fetch(SS_CANONICAL_URL+"?update_check="+Date.now(),{cache:"no-store"});
     if(!res.ok) throw new Error("update check failed");
-    const html=await res.text();
-    const match=html.match(/id=["']ssBuildStamp["'][^>]*data-build=["']([^"']+)["']/i);
+    const remoteHtml=await res.text();
+    const match=remoteHtml.match(/id=["']ssBuildStamp["'][^>]*data-build=["']([^"']+)["']/i);
     const latest=match ? match[1] : "";
     const current=(document.getElementById("ssBuildStamp")?.dataset.build||"").trim();
 
     if(latest && current && latest!==current){
-      if(status) status.textContent="Update available: "+latest;
-      if(btn) btn.style.display="block";
-
-      // One automatic prompt per newly detected version.
-      const promptKey="ssUpdatePrompted:"+latest;
-      if(!sessionStorage.getItem(promptKey)){
-        sessionStorage.setItem(promptKey,"1");
-        setTimeout(()=>{
-          const now=confirm("SituSnap update available\\n\\nA newer version ("+latest+") is ready.\\n\\nTap OK to update now, or Cancel for later.");
-          if(now) ssApplyUpdate();
-        },350);
+      if(status) status.textContent="SituSnap update available · "+latest;
+      if(btn){
+        btn.textContent="UPDATE NOW";
+        btn.style.display="block";
       }
+      if(badge) badge.classList.remove("hidden");
     }else{
       if(status) status.textContent="SituSnap is up to date";
       if(btn) btn.style.display="none";
+      if(badge) badge.classList.add("hidden");
     }
   }catch(e){
     if(status) status.textContent="Update check unavailable";
