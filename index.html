@@ -138,7 +138,7 @@ input::placeholder,textarea::placeholder{color:#aeb9c7;opacity:1}
 
 </head>
 <body>
-<div id="ssBuildStamp" data-build="SituSnap-V1.0.5j" style="display:none">SituSnap-V1.0.5j</div>
+<div id="ssBuildStamp" data-build="SituSnap-V1.0.5k" style="display:none">SituSnap-V1.0.5k</div>
 <div id="offlineBanner" class="offline-banner hidden" role="status" aria-live="polite">No signal — continue offline.</div><div id="celebration" aria-hidden="true"><div class="celebrate-content"><div class="celebrate-title">PIN VERIFIED!</div><div class="celebrate-sub">SituSnap location confirmed</div></div></div><header><div class="brand"><div class="brand-mark" aria-label="SituSnap logo">
 <svg viewBox="0 0 100 100" role="img" aria-hidden="true">
 <defs>
@@ -254,11 +254,11 @@ fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round"/>
 <section class="card" id="recordsCard"><div class="section-head"><div><h2>Verified locations</h2><p class="muted">Previously verified properties for this postcode.</p></div></div><div id="records"></div></section>
 
 </main><nav class="bottom"><button class="nav active" onclick="window.scrollTo({top:0,behavior:'smooth'})"><span class="ico">⌂</span>Find</button><button class="nav" onclick="showForm()"><span class="ico">⌄</span>Reminder</button><button class="nav" onclick="document.getElementById('recordsCard').scrollIntoView({behavior:'smooth'})"><span class="ico">↻</span>Verified</button><button id="ssMoreNavBtn" class="nav" onclick="ssShowMore()" style="position:relative"><span class="ico">☰</span>More<span id="ssUpdateBadge" class="hidden" aria-label="Update available">UPDATE</span></button></nav>
-<div id="ssMorePanel" class="hidden" style="position:fixed;inset:0;z-index:900;background:rgba(2,9,20,.72);padding:90px 16px;overflow:auto" onclick="if(event.target===this)ssHideMore()"><div style="max-width:520px;margin:auto;background:#0a1934;border:1px solid rgba(126,177,235,.25);border-radius:18px;padding:18px"><div style="display:flex;justify-content:space-between;align-items:center"><div><b>SituSnap</b><div id="ssVisibleVersion" style="font-size:12px;color:#a9bad0">Version 1.0.5j</div></div><button type="button" onclick="ssHideMore()" style="min-height:40px;padding:6px 12px;border-radius:10px;background:#26384f;color:#fff">CLOSE</button></div><div id="ssUpdateStatus" style="margin-top:16px;padding:13px;border-radius:12px;background:#103d29;color:#dff8e3;font-size:12px;font-weight:850">Checking for updates…</div><button id="ssUpdateBtn" type="button" class="hidden" onclick="ssApplyUpdate()" style="width:100%;margin-top:10px;padding:13px;border-radius:12px;background:#69df83;color:#071a33;font-weight:950">UPDATE AVAILABLE — TAP TO UPDATE</button></div></div>
+<div id="ssMorePanel" class="hidden" style="position:fixed;inset:0;z-index:900;background:rgba(2,9,20,.72);padding:90px 16px;overflow:auto" onclick="if(event.target===this)ssHideMore()"><div style="max-width:520px;margin:auto;background:#0a1934;border:1px solid rgba(126,177,235,.25);border-radius:18px;padding:18px"><div style="display:flex;justify-content:space-between;align-items:center"><div><b>SituSnap</b><div id="ssVisibleVersion" style="font-size:12px;color:#a9bad0">Version 1.0.5k</div></div><button type="button" onclick="ssHideMore()" style="min-height:40px;padding:6px 12px;border-radius:10px;background:#26384f;color:#fff">CLOSE</button></div><div id="ssUpdateStatus" style="margin-top:16px;padding:13px;border-radius:12px;background:#103d29;color:#dff8e3;font-size:12px;font-weight:850">Checking for updates…</div><button id="ssUpdateBtn" type="button" class="hidden" onclick="ssApplyUpdate()" style="width:100%;margin-top:10px;padding:13px;border-radius:12px;background:#69df83;color:#071a33;font-weight:950">UPDATE AVAILABLE — TAP TO UPDATE</button></div></div>
 <script>
 let gps=null,huntPostcode="",huntAddressQuery="",target=null,watchId=null,postcodeTimer=null,editingRecordId=null;
 let ssFindGeneration=0;
-const SS_APP_VERSION="1.0.5j";
+const SS_APP_VERSION="1.0.5k";
 const SS_CANONICAL_URL="https://cryptod1.github.io/SituSnap/";
 function ssShowMore(){document.getElementById("ssMorePanel")?.classList.remove("hidden");ssCheckForUpdate()}
 function ssHideMore(){document.getElementById("ssMorePanel")?.classList.add("hidden")}
@@ -1136,6 +1136,8 @@ function ssNavigateFound(){
 async function ssFindDestination(){
   const myFindGeneration=++ssFindGeneration;
   window.__ssLocalVerifiedLocked=false;
+  const __bcCardReset=document.getElementById('bcCard');
+  if(__bcCardReset){delete __bcCardReset.dataset.localWinner;}
   try{document.activeElement?.blur()}catch(_){}
   ssPendingNavigation=null;
   const pc=(document.getElementById("huntPostcode")?.value||"").trim().toUpperCase();
@@ -1178,6 +1180,8 @@ async function ssFindDestination(){
       };
       const label=[row.address,row.street].filter(Boolean).join(' · ')||property||pc;
       window.__ssLocalVerifiedLocked=true;
+      const __bcCard=document.getElementById('bcCard');
+      if(__bcCard){__bcCard.classList.add('hidden');__bcCard.dataset.localWinner='1';}
       if(typeof bcRequestSeq==='number') ++bcRequestSeq;
       clearTimeout(bcTimer);
       ++ssFindGeneration; // local SituSnap pin wins; invalidate every pending resolver result
@@ -1965,6 +1969,9 @@ function bcQueueResolve(property,postcode){
   bcTimer=setTimeout(()=>{ if(queuedSeq===bcRequestSeq) bcResolve(property,postcode,queuedSeq); },700);
 }
 async function bcResolve(property,postcode,requestSeq){
+  const __bcGenerationAtStart=ssFindGeneration;
+  if(window.__ssLocalVerifiedLocked) return null;
+
   property=String(property||'').trim();
   postcode=String(postcode||'').trim().toUpperCase();
   if(!property||!postcode)return;
@@ -1973,11 +1980,14 @@ async function bcResolve(property,postcode,requestSeq){
   const remembered=bcFindVerified(property,postcode);
   if(remembered){
     if(mySeq!==bcRequestSeq)return;
+    if(window.__ssLocalVerifiedLocked || __bcGenerationAtStart!==ssFindGeneration) return null;
     bcResolution={verified:true,fieldVerified:true,address:remembered.address,latitude:Number(remembered.gps?.latitude ?? remembered.latitude),longitude:Number(remembered.gps?.longitude ?? remembered.longitude),source:'SituSnap verified memory',property,postcode};
     try{localStorage.setItem(BC_HUNT_CACHE,JSON.stringify(bcResolution))}catch(_){}
+    if(window.__ssLocalVerifiedLocked || __bcGenerationAtStart!==ssFindGeneration) return null;
     bcUI('PIN VERIFIED ✓',bcRecordInstruction(remembered)||'Previously verified on site in SituSnap',true,false,'green');
     return bcResolution;
   }
+  if(window.__ssLocalVerifiedLocked || __bcGenerationAtStart!==ssFindGeneration) return null;
   bcUI('Checking destination…','Breadcrumbs is checking the property and postcode.',false);
   try{
     const controller=new AbortController();
@@ -1993,35 +2003,47 @@ async function bcResolve(property,postcode,requestSeq){
     const candidateList=Array.isArray(d?.candidates)?d.candidates:(Array.isArray(d?.matches)?d.matches:(Array.isArray(d?.results)?d.results:[]));
     const unresolvedAmbiguity=!!(d&&(d.ambiguous===true || d.status==='ambiguous' || (candidateList.length>1 && d.verified!==true)));
     if(unresolvedAmbiguity){
+      if(window.__ssLocalVerifiedLocked || __bcGenerationAtStart!==ssFindGeneration) return null;
       bcResolution={...(d||{}),verified:false,fieldVerified:false,property,postcode,ambiguous:true};
+      if(window.__ssLocalVerifiedLocked || __bcGenerationAtStart!==ssFindGeneration) return null;
       bcUI('MORE THAN ONE MATCH','More than one property matches this search. Choose the exact property before navigation.',false,false,'amber');
       return null;
     }
     if(r.ok&&d&&d.verified===true&&d.uprn&&Number.isFinite(Number(d.latitude))&&Number.isFinite(Number(d.longitude))){
       if(!bcReturnedMatchesDoorNumber(d)){
+        if(window.__ssLocalVerifiedLocked || __bcGenerationAtStart!==ssFindGeneration) return null;
         bcResolution={...d,verified:false,fieldVerified:false,property,postcode,numberMismatch:true};
+        if(window.__ssLocalVerifiedLocked || __bcGenerationAtStart!==ssFindGeneration) return null;
         bcUI('NOT EXACTLY VERIFIED','The returned address does not match the door number entered. Navigation has been withheld.',false,false,'amber');
         return null;
       }
+      if(window.__ssLocalVerifiedLocked || __bcGenerationAtStart!==ssFindGeneration) return null;
       bcResolution={...d,fieldVerified:false,property,postcode};
       try{localStorage.setItem(BC_HUNT_CACHE,JSON.stringify(bcResolution))}catch(_){}
+      if(window.__ssLocalVerifiedLocked || __bcGenerationAtStart!==ssFindGeneration) return null;
       bcUI('DESTINATION VERIFIED',d.address||property,true,true,'green');
       return bcResolution;
     }
     const useful=bcResolverInstruction(d);
     const collated=!!(r.ok&&d&&(d.status==='collated'||d.collated===true||useful));
     if(collated&&useful){
+      if(window.__ssLocalVerifiedLocked || __bcGenerationAtStart!==ssFindGeneration) return null;
       bcResolution={...d,verified:false,fieldVerified:false,property,postcode,lastMileOnly:true};
       try{localStorage.setItem(BC_HUNT_CACHE,JSON.stringify(bcResolution))}catch(_){}
+      if(window.__ssLocalVerifiedLocked || __bcGenerationAtStart!==ssFindGeneration) return null;
       bcUI('COLLATED — NOT CONFIRMED',useful,false,false,'amber');
     }else{
+      if(window.__ssLocalVerifiedLocked || __bcGenerationAtStart!==ssFindGeneration) return null;
       bcResolution={...(d||{}),verified:false,fieldVerified:false,property,postcode};
       try{localStorage.setItem(BC_HUNT_CACHE,JSON.stringify(bcResolution))}catch(_){}
+      if(window.__ssLocalVerifiedLocked || __bcGenerationAtStart!==ssFindGeneration) return null;
       bcUI('NOT VERIFIED','No exact authoritative pin was returned for this address. Record it on site if found.',false,false,'red');
     }
   }catch(_){
     if(mySeq!==bcRequestSeq)return;
+    if(window.__ssLocalVerifiedLocked || __bcGenerationAtStart!==ssFindGeneration) return null;
     bcResolution={verified:false,unavailable:true,property,postcode};
+    if(window.__ssLocalVerifiedLocked || __bcGenerationAtStart!==ssFindGeneration) return null;
     bcUI('BREADCRUMBS UNAVAILABLE','No response after 7 seconds — field recording remains available. Google Maps is an unverified fallback.',false,false,'red');
   }
   return null;
