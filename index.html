@@ -254,7 +254,7 @@ fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round"/>
 <section class="card" id="recordsCard"><div class="section-head"><div><h2>Verified locations</h2><p class="muted">Previously verified properties for this postcode.</p></div></div><div id="records"></div></section>
 
 </main><nav class="bottom"><button class="nav active" onclick="window.scrollTo({top:0,behavior:'smooth'})"><span class="ico">⌂</span>Find</button><button class="nav" onclick="showForm()"><span class="ico">⌄</span>Reminder</button><button class="nav" onclick="document.getElementById('recordsCard').scrollIntoView({behavior:'smooth'})"><span class="ico">↻</span>Verified</button><button id="ssMoreNavBtn" class="nav" onclick="ssShowMore()" style="position:relative"><span class="ico">☰</span>More<span id="ssUpdateBadge" class="hidden" aria-label="Update available">UPDATE</span></button></nav>
-<div id="ssMorePanel" class="hidden" style="position:fixed;inset:0;z-index:900;background:rgba(2,9,20,.72);padding:90px 16px;overflow:auto" onclick="if(event.target===this)ssHideMore()"><div style="max-width:520px;margin:auto;background:#0a1934;border:1px solid rgba(126,177,235,.25);border-radius:18px;padding:18px"><div style="display:flex;justify-content:space-between;align-items:center"><div><b>SituSnap</b><div id="ssVisibleVersion" style="font-size:12px;color:#a9bad0">Version 1.0.5p</div></div><button type="button" onclick="ssHideMore()" style="min-height:40px;padding:6px 12px;border-radius:10px;background:#26384f;color:#fff">CLOSE</button></div><div id="ssUpdateStatus" style="margin-top:16px;padding:13px;border-radius:12px;background:#103d29;color:#dff8e3;font-size:12px;font-weight:850">Checking for updates…</div><button id="ssUpdateBtn" type="button" class="hidden" onclick="ssApplyUpdate()" style="width:100%;margin-top:10px;padding:13px;border-radius:12px;background:#69df83;color:#071a33;font-weight:950">UPDATE AVAILABLE — TAP TO UPDATE</button></div></div>
+<div id="ssMorePanel" class="hidden" style="position:fixed;inset:0;z-index:900;background:rgba(2,9,20,.72);padding:90px 16px;overflow:auto" onclick="if(event.target===this)ssHideMore()"><div style="max-width:520px;margin:auto;background:#0a1934;border:1px solid rgba(126,177,235,.25);border-radius:18px;padding:18px"><div style="display:flex;justify-content:space-between;align-items:center"><div><b>SituSnap</b><div id="ssVisibleVersion" style="font-size:12px;color:#a9bad0">Version 1.0.5q</div></div><button type="button" onclick="ssHideMore()" style="min-height:40px;padding:6px 12px;border-radius:10px;background:#26384f;color:#fff">CLOSE</button></div><div id="ssUpdateStatus" style="margin-top:16px;padding:13px;border-radius:12px;background:#103d29;color:#dff8e3;font-size:12px;font-weight:850">Checking for updates…</div><button id="ssUpdateBtn" type="button" class="hidden" onclick="ssApplyUpdate()" style="width:100%;margin-top:10px;padding:13px;border-radius:12px;background:#69df83;color:#071a33;font-weight:950">UPDATE AVAILABLE — TAP TO UPDATE</button></div></div>
 <script>
 let gps=null,huntPostcode="",huntAddressQuery="",target=null,watchId=null,postcodeTimer=null,editingRecordId=null;
 let ssFindGeneration=0;
@@ -268,7 +268,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   };
   new MutationObserver(keepLocalWinner).observe(card,{attributes:true,childList:true,subtree:true});
 });
-const SS_APP_VERSION="1.0.5p";
+const SS_APP_VERSION="1.0.5q";
 const SS_CANONICAL_URL="https://cryptod1.github.io/SituSnap/";
 function ssShowMore(){document.getElementById("ssMorePanel")?.classList.remove("hidden");ssCheckForUpdate()}
 function ssHideMore(){document.getElementById("ssMorePanel")?.classList.add("hidden")}
@@ -1143,48 +1143,14 @@ function ssNavigateFound(){
   }
 }
 
-async function ssFindDestination(){
-  // V1.0.5p: authoritative ordering — local field verification wins before resolver.
-  const __pc=(document.getElementById("huntPostcode")?.value||"").trim().toUpperCase();
-  const __property=(document.getElementById("manualAddress")?.value||"").trim();
-  const __norm=v=>String(v||"").toLowerCase().replace(/[^a-z0-9]/g,"");
-  const __pcKey=v=>String(v||"").toUpperCase().replace(/\s+/g,"");
-  let __learned=[];
-  try{__learned=JSON.parse(localStorage.getItem("situSnapVerifiedPinsV1")||"[]")}catch(e){}
-  const __local=__learned.find(r=>
-    r && r.state==="field_verified" && r.fieldPin &&
-    __pcKey(r.postcode)===__pcKey(__pc) &&
-    __norm(r.propertyName)===__norm(__property)
-  );
-  if(__local){
-    window.__ssLocalVerifiedLocked=true;
-    const __lat=Number(__local.fieldPin.latitude ?? __local.fieldPin.lat);
-    const __lon=Number(__local.fieldPin.longitude ?? __local.fieldPin.lon ?? __local.fieldPin.lng);
-    if(Number.isFinite(__lat)&&Number.isFinite(__lon)){
-      window.ssPendingNavigation={latitude:__lat,longitude:__lon,address:__local.propertyName||__property};
-    }
-    if(typeof window.__ssTrace==="function")window.__ssTrace("LOCAL VERIFIED WIN",JSON.stringify({property:__local.propertyName,postcode:__local.postcode,pinId:__local.pinId||""}));
-    ssShowFindResult("✓ PIN VERIFIED",(__local.propertyName||__property)+" · "+__pc,true,"SITUSNAP VERIFIED");
-    const __bc=document.getElementById("bcResolveCard");
-    if(__bc)__bc.style.setProperty("display","none","important");
-    return;
-  }
-
+async async function ssFindDestination(){
   const myFindGeneration=++ssFindGeneration;
   window.__ssLocalVerifiedLocked=false;
-  const __bcRestore=document.getElementById('bcResolveCard');
-  if(__bcRestore){
-    __bcRestore.removeAttribute('aria-hidden');
-    __bcRestore.style.removeProperty('display');
-  }
-
-  const __bcCardReset=document.getElementById('bcResolveCard');
-  if(__bcCardReset){delete __bcCardReset.dataset.localWinner;}
   try{document.activeElement?.blur()}catch(_){}
   ssPendingNavigation=null;
+
   const pc=(document.getElementById("huntPostcode")?.value||"").trim().toUpperCase();
   const property=bcPropertyInput();
-
   if(!pc && !property){
     alert("Enter a postcode or property name.");
     document.getElementById("huntPostcode")?.focus();
@@ -1193,25 +1159,39 @@ async function ssFindDestination(){
 
   ssShowFindResult('Checking destination…',[property,pc].filter(Boolean).join(' · '),false,'SITUSNAP');
 
-  // 1) SituSnap verified-first — exact same record collection used by the Verified tab.
+  // V1.0.5q: FIND now consumes the EXACT SAME verified collection used by
+  // the Verified tab. No separate learned-memory lookup and no duplicate
+  // verification predicate.
   if(pc){
+    const verifiedRows=ssVerifiedForPostcode(pc);
     const canon=v=>String(v||'').toUpperCase().replace(/[^A-Z0-9]+/g,' ').trim();
     const wanted=canon(property);
-    const verifiedRows=getRecords().filter(r=>isVerifiedSituSnap(r) && ssPcKey(r.postcode)===ssPcKey(pc));
     let row=null;
+
     if(wanted){
       row=verifiedRows.find(r=>{
-        const names=[
+        const candidates=[
           r.address,r.street,r.property,r.propertyName,r.houseName,
           [r.address,r.street].filter(Boolean).join(' '),
           [r.doorNumber,r.address].filter(Boolean).join(' '),
           [r.doorNumber,r.street].filter(Boolean).join(' ')
         ].map(canon).filter(Boolean);
-        return names.some(n=>n===wanted || n.includes(wanted) || wanted.includes(n));
+        return candidates.some(n=>n===wanted || n.includes(wanted) || wanted.includes(n));
       })||null;
     }else if(verifiedRows.length===1){
       row=verifiedRows[0];
     }
+
+    if(typeof window.__ssTrace==="function"){
+      window.__ssTrace("VERIFIED TAB SOURCE",JSON.stringify({
+        postcode:pc,wanted:property,count:verifiedRows.length,
+        rows:verifiedRows.map(r=>({id:r.id,address:r.address,street:r.street,postcode:r.postcode,
+          pinVerified:r.pinVerified,result:r.result,updateStatus:r.updateStatus,
+          hasGps:!!r.gps})).slice(0,12),
+        matched:row?{id:row.id,address:row.address,street:row.street}:null
+      }));
+    }
+
     if(row){
       const lat=Number(row.gps?.latitude ?? row.gps?.lat ?? row.latitude ?? row.lat);
       const lon=Number(row.gps?.longitude ?? row.gps?.lon ?? row.longitude ?? row.lon);
@@ -1220,50 +1200,39 @@ async function ssFindDestination(){
         longitude:Number.isFinite(lon)?lon:null,
         query:[row.address,row.street,row.postcode].filter(Boolean).join(', ')
       };
-      const label=[row.address,row.street].filter(Boolean).join(' · ')||property||pc;
       window.__ssLocalVerifiedLocked=true;
       window.__ssLocalWinnerEpoch=Date.now();
-      const __bc=document.getElementById('bcResolveCard');
-      if(__bc){
-        __bc.setAttribute('aria-hidden','true');
-        __bc.style.setProperty('display','none','important');
-        __bc.innerHTML='';
-      }
-
-      const __bcCard=document.getElementById('bcResolveCard');
-      if(__bcCard){__bcCard.classList.add('hidden');__bcCard.dataset.localWinner='1';}
       if(typeof bcRequestSeq==='number') ++bcRequestSeq;
       clearTimeout(bcTimer);
-      ++ssFindGeneration; // local SituSnap pin wins; invalidate every pending resolver result
+      ++ssFindGeneration;
+
+      const bc=document.getElementById('bcResolveCard');
+      if(bc){bc.classList.add('hidden');bc.style.setProperty('display','none','important');}
+
+      const label=[row.address,row.street].filter(Boolean).join(' · ')||property||pc;
       ssShowFindResult('✓ PIN VERIFIED',`${label}${pc?' · '+pc:''}`,true,'SITUSNAP VERIFIED');
       return;
     }
   }
 
-  // 2) Breadcrumbs resolves in-place. It must not navigate until NAVIGATE TO PIN is pressed.
+  // Only a miss from the Verified tab's own source is allowed to reach Breadcrumbs.
   if(property && pc && typeof bcResolve==='function'){
     const result=await bcResolve(property,pc,undefined,true);
-  if(myFindGeneration!==ssFindGeneration) return; // stale Breadcrumbs response: ignore
+    if(myFindGeneration!==ssFindGeneration)return;
     if(result && Number.isFinite(Number(result.latitude)) && Number.isFinite(Number(result.longitude))){
       ssPendingNavigation={
-        latitude:Number(result.latitude),
-        longitude:Number(result.longitude),
+        latitude:Number(result.latitude),longitude:Number(result.longitude),
         query:[property,pc].join(', ')
       };
-      // bcResolve can return either a Breadcrumbs resolver result OR a pin
-      // recovered from SituSnap's verified memory. Preserve the true source.
-      if(result.fieldVerified===true || String(result.source||'').toLowerCase().includes('situsnap')){
-        window.__ssLocalVerifiedLocked=true;
-        ssShowFindResult('✓ PIN VERIFIED',result.address||[property,pc].join(' · '),true,'SITUSNAP VERIFIED');
-      }else{
-        ssShowFindResult('✓ DESTINATION VERIFIED',result.address||[property,pc].join(' · '),true,'BREADCRUMBS');
-      }
+      ssShowFindResult('✓ DESTINATION VERIFIED',
+        result.address||[property,pc].join(' · '),true,'BREADCRUMBS');
       return;
     }
   }
 
-  // 3) No exact verified pin. Keep the colleague inside SituSnap and offer the existing recording path.
-  ssShowFindResult('DESTINATION NOT VERIFIED','No confirmed pin is available yet. Use Record Without Sat Nav when you reach the property.',false,'SITUSNAP');
+  ssShowFindResult('DESTINATION NOT VERIFIED',
+    'No confirmed pin is available yet. Use Record Without Sat Nav when you reach the property.',
+    false,'SITUSNAP');
 }
 
 async function startHunt(){
@@ -1448,7 +1417,7 @@ function syncManualAddress(){
   const pc=document.getElementById("huntPostcode").value.trim().toUpperCase();
   document.getElementById("address").value=manual;
   document.getElementById("postcode").value=pc;
-  // V1.0.5p: typing must never start Breadcrumbs.
+  // V1.0.5q: typing must never start Breadcrumbs.
   // FIND DESTINATION is the single owner of resolver order:
   // SituSnap verified memory first, Breadcrumbs only on a genuine miss.
   if(!manual){
@@ -1467,7 +1436,7 @@ function syncSelectedAddress(){
       document.getElementById("postcode").value=pc;
       // For a mapped property, resolve the property name against Breadcrumbs/EPC rather than
       // sending the whole display label as though it were the house name.
-      // V1.0.5p: selecting a suggestion only fills the form.
+      // V1.0.5q: selecting a suggestion only fills the form.
       // Do not launch Breadcrumbs until FIND DESTINATION is explicitly pressed.
       const resolverName=(selected.kind==="property" ? (selected.house||selected.label) : selected.label)||"";
     }
@@ -2658,7 +2627,7 @@ window.addEventListener("load",()=>{if(navigator.onLine){ssVaultRestore().then((
 </script>
 
 <script>
-/* V1.0.5p VERIFIED-PATH TRACE — diagnostic only */
+/* V1.0.5q VERIFIED-PATH TRACE — diagnostic only */
 (function(){
   const KEY="situSnapDebugTraceV1";
   const MAX=120;
@@ -2669,7 +2638,7 @@ window.addEventListener("load",()=>{if(navigator.onLine){ssVaultRestore().then((
     a.push({t:new Date().toISOString(),event:String(event),detail:String(detail||"").slice(0,700)});
     save(a);
   };
-  window.__ssTrace("BOOT","SituSnap 1.0.5p tracer loaded");
+  window.__ssTrace("BOOT","SituSnap 1.0.5q tracer loaded");
 
   function watch(id){
     const el=document.getElementById(id); if(!el)return;
@@ -2725,7 +2694,7 @@ window.addEventListener("load",()=>{if(navigator.onLine){ssVaultRestore().then((
       box.style.cssText="position:fixed;z-index:99999;inset:8% 4% 10%;background:#071a33;color:#fff;border:2px solid #69df83;border-radius:16px;padding:12px;overflow:auto;font:11px monospace;white-space:pre-wrap";
       document.body.appendChild(box);
     }
-    box.innerHTML='<div style="font:900 15px system-ui;margin-bottom:10px">V1.0.5p VERIFIED TRACE</div>'+
+    box.innerHTML='<div style="font:900 15px system-ui;margin-bottom:10px">V1.0.5q VERIFIED TRACE</div>'+
       '<button onclick="ssCopyTrace()" style="margin:3px;padding:8px">COPY TRACE</button>'+
       '<button onclick="ssClearTrace()" style="margin:3px;padding:8px">CLEAR</button>'+
       '<button onclick="document.getElementById(\'ssTraceBox\').remove()" style="margin:3px;padding:8px">CLOSE</button><hr>'+
