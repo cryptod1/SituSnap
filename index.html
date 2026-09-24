@@ -254,7 +254,7 @@ fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round"/>
 <section class="card" id="recordsCard"><div class="section-head"><div><h2>Verified locations</h2><p class="muted">Previously verified properties for this postcode.</p></div></div><div id="records"></div></section>
 
 </main><nav class="bottom"><button class="nav active" onclick="window.scrollTo({top:0,behavior:'smooth'})"><span class="ico">⌂</span>Find</button><button class="nav" onclick="showForm()"><span class="ico">⌄</span>Reminder</button><button class="nav" onclick="document.getElementById('recordsCard').scrollIntoView({behavior:'smooth'})"><span class="ico">↻</span>Verified</button><button id="ssMoreNavBtn" class="nav" onclick="ssShowMore()" style="position:relative"><span class="ico">☰</span>More<span id="ssUpdateBadge" class="hidden" aria-label="Update available">UPDATE</span></button></nav>
-<div id="ssMorePanel" class="hidden" style="position:fixed;inset:0;z-index:900;background:rgba(2,9,20,.72);padding:90px 16px;overflow:auto" onclick="if(event.target===this)ssHideMore()"><div style="max-width:520px;margin:auto;background:#0a1934;border:1px solid rgba(126,177,235,.25);border-radius:18px;padding:18px"><div style="display:flex;justify-content:space-between;align-items:center"><div><b>SituSnap</b><div id="ssVisibleVersion" style="font-size:12px;color:#a9bad0">Version 1.0.5n</div></div><button type="button" onclick="ssHideMore()" style="min-height:40px;padding:6px 12px;border-radius:10px;background:#26384f;color:#fff">CLOSE</button></div><div id="ssUpdateStatus" style="margin-top:16px;padding:13px;border-radius:12px;background:#103d29;color:#dff8e3;font-size:12px;font-weight:850">Checking for updates…</div><button id="ssUpdateBtn" type="button" class="hidden" onclick="ssApplyUpdate()" style="width:100%;margin-top:10px;padding:13px;border-radius:12px;background:#69df83;color:#071a33;font-weight:950">UPDATE AVAILABLE — TAP TO UPDATE</button></div></div>
+<div id="ssMorePanel" class="hidden" style="position:fixed;inset:0;z-index:900;background:rgba(2,9,20,.72);padding:90px 16px;overflow:auto" onclick="if(event.target===this)ssHideMore()"><div style="max-width:520px;margin:auto;background:#0a1934;border:1px solid rgba(126,177,235,.25);border-radius:18px;padding:18px"><div style="display:flex;justify-content:space-between;align-items:center"><div><b>SituSnap</b><div id="ssVisibleVersion" style="font-size:12px;color:#a9bad0">Version 1.0.5o</div></div><button type="button" onclick="ssHideMore()" style="min-height:40px;padding:6px 12px;border-radius:10px;background:#26384f;color:#fff">CLOSE</button></div><div id="ssUpdateStatus" style="margin-top:16px;padding:13px;border-radius:12px;background:#103d29;color:#dff8e3;font-size:12px;font-weight:850">Checking for updates…</div><button id="ssUpdateBtn" type="button" class="hidden" onclick="ssApplyUpdate()" style="width:100%;margin-top:10px;padding:13px;border-radius:12px;background:#69df83;color:#071a33;font-weight:950">UPDATE AVAILABLE — TAP TO UPDATE</button></div></div>
 <script>
 let gps=null,huntPostcode="",huntAddressQuery="",target=null,watchId=null,postcodeTimer=null,editingRecordId=null;
 let ssFindGeneration=0;
@@ -268,7 +268,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   };
   new MutationObserver(keepLocalWinner).observe(card,{attributes:true,childList:true,subtree:true});
 });
-const SS_APP_VERSION="1.0.5n";
+const SS_APP_VERSION="1.0.5o";
 const SS_CANONICAL_URL="https://cryptod1.github.io/SituSnap/";
 function ssShowMore(){document.getElementById("ssMorePanel")?.classList.remove("hidden");ssCheckForUpdate()}
 function ssHideMore(){document.getElementById("ssMorePanel")?.classList.add("hidden")}
@@ -1422,7 +1422,7 @@ function syncManualAddress(){
   const pc=document.getElementById("huntPostcode").value.trim().toUpperCase();
   document.getElementById("address").value=manual;
   document.getElementById("postcode").value=pc;
-  // V1.0.5n: typing must never start Breadcrumbs.
+  // V1.0.5o: typing must never start Breadcrumbs.
   // FIND DESTINATION is the single owner of resolver order:
   // SituSnap verified memory first, Breadcrumbs only on a genuine miss.
   if(!manual){
@@ -1441,7 +1441,7 @@ function syncSelectedAddress(){
       document.getElementById("postcode").value=pc;
       // For a mapped property, resolve the property name against Breadcrumbs/EPC rather than
       // sending the whole display label as though it were the house name.
-      // V1.0.5n: selecting a suggestion only fills the form.
+      // V1.0.5o: selecting a suggestion only fills the form.
       // Do not launch Breadcrumbs until FIND DESTINATION is explicitly pressed.
       const resolverName=(selected.kind==="property" ? (selected.house||selected.label) : selected.label)||"";
     }
@@ -2629,5 +2629,90 @@ setTimeout(()=>{try{ssUpdateVaultStatus()}catch(e){}},100);
 
 <script>
 window.addEventListener("load",()=>{if(navigator.onLine){ssVaultRestore().then(()=>ssVaultFlush())}});
+</script>
+
+<script>
+/* V1.0.5o VERIFIED-PATH TRACE — diagnostic only */
+(function(){
+  const KEY="situSnapDebugTraceV1";
+  const MAX=120;
+  function load(){try{return JSON.parse(localStorage.getItem(KEY)||"[]")}catch(e){return []}}
+  function save(a){try{localStorage.setItem(KEY,JSON.stringify(a.slice(-MAX)))}catch(e){}}
+  window.__ssTrace=function(event,detail){
+    const a=load();
+    a.push({t:new Date().toISOString(),event:String(event),detail:String(detail||"").slice(0,700)});
+    save(a);
+  };
+  window.__ssTrace("BOOT","SituSnap 1.0.5o tracer loaded");
+
+  function watch(id){
+    const el=document.getElementById(id); if(!el)return;
+    let last=(el.innerText||el.textContent||"").trim();
+    new MutationObserver(()=>{
+      const now=(el.innerText||el.textContent||"").trim();
+      if(now!==last){
+        window.__ssTrace("DOM "+id, now);
+        last=now;
+      }
+    }).observe(el,{subtree:true,childList:true,characterData:true,attributes:true});
+  }
+
+  window.addEventListener("load",()=>{
+    ["ssFindResult","ssFindResultTitle","ssFindResultMeta","bcResolveCard",
+     "bcResolveTitle","bcResolveMeta","bcQuickStatus"].forEach(watch);
+
+    ["ssFindDestination","ssShowFindResult","bcResolve","bcQueueResolve",
+     "bcUI","bcRender","bcSetStatus","bcSetMainAvailable"].forEach(name=>{
+      const original=window[name];
+      if(typeof original!=="function")return;
+      window[name]=function(){
+        let args="";
+        try{args=[...arguments].map(v=>{
+          if(v && typeof v==="object")return JSON.stringify(v).slice(0,350);
+          return String(v);
+        }).join(" | ")}catch(e){}
+        window.__ssTrace("CALL "+name,args);
+        let result;
+        try{result=original.apply(this,arguments)}
+        catch(e){window.__ssTrace("THROW "+name,e.stack||e);throw e}
+        if(result && typeof result.then==="function"){
+          return result.then(v=>{
+            let x="";try{x=typeof v==="object"?JSON.stringify(v).slice(0,600):String(v)}catch(e){}
+            window.__ssTrace("RETURN "+name,x);return v;
+          },e=>{window.__ssTrace("REJECT "+name,e.stack||e);throw e});
+        }
+        return result;
+      };
+    });
+  });
+
+  window.ssCopyTrace=async function(){
+    const text=JSON.stringify(load(),null,2);
+    try{await navigator.clipboard.writeText(text);alert("TRACE COPIED");}
+    catch(e){prompt("Copy trace:",text);}
+  };
+  window.ssClearTrace=function(){localStorage.removeItem(KEY);alert("TRACE CLEARED");};
+  window.ssShowTrace=function(){
+    let box=document.getElementById("ssTraceBox");
+    if(!box){
+      box=document.createElement("div");box.id="ssTraceBox";
+      box.style.cssText="position:fixed;z-index:99999;inset:8% 4% 10%;background:#071a33;color:#fff;border:2px solid #69df83;border-radius:16px;padding:12px;overflow:auto;font:11px monospace;white-space:pre-wrap";
+      document.body.appendChild(box);
+    }
+    box.innerHTML='<div style="font:900 15px system-ui;margin-bottom:10px">V1.0.5o VERIFIED TRACE</div>'+
+      '<button onclick="ssCopyTrace()" style="margin:3px;padding:8px">COPY TRACE</button>'+
+      '<button onclick="ssClearTrace()" style="margin:3px;padding:8px">CLEAR</button>'+
+      '<button onclick="document.getElementById(\'ssTraceBox\').remove()" style="margin:3px;padding:8px">CLOSE</button><hr>'+
+      JSON.stringify(load(),null,2).replace(/&/g,"&amp;").replace(/</g,"&lt;");
+  };
+
+  // Long-press the header menu button to open trace; normal tap remains untouched.
+  window.addEventListener("load",()=>{
+    const m=document.querySelector(".menu"); if(!m)return;
+    let timer;
+    m.addEventListener("pointerdown",()=>timer=setTimeout(()=>window.ssShowTrace(),700));
+    ["pointerup","pointercancel","pointerleave"].forEach(x=>m.addEventListener(x,()=>clearTimeout(timer)));
+  });
+})();
 </script>
 </body></html>
