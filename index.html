@@ -138,7 +138,7 @@ input::placeholder,textarea::placeholder{color:#aeb9c7;opacity:1}
 
 </head>
 <body>
-<div id="ssBuildStamp" data-build="SituSnap-V1.0.5s" style="display:none">SituSnap-V1.0.5s</div>
+<div id="ssBuildStamp" data-build="SituSnap-V1.0.5t" style="display:none">SituSnap-V1.0.5t</div>
 <div id="offlineBanner" class="offline-banner hidden" role="status" aria-live="polite">No signal — continue offline.</div><div id="celebration" aria-hidden="true"><div class="celebrate-content"><div class="celebrate-title">PIN VERIFIED!</div><div class="celebrate-sub">SituSnap location confirmed</div></div></div><header><div class="brand"><div class="brand-mark" aria-label="SituSnap logo">
 <svg viewBox="0 0 100 100" role="img" aria-hidden="true">
 <defs>
@@ -242,16 +242,11 @@ input::placeholder,textarea::placeholder{color:#aeb9c7;opacity:1}
 <div class="full"><details class="details" style="margin-top:4px"><summary>＋ Add more photos</summary><div class="inside"><input id="photo2" type="file" accept="image/*" capture="environment" multiple><div class="small-note" style="margin-top:7px">Optional — add approach, gate, landmark or access photos if useful.</div></div></details></div>
 <div class="full"><button class="save" id="detailsFoundBtn" onclick="confirmFoundFromDetails()" disabled style="opacity:.45;filter:saturate(.45);cursor:not-allowed">✓ PIN VERIFIED</button><div class="small-note" id="foundGpsNote" style="margin-top:8px;text-align:center">Confirm when physically at the property.</div><div id="localSaveStatus" class="small-note" style="margin-top:7px;text-align:center;font-weight:900;color:#9ee9ad"></div></div>
 <div class="full"><details class="details" style="margin-top:4px"><summary>Couldn’t locate the property?</summary><div class="inside"><button type="button" onclick="saveNotFound()" style="width:100%;padding:13px 8px;border-radius:12px;border:0;background:#145a35;color:#fff;font-weight:950">NOT FOUND</button><div class="small-note" style="margin-top:7px">Save the attempt for handover without creating a verified pin.</div></div></details></div></div></div></details>
-<div style="height:8px"></div>
-<details class="details" id="reminderIdentify"><summary>🏠 Identify the property</summary><div class="inside">Record the number/name, building, entrance, gate or another clear identifier.</div></details>
-<details class="details"><summary>🧭 Record how you found it</summary><div class="inside">Add the road, track, landmark, passage, gate or approach that actually helped you locate it.</div></details>
-<details class="details"><summary>📸 Take useful photos</summary><div class="inside">Capture the approach and the property/entrance so the next person can recognise the correct place.</div></details>
-<details class="details"><summary>⚠️ Add anything important</summary><div class="inside">Access restrictions, hazards, corrections and anything else that would save the next person time.</div></details></section>
-<div class="scroll-hint">MORE BELOW — SWIPE UP<span>⌄</span></div>
-<section class="card" id="recordsCard"><div class="section-head"><div><h2>Verified locations</h2><p class="muted">Previously verified properties for this postcode.</p></div></div><div id="records"></div></section>
+</section>
+<section class="card" id="recordsCard"><div class="section-head"><div><h2>Verified locations</h2><p class="muted" id="verifiedLocationsSubtitle">Most relevant verified properties.</p></div></div><div id="records"></div><button id="ssShowAllVerifiedBtn" type="button" class="hidden" onclick="ssToggleAllVerified()" style="width:100%;margin-top:10px;padding:11px;border-radius:10px;background:#26384f;color:#fff;font-weight:900"></button></section>
 
 </main><nav class="bottom"><button class="nav active" onclick="window.scrollTo({top:0,behavior:'smooth'})"><span class="ico">⌂</span>Find</button><button class="nav" onclick="showForm()"><span class="ico">⌄</span>Reminder</button><button class="nav" onclick="document.getElementById('recordsCard').scrollIntoView({behavior:'smooth'})"><span class="ico">↻</span>Verified</button><button id="ssMoreNavBtn" class="nav" onclick="ssShowMore()" style="position:relative"><span class="ico">☰</span>More<span id="ssUpdateBadge" class="hidden" aria-label="Update available">UPDATE</span></button></nav>
-<div id="ssMorePanel" class="hidden" style="position:fixed;inset:0;z-index:900;background:rgba(2,9,20,.72);padding:90px 16px;overflow:auto" onclick="if(event.target===this)ssHideMore()"><div style="max-width:520px;margin:auto;background:#0a1934;border:1px solid rgba(126,177,235,.25);border-radius:18px;padding:18px"><div style="display:flex;justify-content:space-between;align-items:center"><div><b>SituSnap</b><div id="ssVisibleVersion" style="font-size:12px;color:#a9bad0">Version 1.0.5s</div></div><button type="button" onclick="ssHideMore()" style="min-height:40px;padding:6px 12px;border-radius:10px;background:#26384f;color:#fff">CLOSE</button></div><div id="ssUpdateStatus" style="margin-top:16px;padding:13px;border-radius:12px;background:#103d29;color:#dff8e3;font-size:12px;font-weight:850">Checking for updates…</div><button id="ssUpdateBtn" type="button" class="hidden" onclick="ssApplyUpdate()" style="width:100%;margin-top:10px;padding:13px;border-radius:12px;background:#69df83;color:#071a33;font-weight:950">UPDATE AVAILABLE — TAP TO UPDATE</button></div></div>
+<div id="ssMorePanel" class="hidden" style="position:fixed;inset:0;z-index:900;background:rgba(2,9,20,.72);padding:90px 16px;overflow:auto" onclick="if(event.target===this)ssHideMore()"><div style="max-width:520px;margin:auto;background:#0a1934;border:1px solid rgba(126,177,235,.25);border-radius:18px;padding:18px"><div style="display:flex;justify-content:space-between;align-items:center"><div><b>SituSnap</b><div id="ssVisibleVersion" style="font-size:12px;color:#a9bad0">Version 1.0.5t</div></div><button type="button" onclick="ssHideMore()" style="min-height:40px;padding:6px 12px;border-radius:10px;background:#26384f;color:#fff">CLOSE</button></div><details class="details" style="margin-top:14px"><summary>Field reminders</summary><div class="inside"><p><b>🏠 Identify the property</b><br>Record the number/name, building, entrance, gate or another clear identifier.</p><p><b>🧭 Record how you found it</b><br>Add the road, track, landmark, passage, gate or approach that actually helped.</p><p><b>📸 Take useful photos</b><br>Capture the approach and property/entrance so the next colleague can recognise it.</p><p><b>⚠️ Add anything important</b><br>Access restrictions, hazards, corrections or anything that saves the next colleague time.</p></div></details><div id="ssUpdateStatus" style="margin-top:16px;padding:13px;border-radius:12px;background:#103d29;color:#dff8e3;font-size:12px;font-weight:850">Checking for updates…</div><button id="ssUpdateBtn" type="button" class="hidden" onclick="ssApplyUpdate()" style="width:100%;margin-top:10px;padding:13px;border-radius:12px;background:#69df83;color:#071a33;font-weight:950">UPDATE AVAILABLE — TAP TO UPDATE</button></div></div>
 <script>
 let gps=null,huntPostcode="",huntAddressQuery="",target=null,watchId=null,postcodeTimer=null,editingRecordId=null;
 let ssFindGeneration=0;
@@ -265,7 +260,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   };
   new MutationObserver(keepLocalWinner).observe(card,{attributes:true,childList:true,subtree:true});
 });
-const SS_APP_VERSION="1.0.5s";
+const SS_APP_VERSION="1.0.5t";
 const SS_CANONICAL_URL="https://cryptod1.github.io/SituSnap/";
 function ssShowMore(){document.getElementById("ssMorePanel")?.classList.remove("hidden");ssCheckForUpdate()}
 function ssHideMore(){document.getElementById("ssMorePanel")?.classList.add("hidden")}
@@ -1829,10 +1824,23 @@ function useSituSnap(id){
     : (r.address?`${r.address}${r.street?", "+r.street:""}, ${r.postcode}`:r.postcode);
   window.location.href="https://www.google.com/maps/dir/?api=1&destination="+encodeURIComponent(dest)+"&travelmode=driving";
 }
+let ssShowAllVerified=false;
+function ssToggleAllVerified(){ssShowAllVerified=!ssShowAllVerified;render()}
+function ssVerifiedTime(r){const t=Date.parse(r?.verifiedAt||r?.createdAt||0);return Number.isFinite(t)?t:0}
 function render(){
-  // Verified locations is the phone's learned-pin memory, not a search-result panel.
-  // Always show every locally verified record; postcode filtering belongs in the Find workflow.
-  const f=getRecords().filter(r=>isVerifiedSituSnap(r));
+  // Scale-friendly verified list: exact postcode first, newest first, five cards by default.
+  const all=getRecords().filter(r=>isVerifiedSituSnap(r)).sort((a,b)=>ssVerifiedTime(b)-ssVerifiedTime(a));
+  const typed=String(document.getElementById("huntPostcode")?.value||huntPostcode||"").toUpperCase().replace(/\s+/g,"");
+  const exact=typed.length>=5 ? all.filter(r=>String(r?.postcode||"").toUpperCase().replace(/\s+/g,"")===typed) : [];
+  const scoped=exact.length?exact:all;
+  const f=ssShowAllVerified?scoped:scoped.slice(0,5);
+  const subtitle=document.getElementById("verifiedLocationsSubtitle");
+  if(subtitle)subtitle.textContent=exact.length?`${exact.length} verified ${exact.length===1?"property":"properties"} for this postcode.`:`${all.length} verified ${all.length===1?"property":"properties"} saved · showing ${Math.min(5,all.length)} most recent.`;
+  const more=document.getElementById("ssShowAllVerifiedBtn");
+  if(more){
+    if(scoped.length>5){more.classList.remove("hidden");more.textContent=ssShowAllVerified?"SHOW TOP 5":`SHOW ALL VERIFIED (${scoped.length})`;}
+    else more.classList.add("hidden");
+  }
   document.getElementById("records").innerHTML=f.length?f.map(r=>{
     const accuracy=r.gps?.accuracy?` ±${Math.round(r.gps.accuracy)}m`:"";
     const when=r.verifiedAt||r.createdAt;
