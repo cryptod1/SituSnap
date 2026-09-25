@@ -32,7 +32,7 @@ android {
 
     signingConfigs {
         release {
-            storeFile file('../../situsnap-release.jks')
+            storeFile file('../situsnap-release.jks')
             storePassword System.getenv('SITUSNAP_STORE_PASSWORD')
             keyAlias System.getenv('SITUSNAP_KEY_ALIAS')
             keyPassword System.getenv('SITUSNAP_KEY_PASSWORD')
