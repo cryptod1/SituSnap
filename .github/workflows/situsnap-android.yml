@@ -26,6 +26,7 @@ jobs:
           set -e
           test -n "$KEYSTORE_BASE64"
           echo "$KEYSTORE_BASE64" | base64 --decode > situsnap-release.jks
+
           echo "✅ Keystore restored"
           echo "Keystore size: $(wc -c < situsnap-release.jks) bytes"
 
@@ -42,31 +43,81 @@ jobs:
           set -e
           gradle assembleRelease
 
-      - name: Verify APK exists and is signed
+      - name: Locate Android build tools
+        run: |
+          set -e
+
+          BUILD_TOOLS=$(find "$ANDROID_HOME/build-tools" \
+            -mindepth 1 -maxdepth 1 -type d | sort -V | tail -1)
+
+          echo "BUILD_TOOLS=$BUILD_TOOLS" >> "$GITHUB_ENV"
+          echo "🔥 Android build tools: $BUILD_TOOLS"
+
+          test -x "$BUILD_TOOLS/apksigner"
+          test -x "$BUILD_TOOLS/aapt"
+
+      - name: Inspect APK package
         run: |
           set -e
 
           APK="app/build/outputs/apk/release/app-release.apk"
 
-          if [ ! -f "$APK" ]; then
-            echo "❌ Release APK not found"
-            exit 1
-          fi
+          test -f "$APK"
 
-          echo "APK size: $(wc -c < "$APK") bytes"
+          echo "======================================"
+          echo "🔥 SITUSNAP APK PACKAGE INSPECTION"
+          echo "======================================"
 
-          APKSIGNER=$(find "$ANDROID_HOME/build-tools" -name apksigner -type f | sort -V | tail -1)
+          ls -lh "$APK"
 
-          if [ -z "$APKSIGNER" ]; then
-            echo "❌ apksigner not found"
-            exit 1
-          fi
+          echo ""
+          echo "----- PACKAGE / SDK -----"
+          "$BUILD_TOOLS/aapt" dump badging "$APK"
 
-          echo "Using: $APKSIGNER"
+          echo ""
+          echo "----- MANIFEST -----"
+          "$BUILD_TOOLS/aapt" dump xmltree \
+            "$APK" AndroidManifest.xml
 
-          "$APKSIGNER" verify --verbose --print-certs "$APK"
+          echo ""
+          echo "----- APK CONTENTS -----"
+          unzip -l "$APK"
 
+      - name: Verify APK signature
+        run: |
+          set -e
+
+          APK="app/build/outputs/apk/release/app-release.apk"
+
+          echo "======================================"
+          echo "🔥 SIGNATURE VERIFICATION"
+          echo "======================================"
+
+          "$BUILD_TOOLS/apksigner" verify \
+            --verbose \
+            --print-certs \
+            "$APK"
+
+          echo ""
           echo "🔥 SIGNED APK VERIFIED"
+
+      - name: Final SituSnap package gate
+        run: |
+          set -e
+
+          APK="app/build/outputs/apk/release/app-release.apk"
+
+          BADGING=$("$BUILD_TOOLS/aapt" dump badging "$APK")
+
+          echo "$BADGING" | grep -q "package: name='com.situsnap.app'"
+          echo "$BADGING" | grep -q "sdkVersion:'26'"
+          echo "$BADGING" | grep -q "targetSdkVersion:'35'"
+          echo "$BADGING" | grep -q "launchable-activity: name='com.situsnap.app.MainActivity'"
+
+          echo "🔥 PACKAGE ID VERIFIED"
+          echo "🔥 SDK VERIFIED"
+          echo "🔥 LAUNCHER ACTIVITY VERIFIED"
+          echo "🔥 SITUSNAP APK PASSED ALL BUILD GATES"
 
       - uses: actions/upload-artifact@v4
         with:
