@@ -1,5 +1,5 @@
-/* SituSnap precision UI — V1.0.5z
-   Presentation only. Camera/resolver/vault logic untouched. */
+/* SituSnap precision UI — V1.0.5za
+   Surgical display repair only. App logic untouched. */
 
 body{
   background:#f3f6f8!important;color:#101820!important;
@@ -13,52 +13,54 @@ header{
 .brand{gap:10px!important}
 .brand-mark,.brand-mark svg{width:52px!important;height:52px!important}
 .brand-name{font-size:25px!important;line-height:1!important}
-.tag{
-  font-size:11px!important;letter-spacing:0!important;color:#fff!important;
-  margin-top:5px!important;font-weight:650!important;
-}
-.menu{
-  background:transparent!important;border:0!important;font-size:30px!important;
-  color:#fff!important;transform:translateY(3px)!important;
-}
-main{
-  padding:0 0 calc(90px + env(safe-area-inset-bottom,0px))!important;
-  max-width:680px!important;overflow-x:hidden!important;
-}
+.tag{font-size:11px!important;letter-spacing:0!important;color:#fff!important;margin-top:5px!important;font-weight:650!important}
+.menu{background:transparent!important;border:0!important;font-size:30px!important;color:#fff!important;transform:translateY(3px)!important}
+main{padding:0 0 calc(90px + env(safe-area-inset-bottom,0px))!important;max-width:680px!important;overflow-x:hidden!important}
 .ss-home-shell{
   border:0!important;border-radius:0!important;background:#fff!important;
   box-shadow:0 2px 10px #00000012!important;margin:0 0 10px!important;
   padding:14px!important;overflow:hidden!important;
 }
 .ss-home-shell:before{display:none!important}
+.ss-home-kicker,.ss-home-copy{display:none!important}
+
+/* Keep the three-part strapline on one line even on narrow Android screens. */
 .ss-home-title{
   display:block!important;white-space:nowrap!important;
-  font-size:clamp(22px,6.15vw,31px)!important;
-  line-height:1.08!important;letter-spacing:-1.1px!important;
-  color:#071a33!important;margin:3px 0 14px!important;
-  max-width:100%!important;
+  font-size:clamp(18px,5.35vw,28px)!important;
+  line-height:1.1!important;letter-spacing:-1.15px!important;
+  color:#071a33!important;margin:4px 0 14px!important;
+  width:100%!important;max-width:100%!important;
 }
-.ss-home-copy,.ss-home-kicker{display:none!important}
+
 .ss-find-card{padding:0!important;box-shadow:none!important;background:#fff!important}
 .ss-find-card .ss-field{margin-top:0!important;min-width:0!important}
 .ss-find-card input{
-  height:56px!important;min-height:56px!important;
-  border:1px solid #d5dde5!important;border-radius:12px!important;
-  background:#fff!important;color:#334155!important;
-  -webkit-text-fill-color:#334155!important;
-  font-size:16px!important;
+  height:56px!important;min-height:56px!important;border:1px solid #d5dde5!important;
+  border-radius:12px!important;background:#fff!important;color:#334155!important;
+  -webkit-text-fill-color:#334155!important;font-size:15px!important;
 }
 #huntPostcode{padding-left:18px!important}
+
+/* Give NUMBER enough physical width and reduce its text slightly. */
 .ss-address-row{
-  grid-template-columns:104px minmax(0,1fr)!important;gap:10px!important;
+  grid-template-columns:116px minmax(0,1fr)!important;gap:10px!important;
   margin-top:10px!important;align-items:stretch!important;
 }
 .ss-address-row .ss-field{display:flex!important;margin:0!important;min-width:0!important}
 .ss-address-row input,.ss-address-row .street-picker,.ss-address-row .street-picker-trigger{
   height:56px!important;min-height:56px!important;min-width:0!important;
 }
-.ss-address-row input{font-size:14px!important;padding-left:12px!important;padding-right:8px!important}
-.ss-address-row .street-picker-trigger{font-size:14px!important;padding-left:12px!important;padding-right:8px!important}
+.ss-address-row .ss-field:first-child input{
+  font-size:13px!important;padding-left:10px!important;padding-right:6px!important;
+  letter-spacing:-.2px!important;
+}
+.ss-address-row .street-picker-trigger,
+.ss-address-row .ss-field:last-child input{
+  font-size:13px!important;padding-left:11px!important;padding-right:7px!important;
+  letter-spacing:-.15px!important;
+}
+
 .ss-find-primary{
   height:60px!important;min-height:60px!important;margin-top:12px!important;
   border-radius:12px!important;background:linear-gradient(135deg,#078a60,#006f63)!important;
@@ -69,43 +71,39 @@ main{
   color:#17663b!important;border-color:#b9dfc4!important;font-size:15px!important;
 }
 .card{margin:10px 12px!important}
-#recordsCard{
-  background:#fff!important;color:#101820!important;border:0!important;
-  box-shadow:0 2px 12px #00000010!important;
-}
+#recordsCard{background:#fff!important;color:#101820!important;border:0!important;box-shadow:0 2px 12px #00000010!important}
 #recordsCard .muted,#recordsCard .meta{color:#64748b!important}
 
-/* Handover: restore readable contrast after light home-screen conversion. */
-#detailsCard,#handoverCard,.handover,.details-card{
+/* The handover card is navy: force its direct content and controls readable. */
+#handoverCard,#detailsCard{
   color:#fff!important;
 }
-#detailsCard h1,#detailsCard h2,#detailsCard h3,
-#handoverCard h1,#handoverCard h2,#handoverCard h3,
-.handover h1,.handover h2,.handover h3,
-.details-card h1,.details-card h2,.details-card h3{
+#handoverCard h1,#handoverCard h2,#handoverCard h3,#handoverCard h4,
+#handoverCard label,#handoverCard summary,#handoverCard button,
+#detailsCard h1,#detailsCard h2,#detailsCard h3,#detailsCard h4,
+#detailsCard label,#detailsCard summary{
   color:#fff!important;
 }
-#detailsCard .muted,#detailsCard .small-note,
-#handoverCard .muted,#handoverCard .small-note,
-.handover .muted,.handover .small-note,
-.details-card .muted,.details-card .small-note{
-  color:#d7e0eb!important;
+#handoverCard .muted,#handoverCard .small-note,#handoverCard p,
+#detailsCard .muted,#detailsCard .small-note{
+  color:#dce6f2!important;
+}
+/* Catch the existing Handover card even if it has no stable ID. */
+.card[style*="navy"],.card[style*="#071a33"],.card[style*="#123761"]{color:#fff!important}
+.card[style*="navy"] h2,.card[style*="#071a33"] h2,.card[style*="#123761"] h2,
+.card[style*="navy"] summary,.card[style*="#071a33"] summary,.card[style*="#123761"] summary{
+  color:#fff!important;
 }
 
 .bottom{
-  height:calc(72px + env(safe-area-inset-bottom,0px))!important;
-  background:#061827!important;
+  height:calc(72px + env(safe-area-inset-bottom,0px))!important;background:#061827!important;
   padding:5px 4px calc(6px + env(safe-area-inset-bottom,0px))!important;border:0!important;
 }
 .nav{color:#aeb8c5!important;font-size:10px!important}
-.nav.active{
-  color:#34e66b!important;background:transparent!important;
-  border-bottom:3px solid #34e66b!important;border-radius:0!important;
-}
+.nav.active{color:#34e66b!important;background:transparent!important;border-bottom:3px solid #34e66b!important;border-radius:0!important}
 .nav .ico{font-size:21px!important}
 
 @media(max-width:380px){
-  .ss-home-title{font-size:21px!important;letter-spacing:-.8px!important}
-  .ss-address-row{grid-template-columns:98px minmax(0,1fr)!important}
-  .ss-address-row input,.ss-address-row .street-picker-trigger{font-size:13px!important}
+  .ss-home-title{font-size:18px!important;letter-spacing:-1px!important}
+  .ss-address-row{grid-template-columns:110px minmax(0,1fr)!important}
 }
