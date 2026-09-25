@@ -19,92 +19,33 @@ put("build.gradle", """plugins {
 put("app/build.gradle", """plugins {
     id 'com.android.application'
 }
-
 android {
     namespace 'com.situsnap.app'
     compileSdk 35
-
     defaultConfig {
         applicationId 'com.situsnap.app'
         minSdk 26
         targetSdk 35
-        versionCode 5
-        versionName '1.0.2'
-    }
-
-    signingConfigs {
-        release {
-            storeFile rootProject.file('situsnap-release.jks')
-            storePassword System.getenv('SITUSNAP_STORE_PASSWORD')
-            keyAlias System.getenv('SITUSNAP_KEY_ALIAS')
-            keyPassword System.getenv('SITUSNAP_KEY_PASSWORD')
-        }
-    }
-
-    buildTypes {
-        release {
-            signingConfig signingConfigs.release
-            minifyEnabled false
-        }
+        versionCode 1
+        versionName '0.1-CLOUD7'
     }
 }
 """)
-
-splash_source=Path(".github/assets/situsnap-splash.png")
-splash_target=Path("app/src/main/res/drawable-nodpi/situsnap_splash.png")
-splash_target.parent.mkdir(parents=True,exist_ok=True)
-splash_target.write_bytes(splash_source.read_bytes())
 
 put("app/src/main/res/values/styles.xml", """<resources>
 <style name="AppTheme" parent="android:style/Theme.Material.Light.NoActionBar">
 <item name="android:statusBarColor">#07192b</item>
 <item name="android:navigationBarColor">#07192b</item>
-<item name="android:windowLightStatusBar">false</item>
-<item name="android:windowLightNavigationBar">false</item>
-<item name="android:windowOptOutEdgeToEdgeEnforcement">true</item>
 </style>
 </resources>
 """)
-
-put("app/src/main/res/drawable/situsnap_icon.xml", """<vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="108dp" android:height="108dp"
-    android:viewportWidth="108" android:viewportHeight="108">
-    <path android:fillColor="#07192B" android:pathData="M0,0h108v108h-108z"/>
-    <path android:fillColor="#FFFFFF" android:pathData="M20,16h22v6h-16v16h-6zM66,16h22v22h-6v-16h-16zM20,70h6v16h16v6h-22zM82,70h6v22h-22v-6h16z"/>
-    <path android:fillColor="#2FA866" android:pathData="M54,25c-13,0 -23,10 -23,23c0,18 23,38 23,38s23,-20 23,-38c0,-13 -10,-23 -23,-23z"/>
-    <path android:fillColor="#FFFFFF" android:pathData="M54,34a14,14 0,1 0,0 28a14,14 0,1 0,0 -28z"/>
-    <path android:fillColor="#2FA866" android:pathData="M41,55l8,-9l6,6l5,-5l8,8v4h-27z"/>
-    <path android:strokeColor="#FFFFFF" android:strokeWidth="3" android:strokeLineCap="round"
-        android:fillColor="@android:color/transparent" android:pathData="M53,60c-3,5 -5,9 -4,15c1,5 5,8 7,11"/>
-</vector>
-""")
-
-put("app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml", """<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
-    <background android:drawable="@color/icon_background"/>
-    <foreground android:drawable="@drawable/situsnap_icon"/>
-</adaptive-icon>
-""")
-
-put("app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml", """<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
-    <background android:drawable="@color/icon_background"/>
-    <foreground android:drawable="@drawable/situsnap_icon"/>
-</adaptive-icon>
-""")
-
-put("app/src/main/res/values/colors.xml", """<resources>
-    <color name="icon_background">#07192B</color>
-</resources>
-""")
-
-put("app/src/main/res/layout/activity_main.xml", """<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:background="#07192B"><WebView android:id="@+id/webview" android:layout_width="match_parent" android:layout_height="match_parent" android:background="#07192B" android:visibility="invisible"/><ImageView android:id="@+id/splash" android:layout_width="match_parent" android:layout_height="match_parent" android:src="@drawable/situsnap_splash" android:scaleType="centerCrop" android:contentDescription="SituSnap"/></FrameLayout>""")
-
 put("app/src/main/AndroidManifest.xml", """<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 <uses-permission android:name="android.permission.INTERNET"/>
 <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
 <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
 <uses-permission android:name="android.permission.CAMERA"/>
-<application android:theme="@style/AppTheme" android:label="SituSnap" android:icon="@mipmap/ic_launcher" android:roundIcon="@mipmap/ic_launcher_round" android:usesCleartextTraffic="false">
+<application android:theme="@style/AppTheme" android:label="SituSnap" android:usesCleartextTraffic="false">
 <activity android:name=".MainActivity" android:exported="true">
 <intent-filter>
 <action android:name="android.intent.action.MAIN"/>
@@ -114,33 +55,26 @@ put("app/src/main/AndroidManifest.xml", """<manifest xmlns:android="http://schem
 </application>
 </manifest>
 """)
-
 put("app/src/main/java/com/situsnap/app/MainActivity.java", """package com.situsnap.app;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.ContentValues;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.view.View;
-import android.widget.ImageView;
+import android.provider.MediaStore;
 import android.webkit.GeolocationPermissions;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.webkit.WebResourceRequest;
-import android.webkit.WebResourceResponse;
-import java.util.HashMap;
-import java.util.Map;
 
 public class MainActivity extends Activity {
     private WebView webView;
-    private ImageView splash;
-    private long splashStarted;
     private ValueCallback<Uri[]> fileCallback;
+    private Uri cameraOutputUri;
+    private boolean cameraCapturePending = false;
     private static final int FILE_CHOOSER = 1001;
 
     @Override
@@ -153,35 +87,16 @@ public class MainActivity extends Activity {
             Manifest.permission.CAMERA
         }, 1002);
 
-        setContentView(R.layout.activity_main);
-        webView = findViewById(R.id.webview);
-        splash = findViewById(R.id.splash);
-        splashStarted = System.currentTimeMillis();
-        webView.setBackgroundColor(android.graphics.Color.rgb(7,25,43));
+        webView = new WebView(this);
+        setContentView(webView);
 
         WebSettings s = webView.getSettings();
         s.setJavaScriptEnabled(true);
         s.setDomStorageEnabled(true);
         s.setDatabaseEnabled(true);
         s.setGeolocationEnabled(true);
-        s.setTextZoom(100);
-        s.setUseWideViewPort(true);
-        s.setLoadWithOverviewMode(false);
-        // Prefer the network when online, but retain WebView's cache for dead-zone/offline use.
-        s.setCacheMode(WebSettings.LOAD_DEFAULT);
 
         webView.setWebViewClient(new WebViewClient() {
-            @Override
-            public void onPageFinished(WebView view, String url) {
-                long delay = Math.max(0, 2000 - (System.currentTimeMillis() - splashStarted));
-                new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                    webView.setVisibility(View.VISIBLE);
-                    webView.setAlpha(0f);
-                    webView.animate().alpha(1f).setDuration(250).start();
-                    if (splash != null) splash.animate().alpha(0f).setDuration(250).withEndAction(() -> splash.setVisibility(View.GONE)).start();
-                }, delay);
-            }
-
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
                 if (url.startsWith("https://cryptod1.github.io/SituSnap/")
@@ -212,47 +127,69 @@ public class MainActivity extends Activity {
                     FileChooserParams params) {
                 if (fileCallback != null) fileCallback.onReceiveValue(null);
                 fileCallback = callback;
+                cameraCapturePending = false;
+                cameraOutputUri = null;
+
                 try {
+                    // HTML capture="environment" means TAKE PHOTO: open the native camera.
+                    if (params.isCaptureEnabled()) {
+                        ContentValues values = new ContentValues();
+                        values.put(MediaStore.Images.Media.DISPLAY_NAME,
+                                "SituSnap_" + System.currentTimeMillis() + ".jpg");
+                        values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
+                        cameraOutputUri = getContentResolver().insert(
+                                MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+
+                        if (cameraOutputUri != null) {
+                            Intent camera = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                            camera.putExtra(MediaStore.EXTRA_OUTPUT, cameraOutputUri);
+                            camera.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                                    | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                            if (camera.resolveActivity(getPackageManager()) != null) {
+                                cameraCapturePending = true;
+                                startActivityForResult(camera, FILE_CHOOSER);
+                                return true;
+                            }
+                        }
+                    }
+
+                    // CHOOSE FILE remains the normal Android picker.
                     startActivityForResult(params.createIntent(), FILE_CHOOSER);
                     return true;
                 } catch (Exception e) {
                     fileCallback = null;
+                    cameraCapturePending = false;
+                    cameraOutputUri = null;
                     return false;
                 }
             }
         });
 
-        // Cache-bust the HTML shell on each online launch so a newly deployed SituSnap
-        // version is picked up immediately. If offline, fall back to the cached page.
-        if (isOnline()) {
-            webView.loadUrl("https://cryptod1.github.io/SituSnap/?app_launch=" + System.currentTimeMillis());
-        } else {
-            s.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
-            webView.loadUrl("https://cryptod1.github.io/SituSnap/");
-        }
-    }
-
-    private boolean isOnline() {
-        try {
-            android.net.ConnectivityManager cm =
-                (android.net.ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
-            android.net.Network n = cm.getActiveNetwork();
-            if (n == null) return false;
-            android.net.NetworkCapabilities c = cm.getNetworkCapabilities(n);
-            return c != null && c.hasCapability(android.net.NetworkCapabilities.NET_CAPABILITY_INTERNET);
-        } catch (Exception e) {
-            return true;
-        }
+        webView.loadUrl("https://cryptod1.github.io/SituSnap/");
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == FILE_CHOOSER && fileCallback != null) {
-            fileCallback.onReceiveValue(
-                WebChromeClient.FileChooserParams.parseResult(resultCode, data)
-            );
+            if (cameraCapturePending) {
+                if (resultCode == RESULT_OK && cameraOutputUri != null) {
+                    fileCallback.onReceiveValue(new Uri[]{cameraOutputUri});
+                } else {
+                    if (cameraOutputUri != null) {
+                        try { getContentResolver().delete(cameraOutputUri, null, null); }
+                        catch (Exception ignored) {}
+                    }
+                    fileCallback.onReceiveValue(null);
+                }
+            } else {
+                fileCallback.onReceiveValue(
+                    WebChromeClient.FileChooserParams.parseResult(resultCode, data)
+                );
+            }
             fileCallback = null;
+            cameraCapturePending = false;
+            cameraOutputUri = null;
         }
     }
 
