@@ -109,7 +109,7 @@ jobs:
 
           BADGING=$("$BUILD_TOOLS/aapt" dump badging "$APK")
 
-          echo "$BADGING" | grep -q "package: name='com.situsnap.app'"
+          echo "$BADGING" | grep -q "package: name='com.situsnap.app.release'"
           echo "$BADGING" | grep -q "sdkVersion:'26'"
           echo "$BADGING" | grep -q "targetSdkVersion:'35'"
           echo "$BADGING" | grep -q "launchable-activity: name='com.situsnap.app.MainActivity'"
