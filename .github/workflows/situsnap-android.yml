@@ -20,7 +20,15 @@ jobs:
           KEYSTORE_BASE64: ${{ secrets.SITUSNAP_KEYSTORE_BASE64 }}
         run: |
           echo "$KEYSTORE_BASE64" | base64 --decode > situsnap-release.jks
-
+      - name: Check signing key safely
+        run: |
+          if [ -f situsnap-release.jks ]; then
+            echo "✅ Keystore file exists"
+            echo "Keystore size: $(wc -c < situsnap-release.jks) bytes"
+          else
+            echo "❌ Keystore file DOES NOT exist"
+            exit 1
+          fi
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
