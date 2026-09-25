@@ -1,0 +1,87 @@
+/* SituSnap UI repair — V1.0.5y
+   Presentation only. No camera, resolver, vault or persistence logic. */
+
+body{
+  background:#f3f6f8!important;
+  color:#101820!important;
+  padding-bottom:calc(76px + env(safe-area-inset-bottom,0px))!important;
+}
+header{
+  height:calc(82px + env(safe-area-inset-top,0px))!important;
+  padding:env(safe-area-inset-top,0px) 16px 0!important;
+  background:#061827!important;
+  box-shadow:none!important;
+}
+.brand{gap:10px!important}
+.brand-mark,.brand-mark svg{width:52px!important;height:52px!important}
+.brand-name{font-size:25px!important;line-height:1!important}
+.tag{
+  font-size:11px!important;letter-spacing:0!important;color:#fff!important;
+  margin-top:5px!important;font-weight:650!important;
+}
+.menu{
+  background:transparent!important;border:0!important;font-size:30px!important;
+  color:#fff!important;transform:translateY(3px)!important;
+}
+main{
+  padding:0 0 calc(90px + env(safe-area-inset-bottom,0px))!important;
+  max-width:680px!important;
+}
+.ss-home-shell{
+  border:0!important;border-radius:0!important;background:#fff!important;
+  box-shadow:0 2px 10px #00000012!important;margin:0 0 10px!important;
+  padding:14px!important;overflow:visible!important;
+}
+.ss-home-shell:before{display:none!important}
+.ss-home-title{
+  white-space:nowrap!important;
+  font-size:clamp(23px,6.7vw,34px)!important;
+  letter-spacing:-1px!important;
+  color:#071a33!important;
+  margin:2px 0 12px!important;
+}
+.ss-find-card{padding:0!important;box-shadow:none!important;background:#fff!important}
+.ss-find-card .ss-field{margin-top:0!important}
+.ss-find-card input{
+  height:58px!important;min-height:58px!important;border:1px solid #d5dde5!important;
+  border-radius:12px!important;background:#fff!important;color:#334155!important;
+  -webkit-text-fill-color:#334155!important;
+}
+#huntPostcode{padding-left:18px!important}
+.ss-address-row{
+  grid-template-columns:92px minmax(0,1fr)!important;gap:10px!important;
+  margin-top:12px!important;align-items:stretch!important;
+}
+.ss-address-row .ss-field{display:flex!important;margin:0!important;min-width:0!important}
+.ss-address-row input,.ss-address-row .street-picker,.ss-address-row .street-picker-trigger{
+  height:58px!important;min-height:58px!important;
+}
+.ss-find-primary{
+  height:64px!important;min-height:64px!important;margin-top:14px!important;
+  border-radius:12px!important;background:linear-gradient(135deg,#078a60,#006f63)!important;
+  color:#fff!important;font-size:19px!important;letter-spacing:0!important;
+}
+.ss-secondary{
+  margin:10px 14px!important;width:calc(100% - 28px)!important;
+  color:#17663b!important;border-color:#b9dfc4!important;
+}
+.card{margin:10px 12px!important}
+#recordsCard{
+  background:#fff!important;color:#101820!important;border:0!important;
+  box-shadow:0 2px 12px #00000010!important;
+}
+#recordsCard .muted,#recordsCard .meta{color:#64748b!important}
+.bottom{
+  height:calc(72px + env(safe-area-inset-bottom,0px))!important;background:#061827!important;
+  padding:5px 4px calc(6px + env(safe-area-inset-bottom,0px))!important;border:0!important;
+}
+.nav{color:#aeb8c5!important;font-size:10px!important}
+.nav.active{
+  color:#34e66b!important;background:transparent!important;
+  border-bottom:3px solid #34e66b!important;border-radius:0!important;
+}
+.nav .ico{font-size:21px!important}
+@media(max-width:360px){
+  .ss-home-title{font-size:22px!important}
+  .ss-address-row{grid-template-columns:82px minmax(0,1fr)!important}
+}
