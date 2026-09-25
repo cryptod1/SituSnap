@@ -1,102 +1,95 @@
-/* SituSnap Option 1 — V1.0.6
-   Reconstructive visual layer only. App engine/IDs untouched. */
-:root{--ss-navy:#061827;--ss-navy2:#0a2940;--ss-green:#31df68;--ss-deep:#008865;--ss-ink:#071a33;--ss-line:#d6dee7}
-html,body{overflow-x:hidden!important}
-body{background:#f3f5f7!important;color:var(--ss-ink)!important;padding-bottom:calc(78px + env(safe-area-inset-bottom,0px))!important}
+/* SituSnap Option 1 — Pass 2 / narrow Android precision
+   Visual only: no engine, camera, Breadcrumbs, vault or persistence changes. */
 
-/* OPTION 1 HEADER */
-header{
- height:calc(84px + env(safe-area-inset-top,0px))!important;
- padding:env(safe-area-inset-top,0px) 15px 0!important;
- background:linear-gradient(110deg,#061827,#082838)!important;
- box-shadow:0 3px 12px #0002!important
-}
-.brand{gap:10px!important}.brand-mark,.brand-mark svg{width:54px!important;height:54px!important}
-.brand-name{font-size:25px!important;line-height:1!important;font-weight:950!important}
-.tag{font-size:10.5px!important;letter-spacing:.1px!important;color:#fff!important;margin-top:5px!important;font-weight:750!important}
-.menu{width:42px!important;height:48px!important;background:transparent!important;border:0!important;color:#fff!important;font-size:30px!important;transform:none!important}
-main{padding:0 0 calc(92px + env(safe-area-inset-bottom,0px))!important;max-width:680px!important}
-
-/* FIND FACE */
-.ss-home-shell{
- background:#fff!important;border:0!important;border-radius:0!important;
- box-shadow:0 2px 10px #00000012!important;margin:0!important;padding:18px 14px 14px!important;overflow:hidden!important
-}
-.ss-home-shell:before,.ss-home-kicker,.ss-home-copy{display:none!important}
+/* Fit the hero line on the real 360-ish px field handset. */
+.ss-home-shell{padding:15px 12px 12px!important}
 .ss-home-title{
- display:block!important;white-space:nowrap!important;color:#071a33!important;
- font-size:clamp(18px,5.15vw,28px)!important;line-height:1.08!important;
- letter-spacing:-1px!important;margin:0 0 16px!important;width:100%!important;max-width:100%!important
+  box-sizing:border-box!important;
+  width:100%!important;max-width:100%!important;
+  margin:0 0 13px!important;
+  white-space:nowrap!important;
+  overflow:visible!important;
+  font-size:clamp(16px,4.75vw,25px)!important;
+  line-height:1.05!important;
+  letter-spacing:-.75px!important;
 }
-.ss-find-card{background:#fff!important;padding:0!important;box-shadow:none!important}
-.ss-find-card .ss-field{margin:0!important;min-width:0!important}
+
+/* Compact Option 1 search block. */
 .ss-find-card input{
- box-sizing:border-box!important;width:100%!important;height:58px!important;min-height:58px!important;
- border:1px solid var(--ss-line)!important;border-radius:12px!important;background:#fff!important;
- color:#334155!important;-webkit-text-fill-color:#334155!important;font-size:15px!important;
- box-shadow:0 1px 2px #00000008!important
+  height:52px!important;min-height:52px!important;
+  border-radius:11px!important;
 }
-#huntPostcode{padding:12px 16px!important}
+#huntPostcode{padding:10px 14px!important;font-size:14px!important}
 .ss-address-row{
- display:grid!important;grid-template-columns:108px minmax(0,1fr)!important;gap:10px!important;
- margin-top:11px!important;align-items:stretch!important
+  grid-template-columns:92px minmax(0,1fr)!important;
+  gap:9px!important;margin-top:9px!important;
 }
-.ss-address-row .ss-field{display:block!important;margin:0!important;min-width:0!important}
-.ss-address-row .street-picker{width:100%!important;min-width:0!important}
-#doorNumber{font-size:11.5px!important;padding:10px 7px!important;letter-spacing:-.4px!important}
-#manualAddress{font-size:12.5px!important;padding:10px!important;letter-spacing:-.25px!important}
+#doorNumber{
+  font-size:10.5px!important;
+  padding:8px 6px!important;
+  letter-spacing:-.45px!important;
+}
+#manualAddress{
+  font-size:11.5px!important;
+  padding:8px 9px!important;
+  letter-spacing:-.35px!important;
+}
 .ss-find-primary{
- width:100%!important;height:61px!important;min-height:61px!important;margin-top:13px!important;
- border-radius:12px!important;background:linear-gradient(135deg,#00a36d,#007a65)!important;
- color:#fff!important;font-size:18px!important;font-weight:950!important;letter-spacing:0!important;
- box-shadow:0 9px 20px rgba(0,130,93,.18)!important
+  height:55px!important;min-height:55px!important;
+  margin-top:10px!important;
+  font-size:16px!important;
+  border-radius:11px!important;
 }
 .ss-secondary{
- width:100%!important;min-height:53px!important;margin:10px 0 0!important;border-radius:12px!important;
- background:#fff!important;color:#116a3d!important;border:1px solid #b6dec3!important;font-size:15px!important
+  min-height:48px!important;
+  margin-top:8px!important;
+  font-size:13.5px!important;
 }
-#ssFindResult{border-radius:13px!important}
 
-/* VERIFIED CARDS */
-#recordsCard{
- background:#fff!important;color:#101820!important;border:0!important;border-radius:18px!important;
- box-shadow:0 4px 15px #00000010!important
-}
-#recordsCard h2,#recordsCard h3{color:#071a33!important}
-#recordsCard .muted,#recordsCard .meta{color:#64748b!important}
-#recordsCard .record{background:#f8fafb!important;border:1px solid #e1e7ed!important;color:#0f253b!important}
-
-/* ACTUAL HANDOVER CARD = reminderCard */
+/* Handover should feel like a useful panel, not a second title screen. */
 #reminderCard{
- margin:12px!important;padding:18px!important;border:0!important;border-radius:20px!important;
- background:linear-gradient(155deg,#112d4b,#061a2d)!important;color:#fff!important;
- box-shadow:0 12px 26px rgba(5,24,39,.18)!important
+  margin:10px 12px!important;
+  padding:15px!important;
+  border-radius:18px!important;
 }
-#reminderCard h1,#reminderCard h2,#reminderCard h3,#reminderCard h4,
-#reminderCard summary,#reminderCard label{color:#fff!important}
-#reminderCard h2{font-size:22px!important;line-height:1.1!important;margin:0 0 7px!important}
-#reminderCard p,#reminderCard .muted,#reminderCard .small-note,#reminderCard .meta{color:#d7e1ec!important}
-#reminderCard .details{
- background:#0b2744!important;border:1px solid #294762!important;border-radius:14px!important;color:#fff!important
+#reminderCard h2{
+  white-space:nowrap!important;
+  font-size:clamp(17px,5vw,21px)!important;
+  line-height:1.1!important;
+  letter-spacing:-.35px!important;
+  margin:0 0 7px!important;
 }
-#reminderCard .details summary{padding:14px!important;font-weight:850!important}
-#reminderCard input,#reminderCard select,#reminderCard textarea{
- background:#0d3525!important;color:#fff!important;-webkit-text-fill-color:#fff!important;
- border:1px solid rgba(190,220,210,.25)!important
+#reminderCard .muted{
+  font-size:11px!important;
+  line-height:1.4!important;
+  margin-bottom:10px!important;
+}
+#reminderCard .details summary{
+  padding:12px!important;
+  font-size:12px!important;
 }
 
-/* BOTTOM BAR */
+/* Bottom bar: retain Android safe area without a slab of empty navy. */
 .bottom{
- height:calc(73px + env(safe-area-inset-bottom,0px))!important;background:#061827!important;
- padding:5px 4px calc(6px + env(safe-area-inset-bottom,0px))!important;border:0!important
+  height:calc(64px + env(safe-area-inset-bottom,0px))!important;
+  padding:3px 4px calc(4px + env(safe-area-inset-bottom,0px))!important;
 }
-.nav{color:#aeb8c5!important;font-size:10px!important}
-.nav.active{color:#34e66b!important;background:transparent!important;border-bottom:3px solid #34e66b!important;border-radius:0!important}
-.nav .ico{font-size:21px!important}
+.nav{font-size:9.5px!important;gap:2px!important}
+.nav .ico{font-size:19px!important}
+main{padding-bottom:calc(78px + env(safe-area-inset-bottom,0px))!important}
+body{padding-bottom:calc(66px + env(safe-area-inset-bottom,0px))!important}
+
+/* Keep header compact while retaining the stronger Option 1 identity. */
+header{
+  height:calc(76px + env(safe-area-inset-top,0px))!important;
+  padding-left:13px!important;padding-right:13px!important;
+}
+.brand-mark,.brand-mark svg{width:48px!important;height:48px!important}
+.brand-name{font-size:23px!important}
+.tag{font-size:9.5px!important;margin-top:4px!important}
+.menu{font-size:28px!important}
 
 @media(max-width:380px){
- .ss-home-title{font-size:18px!important;letter-spacing:-.9px!important}
- .ss-address-row{grid-template-columns:104px minmax(0,1fr)!important;gap:8px!important}
- #doorNumber{font-size:11px!important}
- #manualAddress{font-size:12px!important}
+  .ss-home-title{font-size:16px!important;letter-spacing:-.65px!important}
+  .ss-address-row{grid-template-columns:90px minmax(0,1fr)!important;gap:8px!important}
 }
