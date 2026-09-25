@@ -136,26 +136,33 @@ input::placeholder,textarea::placeholder{color:#aeb9c7;opacity:1}
 .bc-green .bc-state{background:#145a35;color:#dff8e3}.bc-amber .bc-state{background:#765016;color:#ffe7b0}.bc-red .bc-state{background:#6b2626;color:#ffd4d4}
 </style>
 
+
+<style>
+/* V1.0.5x — approved Android design polish */
+html{background:#071a33}
+body{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+header{height:calc(66px + env(safe-area-inset-top,0px));padding:env(safe-area-inset-top,0px) 16px 0;align-items:center}
+.brand-mark,.brand-mark svg{width:42px;height:42px}
+.brand-mark svg{filter:drop-shadow(0 4px 10px rgba(0,0,0,.30))}
+header .menu{transform:translateY(4px)}
+main{padding-top:14px;padding-bottom:calc(104px + env(safe-area-inset-bottom,0px))}
+.ss-home-title{white-space:nowrap;font-size:clamp(24px,7.25vw,38px)!important;letter-spacing:-1.1px!important}
+.ss-address-row{grid-template-columns:minmax(72px,24%) minmax(0,1fr)!important;gap:10px!important;align-items:stretch!important}
+.ss-address-row .ss-field{display:flex;min-width:0}
+.ss-address-row input,.ss-address-row .street-picker,.ss-address-row .street-picker-trigger{height:54px!important;min-height:54px!important}
+.bottom{bottom:0;height:calc(68px + env(safe-area-inset-bottom,0px));padding:6px 5px calc(7px + env(safe-area-inset-bottom,0px))}
+.nav{gap:2px}.nav .ico{font-size:18px}
+@media(max-width:360px){.ss-home-title{font-size:23px!important;letter-spacing:-1px!important}}
+</style>
 </head>
 <body>
-<div id="ssBuildStamp" data-build="SituSnap-V1.0.5w" style="display:none">SituSnap-V1.0.5w</div>
+<div id="ssBuildStamp" data-build="SituSnap-V1.0.5x" style="display:none">SituSnap-V1.0.5x</div>
 <div id="offlineBanner" class="offline-banner hidden" role="status" aria-live="polite">No signal — continue offline.</div><div id="celebration" aria-hidden="true"><div class="celebrate-content"><div class="celebrate-title">PIN VERIFIED!</div><div class="celebrate-sub">SituSnap location confirmed</div></div></div><header><div class="brand"><div class="brand-mark" aria-label="SituSnap logo">
 <svg viewBox="0 0 100 100" role="img" aria-hidden="true">
-<defs>
-  <linearGradient id="ssPin" x1="25" y1="18" x2="75" y2="82" gradientUnits="userSpaceOnUse">
-    <stop offset="0" stop-color="#58bfff"/><stop offset="1" stop-color="#2d78d8"/>
-  </linearGradient>
-</defs>
-<!-- camera body -->
-<path d="M18 31h15l6-9h22l6 9h15a9 9 0 0 1 9 9v39a9 9 0 0 1-9 9H18a9 9 0 0 1-9-9V40a9 9 0 0 1 9-9Z" fill="#071a33"/>
-<rect x="20" y="23" width="12" height="7" rx="3.5" fill="#69df83"/>
-<!-- location pin / lens -->
-<path d="M50 76c-5-8-18-18-18-32a18 18 0 1 1 36 0c0 14-13 24-18 32Z" fill="url(#ssPin)"/>
-<circle cx="50" cy="44" r="12.5" fill="#f8fbff"/>
-<!-- landscape inside lens -->
-<path d="M38 47l7-7 5 5 5-6 8 9v7H38Z" fill="#176d52"/>
-<path d="M38 49c6-3 10-2 14 1 4 2 7 3 11 0v6H38Z" fill="#69df83"/>
-<path d="M49 45c4 2 6 4 6 6 0 3-4 3-5 5" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/>
+<rect x="3" y="3" width="94" height="94" rx="24" fill="#06162c"/>
+<path d="M50 15c-16.6 0-30 13.4-30 30 0 21.8 30 43 30 43s30-21.2 30-43c0-16.6-13.4-30-30-30Z" fill="#69df83"/>
+<circle cx="50" cy="44" r="16" fill="#071a33"/>
+<path d="M39 51c6.5-7.5 13.5-8.5 22-15M41 57c8-4.5 14-3.5 21-10" fill="none" stroke="#69df83" stroke-width="5" stroke-linecap="round"/>
 </svg></div><div><div class="brand-name"><span style="color:#fff">Situ</span><span style="color:#69df83">Snap</span></div><div class="tag">WHERE SATNAV STOPS.</div></div></div><button class="menu" type="button" onclick="ssShowMore()" aria-label="Open SituSnap menu">☰</button></header>
 <main><div id="breadcrumbsBridge" class="card hidden" style="border:2px solid #69df83;margin-top:12px"><div class="eyebrow">BREADCRUMBS</div><h2 id="bridgeTitle" style="margin:5px 0">Continue</h2><div class="meta" id="bridgeText"></div></div>
 <section class="ss-home-shell" aria-labelledby="ssHomeTitle">
@@ -246,7 +253,7 @@ input::placeholder,textarea::placeholder{color:#aeb9c7;opacity:1}
 <section class="card" id="recordsCard"><div class="section-head"><div><h2>Verified locations</h2><p class="muted" id="verifiedLocationsSubtitle">Most relevant verified properties.</p></div></div><div id="records"></div><button id="ssShowAllVerifiedBtn" type="button" class="hidden" onclick="ssToggleAllVerified()" style="width:100%;margin-top:10px;padding:11px;border-radius:10px;background:#26384f;color:#fff;font-weight:900"></button></section>
 
 </main><nav class="bottom"><button class="nav active" onclick="window.scrollTo({top:0,behavior:'smooth'})"><span class="ico">⌂</span>Find</button><button class="nav" onclick="showForm()"><span class="ico">⌄</span>Reminder</button><button class="nav" onclick="document.getElementById('recordsCard').scrollIntoView({behavior:'smooth'})"><span class="ico">↻</span>Verified</button><button id="ssMoreNavBtn" class="nav" onclick="ssShowMore()" style="position:relative"><span class="ico">☰</span>More<span id="ssUpdateBadge" class="hidden" aria-label="Update available">UPDATE</span></button></nav>
-<div id="ssMorePanel" class="hidden" style="position:fixed;inset:0;z-index:900;background:rgba(2,9,20,.72);padding:90px 16px;overflow:auto" onclick="if(event.target===this)ssHideMore()"><div style="max-width:520px;margin:auto;background:#0a1934;border:1px solid rgba(126,177,235,.25);border-radius:18px;padding:18px"><div style="display:flex;justify-content:space-between;align-items:center"><div><b>SituSnap</b><div id="ssVisibleVersion" style="font-size:12px;color:#a9bad0">Version 1.0.5v</div></div><button type="button" onclick="ssHideMore()" style="min-height:40px;padding:6px 12px;border-radius:10px;background:#26384f;color:#fff">CLOSE</button></div><div style="margin-top:14px"><div style="font-size:11px;font-weight:950;letter-spacing:.8px;color:#9ee9ad;margin:0 2px 8px">HOW TO USE SITUSNAP</div><details class="details"><summary>🏠 Identify the property</summary><div class="inside">Record the number/name, building, entrance, gate or another clear identifier.</div></details><details class="details"><summary>🧭 Record how you found it</summary><div class="inside">Add the road, track, landmark, passage, gate or approach that actually helped you locate it.</div></details><details class="details"><summary>📸 Take useful photos</summary><div class="inside">Capture the approach and the property/entrance so the next colleague can recognise the correct place.</div></details><details class="details"><summary>⚠️ Add anything important</summary><div class="inside">Access restrictions, hazards, corrections and anything else that would save the next colleague time.</div></details></div><div id="ssUpdateStatus" style="margin-top:16px;padding:13px;border-radius:12px;background:#103d29;color:#dff8e3;font-size:12px;font-weight:850">Checking for updates…</div><button id="ssUpdateBtn" type="button" class="hidden" onclick="ssApplyUpdate()" style="width:100%;margin-top:10px;padding:13px;border-radius:12px;background:#69df83;color:#071a33;font-weight:950">UPDATE AVAILABLE — TAP TO UPDATE</button></div></div>
+<div id="ssMorePanel" class="hidden" style="position:fixed;inset:0;z-index:900;background:rgba(2,9,20,.72);padding:90px 16px;overflow:auto" onclick="if(event.target===this)ssHideMore()"><div style="max-width:520px;margin:auto;background:#0a1934;border:1px solid rgba(126,177,235,.25);border-radius:18px;padding:18px"><div style="display:flex;justify-content:space-between;align-items:center"><div><b>SituSnap</b><div id="ssVisibleVersion" style="font-size:12px;color:#a9bad0">Version 1.0.5x</div></div><button type="button" onclick="ssHideMore()" style="min-height:40px;padding:6px 12px;border-radius:10px;background:#26384f;color:#fff">CLOSE</button></div><div style="margin-top:14px"><div style="font-size:11px;font-weight:950;letter-spacing:.8px;color:#9ee9ad;margin:0 2px 8px">HOW TO USE SITUSNAP</div><details class="details"><summary>🏠 Identify the property</summary><div class="inside">Record the number/name, building, entrance, gate or another clear identifier.</div></details><details class="details"><summary>🧭 Record how you found it</summary><div class="inside">Add the road, track, landmark, passage, gate or approach that actually helped you locate it.</div></details><details class="details"><summary>📸 Take useful photos</summary><div class="inside">Capture the approach and the property/entrance so the next colleague can recognise the correct place.</div></details><details class="details"><summary>⚠️ Add anything important</summary><div class="inside">Access restrictions, hazards, corrections and anything else that would save the next colleague time.</div></details></div><div id="ssUpdateStatus" style="margin-top:16px;padding:13px;border-radius:12px;background:#103d29;color:#dff8e3;font-size:12px;font-weight:850">Checking for updates…</div><button id="ssUpdateBtn" type="button" class="hidden" onclick="ssApplyUpdate()" style="width:100%;margin-top:10px;padding:13px;border-radius:12px;background:#69df83;color:#071a33;font-weight:950">UPDATE AVAILABLE — TAP TO UPDATE</button></div></div>
 <script>
 let gps=null,huntPostcode="",huntAddressQuery="",target=null,watchId=null,postcodeTimer=null,editingRecordId=null;
 let ssFindGeneration=0;
@@ -260,7 +267,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   };
   new MutationObserver(keepLocalWinner).observe(card,{attributes:true,childList:true,subtree:true});
 });
-const SS_APP_VERSION="1.0.5w";
+const SS_APP_VERSION="1.0.5x";
 const SS_CANONICAL_URL="https://cryptod1.github.io/SituSnap/";
 function ssShowMore(){document.getElementById("ssMorePanel")?.classList.remove("hidden");ssCheckForUpdate()}
 function ssHideMore(){document.getElementById("ssMorePanel")?.classList.add("hidden")}
