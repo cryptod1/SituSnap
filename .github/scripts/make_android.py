@@ -29,6 +29,22 @@ android {
         versionCode 1
         versionName '0.1-CLOUD7'
     }
+
+    signingConfigs {
+        release {
+            storeFile file('../../situsnap-release.jks')
+            storePassword System.getenv('SITUSNAP_STORE_PASSWORD')
+            keyAlias System.getenv('SITUSNAP_KEY_ALIAS')
+            keyPassword System.getenv('SITUSNAP_KEY_PASSWORD')
+        }
+    }
+
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+            minifyEnabled false
+        }
+    }
 }
 """)
 
