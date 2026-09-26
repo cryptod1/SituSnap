@@ -198,7 +198,7 @@ input,select,textarea,.street-picker-trigger,.street-picker-menu,.street-picker-
 </style>
 
 
-<style id="phoenix-5-field-polish">
+<style id="phoenix-8-field-polish">
 /* Phoenix 5: presentation-only field polish. */
 .ss-address-row{
   grid-template-columns:minmax(88px,25%) minmax(0,1fr)!important;
@@ -228,102 +228,25 @@ input,select,textarea,.street-picker-trigger,.street-picker-menu,.street-picker-
 </style>
 
 
-<style id="phoenix-7-navigation-polish">
-/* Phoenix 6 — locked field layout: Find | Verified | More. */
+<style id="phoenix-8-locked-layout">
+/* Phoenix 8 — based on known-good Phoenix 5. */
 .ss-bottom-nav{
   grid-template-columns:repeat(3,minmax(0,1fr))!important;
 }
-.ss-bottom-nav [data-page="reminder"],
-.ss-bottom-nav [data-target="reminder"],
-.ss-bottom-nav a[href="#reminder"],
-.ss-bottom-nav button[onclick*="reminder" i],
-.ss-bottom-nav .reminder,
-.ss-bottom-nav #reminderNav,
-.ss-bottom-nav #navReminder{
-  display:none!important;
-}
-
-/* Keep instructional/reminder content off the working Find surface. */
-#fieldReminders,
-#howToUse,
-#howTo,
-#instructionsPanel{
-  display:none;
-}
-body.phoenix-more-open #fieldReminders,
-body.phoenix-more-open #howToUse,
-body.phoenix-more-open #howTo,
-body.phoenix-more-open #instructionsPanel{
-  display:block!important;
-}
-</style>
-
-<style id="phoenix-7-more-style">
-.phoenix-more-section{
-  margin:12px 0;
-  border:1px solid rgba(120,170,195,.28);
-  border-radius:16px;
-  background:#092b3a;
-  color:#f7fbff;
-  overflow:hidden;
-}
-.phoenix-more-section summary{
-  cursor:pointer;
-  padding:16px 18px;
-  font-weight:800;
-  font-size:17px;
-}
-.phoenix-more-copy,.phoenix-reminder-host{padding:0 18px 16px}
-.phoenix-more-copy p{margin:0 0 14px;line-height:1.4}
-</style>
-
-
-<style id="phoenix-7-field-space">
-/* Phoenix 7 — reclaim field space for verified properties. */
-
-/* Real Reminder bottom-nav slot: remove the whole item, not just its label. */
-#ssReminderNavBtn{display:none!important}
-
-/* Three equal primary destinations: Find | Verified | More. */
-.ss-bottom-nav{grid-template-columns:repeat(3,minmax(0,1fr))!important}
-
-/* Record Without Sat Nav stays available but becomes a compact secondary action. */
-#ssRecordWithoutSatNav,
-#recordWithoutSatNav,
-button[onclick*="RecordWithout" i],
-button[onclick*="recordWithout" i]{
-  min-height:54px!important;
-  height:auto!important;
-  padding:12px 16px!important;
-  margin-top:10px!important;
-  margin-bottom:10px!important;
-  border-radius:15px!important;
-  font-size:clamp(15px,4vw,19px)!important;
-  line-height:1.15!important;
-}
-
-/* Verified cards remain readable; extra records collapse rather than eating Find. */
-#verifiedFirstPanel .phoenix-extra-verified,
-#verifiedLocations .phoenix-extra-verified,
-#verifiedList .phoenix-extra-verified{display:none!important}
-body.phoenix-show-all-verified .phoenix-extra-verified{display:block!important}
-
-#phoenixVerifiedToggle{
-  width:100%;
-  min-height:48px;
-  margin:10px 0 2px;
-  border:1px solid rgba(49,223,104,.55);
-  border-radius:14px;
-  background:#082b35;
-  color:#31df68;
-  font-weight:800;
-  font-size:15px;
+.phoenix-compact-record{
+  min-height:48px!important;
+  padding:10px 14px!important;
+  margin-top:8px!important;
+  margin-bottom:8px!important;
+  border-radius:14px!important;
+  font-size:clamp(14px,3.8vw,18px)!important;
+  line-height:1.1!important;
 }
 </style>
 
 </head>
 <body>
-<div id="ssBuildStamp" data-build="SituSnap-PHOENIX-7" style="display:none">SituSnap-PHOENIX-7</div>
+<div id="ssBuildStamp" data-build="SituSnap-PHOENIX-8" style="display:none">SituSnap-PHOENIX-8</div>
 <div id="offlineBanner" class="offline-banner hidden" role="status" aria-live="polite">No signal — continue offline.</div><div id="celebration" aria-hidden="true"><div class="celebrate-content"><div class="celebrate-title">PIN VERIFIED!</div><div class="celebrate-sub">SituSnap location confirmed</div></div></div><header><div class="brand"><div class="brand-mark" aria-label="SituSnap logo">
 <svg viewBox="0 0 100 100" role="img" aria-hidden="true">
 <defs>
@@ -396,7 +319,7 @@ fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round"/>
   </div>
 </div>
 
-<button class="ss-secondary" type="button" onclick="recordWithoutSatNav()">RECORD WITHOUT SAT NAV</button>
+<button class="ss-secondary phoenix-compact-record" type="button" onclick="recordWithoutSatNav()">RECORD WITHOUT SAT NAV</button>
 </section>
 <section id="huntPanel" class="card hidden"><div class="section-head"><div><h2>Destination</h2></div><span class="pill">ACTIVE</span></div><div class="location"><div class="pin">📍</div><div><b id="huntPc"></b><span id="targetStatus">Checking destination…</span></div></div><div id="targetBox" class="record" style="margin-top:9px"><h3>🎯 SituSnap target</h3><div class="meta" id="targetDetails">Waiting for postcode lookup.</div><div class="precision"><div class="precision-top"><div class="precision-title">DESTINATION ENGINE</div><span class="precision-badge" id="precisionBadge">CHECKING</span></div><div class="precision-bar"><div class="precision-fill" id="precisionFill"></div></div><div class="small-note" id="precisionNote">SituSnap will use the best available postcode coordinate, then measure the phone's live GPS against it. The field observation confirms the real-world location.</div></div></div><div id="liveHunt" class="record hidden"><h3>Live hunt</h3>
 <div id="bcResolveCard" class="bc-resolve">
@@ -453,7 +376,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   };
   new MutationObserver(keepLocalWinner).observe(card,{attributes:true,childList:true,subtree:true});
 });
-const SS_APP_VERSION="PHOENIX-7";
+const SS_APP_VERSION="PHOENIX-8";
 const SS_CANONICAL_URL="https://cryptod1.github.io/SituSnap/";
 function ssShowMore(){document.getElementById("ssMorePanel")?.classList.remove("hidden");ssCheckForUpdate()}
 function ssHideMore(){document.getElementById("ssMorePanel")?.classList.add("hidden")}
@@ -2894,164 +2817,4 @@ window.addEventListener("load",()=>{if(navigator.onLine){ssVaultRestore().then((
   });
 })();
 </script>
-
-<script id="phoenix-7-menu-adapter">
-(function(){
-  function label(el){ return (el && el.textContent || "").replace(/\s+/g," ").trim().toLowerCase(); }
-  function bottomNav(){
-    return document.querySelector(".ss-bottom-nav") ||
-           document.querySelector("nav.bottom-nav") ||
-           document.querySelector(".bottom-nav");
-  }
-  function tidyBottomNav(){
-    var nav=bottomNav();
-    if(!nav) return;
-    Array.from(nav.querySelectorAll("button,a,[role=button]")).forEach(function(el){
-      if(label(el).indexOf("reminder")!==-1 || label(el)==="v"){
-        /* Hide only the obsolete Reminder slot; reminder content itself is retained. */
-        if(label(el).indexOf("reminder")!==-1 || (el.querySelector && el.querySelector('[class*="remind" i]'))) {
-          el.style.display="none";
-        }
-      }
-    });
-    nav.style.gridTemplateColumns="repeat(3,minmax(0,1fr))";
-  }
-
-  function ensureMoreSections(){
-    var more = document.querySelector("#morePage,#morePanel,#menuPage,#menuPanel,[data-page-panel='more'],[data-page='more'].page");
-    if(!more) return;
-
-    if(!more.querySelector("#phoenixHowTo")){
-      var how=document.createElement("details");
-      how.id="phoenixHowTo";
-      how.className="phoenix-more-section";
-      how.innerHTML='<summary>How to use SituSnap</summary>'+
-        '<div class="phoenix-more-copy">'+
-        '<p><strong>Identify the property</strong><br>Enter the postcode and house name/street. Add the door number when known.</p>'+
-        '<p><strong>Record how you found it</strong><br>Add the approach, track or access details that will help the next colleague.</p>'+
-        '<p><strong>Take useful photos</strong><br>Photograph the property or approach clearly enough to recognise it next time.</p>'+
-        '<p><strong>Add anything important</strong><br>Record useful handover information before verifying the pin.</p>'+
-        '</div>';
-      more.insertBefore(how, more.firstChild);
-    }
-
-    if(!more.querySelector("#phoenixReminder")){
-      var existing=document.querySelector("#reminderCard,#fieldReminders,[data-panel='reminder']");
-      var rem=document.createElement("details");
-      rem.id="phoenixReminder";
-      rem.className="phoenix-more-section";
-      rem.innerHTML='<summary>Reminder</summary><div class="phoenix-reminder-host"></div>';
-      more.appendChild(rem);
-      if(existing){
-        existing.style.display="";
-        rem.querySelector(".phoenix-reminder-host").appendChild(existing);
-      }
-    }
-  }
-
-  function wireMoreState(){
-    document.addEventListener("click",function(e){
-      var el=e.target.closest("button,a,[role=button]");
-      if(!el) return;
-      var t=label(el);
-      if(t.indexOf("more")!==-1 || t.indexOf("menu")!==-1 || el.id.toLowerCase().indexOf("menu")!==-1){
-        document.body.classList.add("phoenix-more-open");
-        setTimeout(ensureMoreSections,0);
-      }
-      if(t==="find" || t.indexOf("verified")!==-1){
-        document.body.classList.remove("phoenix-more-open");
-      }
-    },true);
-  }
-
-  function boot(){
-    tidyBottomNav();
-    ensureMoreSections();
-    wireMoreState();
-    new MutationObserver(function(){ tidyBottomNav(); ensureMoreSections(); })
-      .observe(document.body,{childList:true,subtree:true});
-  }
-  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",boot);
-  else boot();
-})();
-</script>
-
-
-<script id="phoenix-7-space-adapter">
-(function(){
-  function tidyNav(){
-    var reminder=document.getElementById("ssReminderNavBtn");
-    if(reminder) reminder.style.display="none";
-    var nav=document.querySelector(".ss-bottom-nav");
-    if(nav) nav.style.gridTemplateColumns="repeat(3,minmax(0,1fr))";
-  }
-
-  function findVerifiedContainer(){
-    return document.querySelector("#verifiedLocations,#verifiedList,#verifiedFirstPanel");
-  }
-
-  function verifiedCards(container){
-    if(!container) return [];
-    var selectors=[
-      ".verified-card",".verified-item",".ss-verified-card",
-      "[data-verified-record]","article"
-    ];
-    for(var i=0;i<selectors.length;i++){
-      var cards=Array.from(container.querySelectorAll(selectors[i]));
-      if(cards.length) return cards.filter(function(x){return x.id!=="phoenixVerifiedToggle";});
-    }
-    return [];
-  }
-
-  function limitVerified(){
-    var container=findVerifiedContainer();
-    if(!container) return;
-    var cards=verifiedCards(container);
-    if(cards.length<=5) return;
-
-    cards.forEach(function(card,i){
-      card.classList.toggle("phoenix-extra-verified",i>=5);
-    });
-
-    var btn=document.getElementById("phoenixVerifiedToggle");
-    if(!btn){
-      btn=document.createElement("button");
-      btn.type="button";
-      btn.id="phoenixVerifiedToggle";
-      container.appendChild(btn);
-      btn.addEventListener("click",function(){
-        document.body.classList.toggle("phoenix-show-all-verified");
-        updateToggle(cards.length);
-      });
-    }
-    updateToggle(cards.length);
-  }
-
-  function updateToggle(total){
-    var btn=document.getElementById("phoenixVerifiedToggle");
-    if(!btn) return;
-    btn.textContent=document.body.classList.contains("phoenix-show-all-verified")
-      ? "SHOW TOP 5"
-      : "SHOW ALL VERIFIED ("+total+")";
-  }
-
-  function boot(){
-    tidyNav();
-    limitVerified();
-    var pending=false;
-    new MutationObserver(function(){
-      if(pending) return;
-      pending=true;
-      requestAnimationFrame(function(){
-        pending=false;
-        tidyNav();
-        limitVerified();
-      });
-    }).observe(document.body,{childList:true,subtree:true});
-  }
-  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",boot);
-  else boot();
-})();
-</script>
-
 </body></html>
