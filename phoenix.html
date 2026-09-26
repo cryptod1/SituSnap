@@ -228,7 +228,7 @@ input,select,textarea,.street-picker-trigger,.street-picker-menu,.street-picker-
 </style>
 
 
-<style id="phoenix-6-navigation-polish">
+<style id="phoenix-7-navigation-polish">
 /* Phoenix 6 — locked field layout: Find | Verified | More. */
 .ss-bottom-nav{
   grid-template-columns:repeat(3,minmax(0,1fr))!important;
@@ -258,7 +258,7 @@ body.phoenix-more-open #instructionsPanel{
 }
 </style>
 
-<style id="phoenix-6-more-style">
+<style id="phoenix-7-more-style">
 .phoenix-more-section{
   margin:12px 0;
   border:1px solid rgba(120,170,195,.28);
@@ -277,9 +277,53 @@ body.phoenix-more-open #instructionsPanel{
 .phoenix-more-copy p{margin:0 0 14px;line-height:1.4}
 </style>
 
+
+<style id="phoenix-7-field-space">
+/* Phoenix 7 — reclaim field space for verified properties. */
+
+/* Real Reminder bottom-nav slot: remove the whole item, not just its label. */
+#ssReminderNavBtn{display:none!important}
+
+/* Three equal primary destinations: Find | Verified | More. */
+.ss-bottom-nav{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+
+/* Record Without Sat Nav stays available but becomes a compact secondary action. */
+#ssRecordWithoutSatNav,
+#recordWithoutSatNav,
+button[onclick*="RecordWithout" i],
+button[onclick*="recordWithout" i]{
+  min-height:54px!important;
+  height:auto!important;
+  padding:12px 16px!important;
+  margin-top:10px!important;
+  margin-bottom:10px!important;
+  border-radius:15px!important;
+  font-size:clamp(15px,4vw,19px)!important;
+  line-height:1.15!important;
+}
+
+/* Verified cards remain readable; extra records collapse rather than eating Find. */
+#verifiedFirstPanel .phoenix-extra-verified,
+#verifiedLocations .phoenix-extra-verified,
+#verifiedList .phoenix-extra-verified{display:none!important}
+body.phoenix-show-all-verified .phoenix-extra-verified{display:block!important}
+
+#phoenixVerifiedToggle{
+  width:100%;
+  min-height:48px;
+  margin:10px 0 2px;
+  border:1px solid rgba(49,223,104,.55);
+  border-radius:14px;
+  background:#082b35;
+  color:#31df68;
+  font-weight:800;
+  font-size:15px;
+}
+</style>
+
 </head>
 <body>
-<div id="ssBuildStamp" data-build="SituSnap-PHOENIX-6" style="display:none">SituSnap-PHOENIX-6</div>
+<div id="ssBuildStamp" data-build="SituSnap-PHOENIX-7" style="display:none">SituSnap-PHOENIX-7</div>
 <div id="offlineBanner" class="offline-banner hidden" role="status" aria-live="polite">No signal — continue offline.</div><div id="celebration" aria-hidden="true"><div class="celebrate-content"><div class="celebrate-title">PIN VERIFIED!</div><div class="celebrate-sub">SituSnap location confirmed</div></div></div><header><div class="brand"><div class="brand-mark" aria-label="SituSnap logo">
 <svg viewBox="0 0 100 100" role="img" aria-hidden="true">
 <defs>
@@ -409,7 +453,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   };
   new MutationObserver(keepLocalWinner).observe(card,{attributes:true,childList:true,subtree:true});
 });
-const SS_APP_VERSION="PHOENIX-6";
+const SS_APP_VERSION="PHOENIX-7";
 const SS_CANONICAL_URL="https://cryptod1.github.io/SituSnap/";
 function ssShowMore(){document.getElementById("ssMorePanel")?.classList.remove("hidden");ssCheckForUpdate()}
 function ssHideMore(){document.getElementById("ssMorePanel")?.classList.add("hidden")}
@@ -2851,7 +2895,7 @@ window.addEventListener("load",()=>{if(navigator.onLine){ssVaultRestore().then((
 })();
 </script>
 
-<script id="phoenix-6-menu-adapter">
+<script id="phoenix-7-menu-adapter">
 (function(){
   function label(el){ return (el && el.textContent || "").replace(/\s+/g," ").trim().toLowerCase(); }
   function bottomNav(){
@@ -2926,6 +2970,84 @@ window.addEventListener("load",()=>{if(navigator.onLine){ssVaultRestore().then((
     wireMoreState();
     new MutationObserver(function(){ tidyBottomNav(); ensureMoreSections(); })
       .observe(document.body,{childList:true,subtree:true});
+  }
+  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",boot);
+  else boot();
+})();
+</script>
+
+
+<script id="phoenix-7-space-adapter">
+(function(){
+  function tidyNav(){
+    var reminder=document.getElementById("ssReminderNavBtn");
+    if(reminder) reminder.style.display="none";
+    var nav=document.querySelector(".ss-bottom-nav");
+    if(nav) nav.style.gridTemplateColumns="repeat(3,minmax(0,1fr))";
+  }
+
+  function findVerifiedContainer(){
+    return document.querySelector("#verifiedLocations,#verifiedList,#verifiedFirstPanel");
+  }
+
+  function verifiedCards(container){
+    if(!container) return [];
+    var selectors=[
+      ".verified-card",".verified-item",".ss-verified-card",
+      "[data-verified-record]","article"
+    ];
+    for(var i=0;i<selectors.length;i++){
+      var cards=Array.from(container.querySelectorAll(selectors[i]));
+      if(cards.length) return cards.filter(function(x){return x.id!=="phoenixVerifiedToggle";});
+    }
+    return [];
+  }
+
+  function limitVerified(){
+    var container=findVerifiedContainer();
+    if(!container) return;
+    var cards=verifiedCards(container);
+    if(cards.length<=5) return;
+
+    cards.forEach(function(card,i){
+      card.classList.toggle("phoenix-extra-verified",i>=5);
+    });
+
+    var btn=document.getElementById("phoenixVerifiedToggle");
+    if(!btn){
+      btn=document.createElement("button");
+      btn.type="button";
+      btn.id="phoenixVerifiedToggle";
+      container.appendChild(btn);
+      btn.addEventListener("click",function(){
+        document.body.classList.toggle("phoenix-show-all-verified");
+        updateToggle(cards.length);
+      });
+    }
+    updateToggle(cards.length);
+  }
+
+  function updateToggle(total){
+    var btn=document.getElementById("phoenixVerifiedToggle");
+    if(!btn) return;
+    btn.textContent=document.body.classList.contains("phoenix-show-all-verified")
+      ? "SHOW TOP 5"
+      : "SHOW ALL VERIFIED ("+total+")";
+  }
+
+  function boot(){
+    tidyNav();
+    limitVerified();
+    var pending=false;
+    new MutationObserver(function(){
+      if(pending) return;
+      pending=true;
+      requestAnimationFrame(function(){
+        pending=false;
+        tidyNav();
+        limitVerified();
+      });
+    }).observe(document.body,{childList:true,subtree:true});
   }
   if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",boot);
   else boot();
