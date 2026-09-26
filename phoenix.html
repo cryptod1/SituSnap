@@ -178,9 +178,28 @@ input,select,textarea,.street-picker-trigger,.street-picker-menu,.street-picker-
 #reminderCard,#recordsCard{background:linear-gradient(145deg,#0b2a38,#082433)!important}
 </style>
 
+
+<style id="phoenix-4-number-fix">
+/* Phoenix 4 — mobile Number-field fit only. */
+.ss-address-row{
+  grid-template-columns:minmax(112px,30%) minmax(0,1fr)!important;
+}
+#doorNumber{
+  padding-left:10px!important;
+  padding-right:8px!important;
+  font-size:14px!important;
+}
+@media(max-width:360px){
+  .ss-address-row{
+    grid-template-columns:108px minmax(0,1fr)!important;
+    gap:8px!important;
+  }
+}
+</style>
+
 </head>
 <body>
-<div id="ssBuildStamp" data-build="SituSnap-PHOENIX-3" style="display:none">SituSnap-PHOENIX-3</div>
+<div id="ssBuildStamp" data-build="SituSnap-PHOENIX-4" style="display:none">SituSnap-PHOENIX-4</div>
 <div id="offlineBanner" class="offline-banner hidden" role="status" aria-live="polite">No signal — continue offline.</div><div id="celebration" aria-hidden="true"><div class="celebrate-content"><div class="celebrate-title">PIN VERIFIED!</div><div class="celebrate-sub">SituSnap location confirmed</div></div></div><header><div class="brand"><div class="brand-mark" aria-label="SituSnap logo">
 <svg viewBox="0 0 100 100" role="img" aria-hidden="true">
 <defs>
@@ -273,7 +292,7 @@ fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round"/>
 
 <input type="hidden" id="result" value="Location verified">
 <div class="full"><label>Access / directions</label><textarea id="accessDirections" placeholder=""></textarea></div>
-<div class="full"><label>Confirmation</label><select id="localSource"><option>Not applicable</option><option>Local resident</option><option>Postie / delivery driver</option><option>Other</option></select></div><div class="full"><label>Handover notes</label><textarea id="notes" placeholder="Optional — anything useful for the next visit"></textarea></div>
+<div class="full"><label>Assisted</label><select id="localSource"><option>Not applicable</option><option>Local resident</option><option>Postie / delivery driver</option><option>Other</option></select></div><div class="full"><label>Handover notes</label><textarea id="notes" placeholder="Optional — anything useful for the next visit"></textarea></div>
 
 <div class="full"><label>Photo — property / entrance <span style="opacity:.72">(1 REQUIRED)</span></label>
 <div class="small-note" style="margin:0 0 7px">Take a photo now or choose one already taken. Extra photos are optional.</div>
@@ -310,7 +329,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   };
   new MutationObserver(keepLocalWinner).observe(card,{attributes:true,childList:true,subtree:true});
 });
-const SS_APP_VERSION="PHOENIX-3";
+const SS_APP_VERSION="PHOENIX-4";
 const SS_CANONICAL_URL="https://cryptod1.github.io/SituSnap/";
 function ssShowMore(){document.getElementById("ssMorePanel")?.classList.remove("hidden");ssCheckForUpdate()}
 function ssHideMore(){document.getElementById("ssMorePanel")?.classList.add("hidden")}
