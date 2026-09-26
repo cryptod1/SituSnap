@@ -198,7 +198,7 @@ input,select,textarea,.street-picker-trigger,.street-picker-menu,.street-picker-
 </style>
 
 
-<style id="phoenix-13-field-polish">
+<style id="phoenix-14-field-polish">
 /* Phoenix 5: presentation-only field polish. */
 .ss-address-row{
   grid-template-columns:minmax(88px,25%) minmax(0,1fr)!important;
@@ -228,7 +228,7 @@ input,select,textarea,.street-picker-trigger,.street-picker-menu,.street-picker-
 </style>
 
 
-<style id="phoenix-13-locked-layout">
+<style id="phoenix-14-locked-layout">
 /* Phoenix 8 — based on known-good Phoenix 5. */
 .ss-bottom-nav{
   grid-template-columns:repeat(3,minmax(0,1fr))!important;
@@ -245,7 +245,7 @@ input,select,textarea,.street-picker-trigger,.street-picker-menu,.street-picker-
 </style>
 
 
-<style id="phoenix-13-micro-fix">
+<style id="phoenix-14-micro-fix">
 /* Phoenix 9 — ONLY the three field-layout fixes confirmed from the updated app screenshot. */
 
 /* Remaining nav buttons fill the bar evenly after Reminder is removed. */
@@ -290,7 +290,7 @@ input,select,textarea,.street-picker-trigger,.street-picker-menu,.street-picker-
 </style>
 
 
-<style id="phoenix-13-isolation">
+<style id="phoenix-14-isolation">
 /* Phoenix 10: isolated test build — no production updater UI. */
 #ssUpdateBadge,
 #ssUpdatePanel,
@@ -314,7 +314,7 @@ nav.bottom > .nav{
 </style>
 
 
-<style id="phoenix-13-update-quarantine">
+<style id="phoenix-14-update-quarantine">
 /* Phoenix 11: production update controls are quarantined during Phoenix testing. */
 #ssUpdateBtn,
 #ssCheckUpdateBtn,
@@ -332,7 +332,7 @@ nav.bottom > .nav{
 </style>
 
 
-<style id="phoenix-13-first-page-cleanup">
+<style id="phoenix-14-first-page-cleanup">
 /* Phoenix 12 — locked layout: instructions live in More, not on Find. */
 #reminderCard > details:not(#recordDetails),
 #reminderCard > .reminder-row,
@@ -344,7 +344,7 @@ nav.bottom > .nav{
 </style>
 
 
-<style id="phoenix-13-final-find-polish">
+<style id="phoenix-14-final-find-polish">
 /* Phoenix 13 — final Find-page wording/fit only. */
 #manualAddress{
   min-width:0!important;
@@ -363,9 +363,18 @@ nav.bottom > .nav{
 }
 </style>
 
+
+<style id="phoenix-14-compact-find">
+#huntPostcode{min-height:58px!important;height:58px!important;padding:10px 18px!important}
+.ss-address-row{grid-template-columns:92px minmax(0,1fr)!important;gap:8px!important}
+#doorNumber,#manualAddress{min-height:58px!important;height:58px!important}
+#doorNumber{padding:8px 7px!important;font-size:12.5px!important}
+#manualAddress{padding:8px 8px!important;font-size:clamp(10.5px,2.9vw,13.5px)!important;letter-spacing:-.25px!important}
+</style>
+
 </head>
 <body>
-<div id="ssBuildStamp" data-build="SituSnap-PHOENIX-13" style="display:none">SituSnap-PHOENIX-13</div>
+<div id="ssBuildStamp" data-build="SituSnap-PHOENIX-14" style="display:none">SituSnap-PHOENIX-14</div>
 <div id="offlineBanner" class="offline-banner hidden" role="status" aria-live="polite">No signal — continue offline.</div><div id="celebration" aria-hidden="true"><div class="celebrate-content"><div class="celebrate-title">PIN VERIFIED!</div><div class="celebrate-sub">SituSnap location confirmed</div></div></div><header><div class="brand"><div class="brand-mark" aria-label="SituSnap logo">
 <svg viewBox="0 0 100 100" role="img" aria-hidden="true">
 <defs>
@@ -477,11 +486,11 @@ fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round"/>
 <details class="details"><summary>🧭 Record how you found it</summary><div class="inside">Add the road, track, landmark, passage, gate or approach that actually helped you locate it.</div></details>
 <details class="details"><summary>📸 Take useful photos</summary><div class="inside">Capture the approach and the property/entrance so the next person can recognise the correct place.</div></details>
 <details class="details"><summary>⚠️ Add anything important</summary><div class="inside">Access restrictions, hazards, corrections and anything else that would save the next person time.</div></details></section>
-<div class="scroll-hint">MORE BELOW — SWIPE UP<span>⌄</span></div>
+
 <section class="card" id="recordsCard"><div class="section-head"><div><h2>Verified locations</h2><p class="muted">Previously verified properties for this postcode.</p></div></div><div id="records"></div></section>
 
 </main><nav class="bottom"><button class="nav active" onclick="window.scrollTo({top:0,behavior:'smooth'})"><span class="ico">⌂</span>Find</button><button class="nav" onclick="document.getElementById('recordsCard').scrollIntoView({behavior:'smooth'})"><span class="ico">↻</span>Verified</button><button id="ssMoreNavBtn" class="nav" onclick="ssShowMore()" style="position:relative"><span class="ico">☰</span>More<span id="ssUpdateBadge" class="hidden" aria-label="Update available">UPDATE</span></button></nav>
-<div id="ssMorePanel" class="hidden" style="position:fixed;inset:0;z-index:900;background:rgba(2,9,20,.72);padding:90px 16px;overflow:auto" onclick="if(event.target===this)ssHideMore()"><div style="max-width:520px;margin:auto;background:#0a1934;border:1px solid rgba(126,177,235,.25);border-radius:18px;padding:18px"><div style="display:flex;justify-content:space-between;align-items:center"><div><b>SituSnap</b><div id="ssVisibleVersion" style="font-size:12px;color:#a9bad0">Phoenix 13 · isolated test</div></div><button type="button" onclick="ssHideMore()" style="min-height:40px;padding:6px 12px;border-radius:10px;background:#26384f;color:#fff">CLOSE</button></div><div id="ssUpdateStatus" style="margin-top:16px;padding:13px;border-radius:12px;background:#103d29;color:#dff8e3;font-size:12px;font-weight:850">Checking for updates…</div><button id="ssUpdateBtn" type="button" class="hidden" onclick="ssApplyUpdate()" style="width:100%;margin-top:10px;padding:13px;border-radius:12px;background:#69df83;color:#071a33;font-weight:950">UPDATE AVAILABLE — TAP TO UPDATE</button></div></div>
+<div id="ssMorePanel" class="hidden" style="position:fixed;inset:0;z-index:900;background:rgba(2,9,20,.72);padding:90px 16px;overflow:auto" onclick="if(event.target===this)ssHideMore()"><div style="max-width:520px;margin:auto;background:#0a1934;border:1px solid rgba(126,177,235,.25);border-radius:18px;padding:18px"><div style="display:flex;justify-content:space-between;align-items:center"><div><b>SituSnap</b><div id="ssVisibleVersion" style="font-size:12px;color:#a9bad0">Phoenix 14 · isolated test</div></div><button type="button" onclick="ssHideMore()" style="min-height:40px;padding:6px 12px;border-radius:10px;background:#26384f;color:#fff">CLOSE</button></div><div id="ssUpdateStatus" style="margin-top:16px;padding:13px;border-radius:12px;background:#103d29;color:#dff8e3;font-size:12px;font-weight:850">Checking for updates…</div><button id="ssUpdateBtn" type="button" class="hidden" onclick="ssApplyUpdate()" style="width:100%;margin-top:10px;padding:13px;border-radius:12px;background:#69df83;color:#071a33;font-weight:950">UPDATE AVAILABLE — TAP TO UPDATE</button></div></div>
 <script>
 let gps=null,huntPostcode="",huntAddressQuery="",target=null,watchId=null,postcodeTimer=null,editingRecordId=null;
 let ssFindGeneration=0;
@@ -495,7 +504,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   };
   new MutationObserver(keepLocalWinner).observe(card,{attributes:true,childList:true,subtree:true});
 });
-const SS_APP_VERSION="PHOENIX-13";
+const SS_APP_VERSION="PHOENIX-14";
 const SS_CANONICAL_URL="https://cryptod1.github.io/SituSnap/";
 function ssShowMore(){document.getElementById("ssMorePanel")?.classList.remove("hidden");ssCheckForUpdate()}
 function ssHideMore(){document.getElementById("ssMorePanel")?.classList.add("hidden")}
@@ -2937,7 +2946,7 @@ window.addEventListener("load",()=>{if(navigator.onLine){ssVaultRestore().then((
 })();
 </script>
 
-<script id="phoenix-13-isolation-adapter">
+<script id="phoenix-14-isolation-adapter">
 (function(){
   function clean(){
     var nav=document.querySelector("nav.bottom");
@@ -2956,7 +2965,7 @@ window.addEventListener("load",()=>{if(navigator.onLine){ssVaultRestore().then((
 </script>
 
 
-<script id="phoenix-13-update-quarantine-adapter">
+<script id="phoenix-14-update-quarantine-adapter">
 (function(){
   function quarantineUpdateControls(){
     var more=document.querySelector("#ssMorePanel,#morePanel,#menuPanel");
@@ -2984,7 +2993,7 @@ window.addEventListener("load",()=>{if(navigator.onLine){ssVaultRestore().then((
 </script>
 
 
-<script id="phoenix-13-first-page-cleanup-adapter">
+<script id="phoenix-14-first-page-cleanup-adapter">
 (function(){
   function cleanFindInstructions(){
     var card=document.getElementById("reminderCard");
@@ -3012,7 +3021,7 @@ window.addEventListener("load",()=>{if(navigator.onLine){ssVaultRestore().then((
 </script>
 
 
-<script id="phoenix-13-orphan-prompt-kill">
+<script id="phoenix-14-orphan-prompt-kill">
 (function(){
   function removeOrphanPrompt(){
     Array.from(document.querySelectorAll("body *")).forEach(function(el){
