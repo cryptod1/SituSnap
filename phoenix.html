@@ -198,7 +198,7 @@ input,select,textarea,.street-picker-trigger,.street-picker-menu,.street-picker-
 </style>
 
 
-<style id="phoenix-26-field-polish">
+<style id="phoenix-28-field-polish">
 /* Phoenix 5: presentation-only field polish. */
 .ss-address-row{
   grid-template-columns:minmax(88px,25%) minmax(0,1fr)!important;
@@ -228,7 +228,7 @@ input,select,textarea,.street-picker-trigger,.street-picker-menu,.street-picker-
 </style>
 
 
-<style id="phoenix-26-locked-layout">
+<style id="phoenix-28-locked-layout">
 /* Phoenix 8 — based on known-good Phoenix 5. */
 .ss-bottom-nav{
   grid-template-columns:repeat(3,minmax(0,1fr))!important;
@@ -245,7 +245,7 @@ input,select,textarea,.street-picker-trigger,.street-picker-menu,.street-picker-
 </style>
 
 
-<style id="phoenix-26-micro-fix">
+<style id="phoenix-28-micro-fix">
 /* Phoenix 9 — ONLY the three field-layout fixes confirmed from the updated app screenshot. */
 
 /* Remaining nav buttons fill the bar evenly after Reminder is removed. */
@@ -290,7 +290,7 @@ input,select,textarea,.street-picker-trigger,.street-picker-menu,.street-picker-
 </style>
 
 
-<style id="phoenix-26-isolation">
+<style id="phoenix-28-isolation">
 /* Phoenix 10: isolated test build — no production updater UI. */
 #ssUpdateBadge,
 #ssUpdatePanel,
@@ -314,7 +314,7 @@ nav.bottom > .nav{
 </style>
 
 
-<style id="phoenix-26-update-quarantine">
+<style id="phoenix-28-update-quarantine">
 /* Phoenix 11: production update controls are quarantined during Phoenix testing. */
 #ssUpdateBtn,
 #ssCheckUpdateBtn,
@@ -332,7 +332,7 @@ nav.bottom > .nav{
 </style>
 
 
-<style id="phoenix-26-first-page-cleanup">
+<style id="phoenix-28-first-page-cleanup">
 /* Phoenix 12 — locked layout: instructions live in More, not on Find. */
 #reminderCard > details:not(#recordDetails),
 #reminderCard > .reminder-row,
@@ -344,7 +344,7 @@ nav.bottom > .nav{
 </style>
 
 
-<style id="phoenix-26-final-find-polish">
+<style id="phoenix-28-final-find-polish">
 /* Phoenix 13 — final Find-page wording/fit only. */
 #manualAddress{
   min-width:0!important;
@@ -364,7 +364,7 @@ nav.bottom > .nav{
 </style>
 
 
-<style id="phoenix-26-compact-find">
+<style id="phoenix-28-compact-find">
 #huntPostcode{min-height:58px!important;height:58px!important;padding:10px 18px!important}
 .ss-address-row{grid-template-columns:92px minmax(0,1fr)!important;gap:8px!important}
 #doorNumber,#manualAddress{min-height:58px!important;height:58px!important}
@@ -373,7 +373,7 @@ nav.bottom > .nav{
 </style>
 
 
-<style id="phoenix-26-card-squeeze">
+<style id="phoenix-28-card-squeeze">
 /* Phoenix 15 — reclaim vertical space for Verified locations. */
 
 /* WHOLE Find Destination card: remove excess outer whitespace and gaps. */
@@ -439,7 +439,7 @@ nav.bottom > .nav{
 </style>
 
 
-<style id="phoenix-26-container-squeeze">
+<style id="phoenix-28-container-squeeze">
 /* Phoenix 17 — remove dead space, not usability. */
 
 /* Whole Find card */
@@ -501,7 +501,7 @@ nav.bottom > .nav{
 </style>
 
 
-<style id="phoenix-26-real-containers">
+<style id="phoenix-28-real-containers">
 /* Exact containers found in Phoenix markup. */
 
 /* OUTER Find box */
@@ -541,7 +541,7 @@ nav.bottom > .nav{
 </style>
 
 
-<style id="phoenix-26-brutal-mobile">
+<style id="phoenix-28-brutal-mobile">
 @media (max-width:700px){
   /* Find card: function first */
   .ss-home-shell{
@@ -611,7 +611,7 @@ nav.bottom > .nav{
 </style>
 
 
-<style id="phoenix-26-mobile-authority">
+<style id="phoenix-28-mobile-authority">
 /* PHOENIX 20 — one compact operational authority. */
 .ss-home-shell{
   padding:6px 8px!important;
@@ -685,7 +685,7 @@ nav.bottom > .nav{
 </style>
 
 
-<style id="phoenix-26-tagline-swap">
+<style id="phoenix-28-tagline-swap">
 .ss-home-kicker{
   display:block!important;
   font-size:15px!important;
@@ -697,7 +697,7 @@ nav.bottom > .nav{
 </style>
 
 
-<style id="phoenix-26-handover-strip">
+<style id="phoenix-28-handover-strip">
 /* Handover is now one operational control on Find. */
 #reminderCard.card{
   padding:5px!important;
@@ -716,15 +716,129 @@ nav.bottom > .nav{
 </style>
 
 
-<style id="phoenix-26-reminder-exorcism">
+<style id="phoenix-28-reminder-exorcism">
 /* No Reminder control survives in colleague-facing More UI. */
 #ssPhoenixMore details:not(#ssPhoenixHowTo){display:none!important}
 #ssPhoenixMore #ssPhoenixHowTo{display:block!important}
 </style>
 
+
+<style id="phoenix-28-handover-authority">
+/* Page 3 — Handover: compact field-first layout. */
+#recordDetails[open]{
+  padding-bottom:4px!important;
+}
+#recordDetails[open] > summary{
+  min-height:42px!important;
+  margin-bottom:7px!important;
+}
+#recordDetails[open] .inside{
+  padding:6px 2px 4px!important;
+}
+#recordDetails[open] .inside > *{
+  margin-top:7px!important;
+  margin-bottom:7px!important;
+}
+#recordDetails[open] label{
+  margin-bottom:3px!important;
+  line-height:1.15!important;
+}
+#recordDetails[open] input,
+#recordDetails[open] select,
+#recordDetails[open] textarea{
+  min-height:44px!important;
+  padding:8px 10px!important;
+  border-radius:9px!important;
+}
+#recordDetails[open] textarea{
+  min-height:76px!important;
+}
+#recordDetails[open] button{
+  min-height:44px!important;
+  border-radius:9px!important;
+}
+#recordDetails[open] .hint,
+#recordDetails[open] .small,
+#recordDetails[open] small{
+  line-height:1.2!important;
+  margin-top:2px!important;
+  margin-bottom:4px!important;
+}
+</style>
+
+
+<style id="phoenix-28-handover-compression">
+/* Preserve P27 Handover design; remove vertical air. */
+#recordDetails[open] .inside{
+  padding:4px 2px!important;
+}
+#recordDetails[open] .inside > *{
+  margin-top:5px!important;
+  margin-bottom:5px!important;
+}
+#recordDetails[open] label{
+  margin:0 0 2px!important;
+}
+
+/* Known property fields: compact once Find has supplied their values. */
+#recordDetails[open] input{
+  min-height:40px!important;
+  height:40px!important;
+  padding:5px 9px!important;
+}
+#recordDetails[open] select{
+  min-height:42px!important;
+  height:42px!important;
+  padding:5px 9px!important;
+}
+
+/* Writing areas start compact, but grow as the colleague types. */
+#recordDetails[open] textarea{
+  min-height:58px!important;
+  height:58px;
+  padding:7px 9px!important;
+  line-height:1.25!important;
+  overflow-y:hidden!important;
+}
+
+/* Photo section: retain both camera/file routes, remove wasted gaps. */
+#recordDetails[open] button{
+  min-height:42px!important;
+}
+#recordDetails[open] .hint,
+#recordDetails[open] .small,
+#recordDetails[open] small{
+  margin:2px 0 3px!important;
+  line-height:1.15!important;
+}
+</style>
+<script id="phoenix-28-autogrow">
+(function(){
+ function grow(t){
+   if(!t || t.tagName!=='TEXTAREA') return;
+   t.style.height='58px';
+   t.style.height=Math.max(58,t.scrollHeight)+'px';
+ }
+ function wire(){
+   var root=document.getElementById('recordDetails');
+   if(!root) return;
+   root.querySelectorAll('textarea').forEach(function(t){
+     if(t.dataset.p28Grow) return;
+     t.dataset.p28Grow='1';
+     t.addEventListener('input',function(){grow(t)});
+     grow(t);
+   });
+ }
+ document.addEventListener('DOMContentLoaded',wire);
+ document.addEventListener('toggle',function(e){
+   if(e.target && e.target.id==='recordDetails' && e.target.open) setTimeout(wire,0);
+ },true);
+})();
+</script>
+
 </head>
 <body>
-<div id="ssBuildStamp" data-build="SituSnap-PHOENIX-26" style="display:none">SituSnap-PHOENIX-26</div>
+<div id="ssBuildStamp" data-build="SituSnap-PHOENIX-28" style="display:none">SituSnap-PHOENIX-28</div>
 <div id="offlineBanner" class="offline-banner hidden" role="status" aria-live="polite">No signal — continue offline.</div><div id="celebration" aria-hidden="true"><div class="celebrate-content"><div class="celebrate-title">PIN VERIFIED!</div><div class="celebrate-sub">SituSnap location confirmed</div></div></div><header><div class="brand"><div class="brand-mark" aria-label="SituSnap logo">
 <svg viewBox="0 0 100 100" role="img" aria-hidden="true">
 <defs>
@@ -855,7 +969,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   };
   new MutationObserver(keepLocalWinner).observe(card,{attributes:true,childList:true,subtree:true});
 });
-const SS_APP_VERSION="PHOENIX-26";
+const SS_APP_VERSION="PHOENIX-28";
 const SS_CANONICAL_URL="https://cryptod1.github.io/SituSnap/";
 function ssShowMore(){document.getElementById("ssMorePanel")?.classList.remove("hidden");ssCheckForUpdate()}
 function ssHideMore(){document.getElementById("ssMorePanel")?.classList.add("hidden")}
@@ -3297,7 +3411,7 @@ window.addEventListener("load",()=>{if(navigator.onLine){ssVaultRestore().then((
 })();
 </script>
 
-<script id="phoenix-26-isolation-adapter">
+<script id="phoenix-28-isolation-adapter">
 (function(){
   function clean(){
     var nav=document.querySelector("nav.bottom");
@@ -3316,7 +3430,7 @@ window.addEventListener("load",()=>{if(navigator.onLine){ssVaultRestore().then((
 </script>
 
 
-<script id="phoenix-26-update-quarantine-adapter">
+<script id="phoenix-28-update-quarantine-adapter">
 (function(){
   function quarantineUpdateControls(){
     var more=document.querySelector("#ssMorePanel,#morePanel,#menuPanel");
@@ -3344,7 +3458,7 @@ window.addEventListener("load",()=>{if(navigator.onLine){ssVaultRestore().then((
 </script>
 
 
-<script id="phoenix-26-first-page-cleanup-adapter">
+<script id="phoenix-28-first-page-cleanup-adapter">
 (function(){
   function cleanFindInstructions(){
     var card=document.getElementById("reminderCard");
@@ -3372,7 +3486,7 @@ window.addEventListener("load",()=>{if(navigator.onLine){ssVaultRestore().then((
 </script>
 
 
-<script id="phoenix-26-orphan-prompt-kill">
+<script id="phoenix-28-orphan-prompt-kill">
 (function(){
   function removeOrphanPrompt(){
     Array.from(document.querySelectorAll("body *")).forEach(function(el){
@@ -3390,7 +3504,7 @@ window.addEventListener("load",()=>{if(navigator.onLine){ssVaultRestore().then((
 </script>
 
 
-<script id="phoenix-26-handover-bridge">
+<script id="phoenix-28-handover-bridge">
 (function(){
   function syncTypedAddressToHandover(){
     var pc=document.getElementById('huntPostcode');
@@ -3433,7 +3547,7 @@ window.addEventListener("load",()=>{if(navigator.onLine){ssVaultRestore().then((
 
 
 
-<style id="phoenix-26-more-authority">
+<style id="phoenix-28-more-authority">
 #ssPhoenixMore{
  position:fixed;inset:0;z-index:2147483000;background:#061823;
  padding:18px 16px 100px;overflow:auto;color:#fff;display:none;
@@ -3467,7 +3581,7 @@ window.addEventListener("load",()=>{if(navigator.onLine){ssVaultRestore().then((
 }
 #ssPhoenixHowTo .row b{font-size:16px}
 </style>
-<script id="phoenix-26-more-authority-script">
+<script id="phoenix-28-more-authority-script">
 (function(){
  function buildPhoenixMore(){
    if(document.getElementById('ssPhoenixMore')) return;
