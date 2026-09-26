@@ -197,9 +197,39 @@ input,select,textarea,.street-picker-trigger,.street-picker-menu,.street-picker-
 }
 </style>
 
+
+<style id="phoenix-5-field-polish">
+/* Phoenix 5: presentation-only field polish. */
+.ss-address-row{
+  grid-template-columns:minmax(88px,25%) minmax(0,1fr)!important;
+}
+#doorNumber{min-width:0!important}
+#manualAddress{
+  min-width:0!important;
+  padding-left:14px!important;
+  padding-right:10px!important;
+  font-size:clamp(12px,3.45vw,16px)!important;
+}
+@media(max-width:360px){
+  .ss-address-row{
+    grid-template-columns:86px minmax(0,1fr)!important;
+    gap:8px!important;
+  }
+  #manualAddress{font-size:12px!important}
+}
+
+/* Reminder remains available, but no longer occupies a primary bottom-nav slot. */
+.ss-bottom-nav [data-page="reminder"],
+.ss-bottom-nav [data-target="reminder"],
+.ss-bottom-nav a[href="#reminder"],
+.ss-bottom-nav button[onclick*="reminder" i]{
+  display:none!important;
+}
+</style>
+
 </head>
 <body>
-<div id="ssBuildStamp" data-build="SituSnap-PHOENIX-4" style="display:none">SituSnap-PHOENIX-4</div>
+<div id="ssBuildStamp" data-build="SituSnap-PHOENIX-5" style="display:none">SituSnap-PHOENIX-5</div>
 <div id="offlineBanner" class="offline-banner hidden" role="status" aria-live="polite">No signal — continue offline.</div><div id="celebration" aria-hidden="true"><div class="celebrate-content"><div class="celebrate-title">PIN VERIFIED!</div><div class="celebrate-sub">SituSnap location confirmed</div></div></div><header><div class="brand"><div class="brand-mark" aria-label="SituSnap logo">
 <svg viewBox="0 0 100 100" role="img" aria-hidden="true">
 <defs>
@@ -329,7 +359,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   };
   new MutationObserver(keepLocalWinner).observe(card,{attributes:true,childList:true,subtree:true});
 });
-const SS_APP_VERSION="PHOENIX-4";
+const SS_APP_VERSION="PHOENIX-5";
 const SS_CANONICAL_URL="https://cryptod1.github.io/SituSnap/";
 function ssShowMore(){document.getElementById("ssMorePanel")?.classList.remove("hidden");ssCheckForUpdate()}
 function ssHideMore(){document.getElementById("ssMorePanel")?.classList.add("hidden")}
