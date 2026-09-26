@@ -198,7 +198,7 @@ input,select,textarea,.street-picker-trigger,.street-picker-menu,.street-picker-
 </style>
 
 
-<style id="phoenix-30-field-polish">
+<style id="phoenix-31-field-polish">
 /* Phoenix 5: presentation-only field polish. */
 .ss-address-row{
   grid-template-columns:minmax(88px,25%) minmax(0,1fr)!important;
@@ -228,7 +228,7 @@ input,select,textarea,.street-picker-trigger,.street-picker-menu,.street-picker-
 </style>
 
 
-<style id="phoenix-30-locked-layout">
+<style id="phoenix-31-locked-layout">
 /* Phoenix 8 — based on known-good Phoenix 5. */
 .ss-bottom-nav{
   grid-template-columns:repeat(3,minmax(0,1fr))!important;
@@ -245,7 +245,7 @@ input,select,textarea,.street-picker-trigger,.street-picker-menu,.street-picker-
 </style>
 
 
-<style id="phoenix-30-micro-fix">
+<style id="phoenix-31-micro-fix">
 /* Phoenix 9 — ONLY the three field-layout fixes confirmed from the updated app screenshot. */
 
 /* Remaining nav buttons fill the bar evenly after Reminder is removed. */
@@ -290,7 +290,7 @@ input,select,textarea,.street-picker-trigger,.street-picker-menu,.street-picker-
 </style>
 
 
-<style id="phoenix-30-isolation">
+<style id="phoenix-31-isolation">
 /* Phoenix 10: isolated test build — no production updater UI. */
 #ssUpdateBadge,
 #ssUpdatePanel,
@@ -314,7 +314,7 @@ nav.bottom > .nav{
 </style>
 
 
-<style id="phoenix-30-update-quarantine">
+<style id="phoenix-31-update-quarantine">
 /* Phoenix 11: production update controls are quarantined during Phoenix testing. */
 #ssUpdateBtn,
 #ssCheckUpdateBtn,
@@ -332,7 +332,7 @@ nav.bottom > .nav{
 </style>
 
 
-<style id="phoenix-30-first-page-cleanup">
+<style id="phoenix-31-first-page-cleanup">
 /* Phoenix 12 — locked layout: instructions live in More, not on Find. */
 #reminderCard > details:not(#recordDetails),
 #reminderCard > .reminder-row,
@@ -344,7 +344,7 @@ nav.bottom > .nav{
 </style>
 
 
-<style id="phoenix-30-final-find-polish">
+<style id="phoenix-31-final-find-polish">
 /* Phoenix 13 — final Find-page wording/fit only. */
 #manualAddress{
   min-width:0!important;
@@ -364,7 +364,7 @@ nav.bottom > .nav{
 </style>
 
 
-<style id="phoenix-30-compact-find">
+<style id="phoenix-31-compact-find">
 #huntPostcode{min-height:58px!important;height:58px!important;padding:10px 18px!important}
 .ss-address-row{grid-template-columns:92px minmax(0,1fr)!important;gap:8px!important}
 #doorNumber,#manualAddress{min-height:58px!important;height:58px!important}
@@ -373,7 +373,7 @@ nav.bottom > .nav{
 </style>
 
 
-<style id="phoenix-30-card-squeeze">
+<style id="phoenix-31-card-squeeze">
 /* Phoenix 15 — reclaim vertical space for Verified locations. */
 
 /* WHOLE Find Destination card: remove excess outer whitespace and gaps. */
@@ -439,7 +439,7 @@ nav.bottom > .nav{
 </style>
 
 
-<style id="phoenix-30-container-squeeze">
+<style id="phoenix-31-container-squeeze">
 /* Phoenix 17 — remove dead space, not usability. */
 
 /* Whole Find card */
@@ -501,7 +501,7 @@ nav.bottom > .nav{
 </style>
 
 
-<style id="phoenix-30-real-containers">
+<style id="phoenix-31-real-containers">
 /* Exact containers found in Phoenix markup. */
 
 /* OUTER Find box */
@@ -541,7 +541,7 @@ nav.bottom > .nav{
 </style>
 
 
-<style id="phoenix-30-brutal-mobile">
+<style id="phoenix-31-brutal-mobile">
 @media (max-width:700px){
   /* Find card: function first */
   .ss-home-shell{
@@ -611,7 +611,7 @@ nav.bottom > .nav{
 </style>
 
 
-<style id="phoenix-30-mobile-authority">
+<style id="phoenix-31-mobile-authority">
 /* PHOENIX 20 — one compact operational authority. */
 .ss-home-shell{
   padding:6px 8px!important;
@@ -685,7 +685,7 @@ nav.bottom > .nav{
 </style>
 
 
-<style id="phoenix-30-tagline-swap">
+<style id="phoenix-31-tagline-swap">
 .ss-home-kicker{
   display:block!important;
   font-size:15px!important;
@@ -697,7 +697,7 @@ nav.bottom > .nav{
 </style>
 
 
-<style id="phoenix-30-handover-strip">
+<style id="phoenix-31-handover-strip">
 /* Handover is now one operational control on Find. */
 #reminderCard.card{
   padding:5px!important;
@@ -716,14 +716,14 @@ nav.bottom > .nav{
 </style>
 
 
-<style id="phoenix-30-reminder-exorcism">
+<style id="phoenix-31-reminder-exorcism">
 /* No Reminder control survives in colleague-facing More UI. */
 #ssPhoenixMore details:not(#ssPhoenixHowTo){display:none!important}
 #ssPhoenixMore #ssPhoenixHowTo{display:block!important}
 </style>
 
 
-<style id="phoenix-30-handover-authority">
+<style id="phoenix-31-handover-authority">
 /* Page 3 — Handover: compact field-first layout. */
 #recordDetails[open]{
   padding-bottom:4px!important;
@@ -767,7 +767,7 @@ nav.bottom > .nav{
 </style>
 
 
-<style id="phoenix-30-handover-compression">
+<style id="phoenix-31-handover-compression">
 /* Preserve P27 Handover design; remove vertical air. */
 #recordDetails[open] .inside{
   padding:4px 2px!important;
@@ -812,7 +812,7 @@ nav.bottom > .nav{
   line-height:1.15!important;
 }
 </style>
-<script id="phoenix-30-autogrow">
+<script id="phoenix-31-autogrow">
 (function(){
  function grow(t){
    if(!t || t.tagName!=='TEXTAREA') return;
@@ -837,7 +837,7 @@ nav.bottom > .nav{
 </script>
 
 
-<style id="phoenix-30-handover-brutal">
+<style id="phoenix-31-handover-brutal">
 /* Exact Handover controls — no generic guessing. */
 #postcode,#address{
   min-height:36px!important;height:36px!important;
@@ -859,7 +859,7 @@ nav.bottom > .nav{
 #recordDetails[open] .inside{padding-top:2px!important}
 #recordDetails[open] .inside > *{margin-top:4px!important;margin-bottom:4px!important}
 </style>
-<script id="phoenix-30-exact-autogrow">
+<script id="phoenix-31-exact-autogrow">
 (function(){
  const ids=['notes'];
  function grow(el){
@@ -885,7 +885,7 @@ nav.bottom > .nav{
 </script>
 
 
-<style id="phoenix-30-single-notes">
+<style id="phoenix-31-single-notes">
 /* One written handover field only. Legacy accessDirections stays inert for compatibility. */
 label[for="accessDirections"], #accessDirections{
   display:none!important;
@@ -898,9 +898,63 @@ label[for="accessDirections"], #accessDirections{
 }
 </style>
 
+
+<style id="phoenix-31-handover-polish">
+/* Final Handover visual hierarchy */
+#notes::placeholder{font-size:14px!important;line-height:1.25!important;opacity:.68!important}
+#recordDetails .photoTitle,
+#recordDetails [class*="photo-title"]{line-height:1.08!important}
+
+/* Optional photos: compact, clearly secondary. */
+#extraPhotosDetails,
+#recordDetails details:has(summary[id*="extra" i]),
+#recordDetails details:has(summary[class*="extra" i]){
+  margin-top:8px!important;margin-bottom:8px!important;
+}
+#extraPhotosDetails > summary,
+#recordDetails details:has(summary[id*="extra" i]) > summary,
+#recordDetails details:has(summary[class*="extra" i]) > summary{
+  min-height:42px!important;padding:8px 12px!important;
+}
+
+/* PIN VERIFIED remains the primary field outcome. */
+#detailsFoundBtn{min-height:58px!important;margin-bottom:0!important}
+
+/* NOT FOUND is exceptional: clean safety separation + secondary treatment. */
+#detailsNotFoundBtn,
+#notFoundBtn{
+  margin-top:24px!important;
+  min-height:52px!important;
+  background:transparent!important;
+  border:2px solid rgba(255,255,255,.34)!important;
+  color:#fff!important;
+  box-shadow:none!important;
+}
+</style>
+<script id="phoenix-31-copy-polish">
+(function(){
+ function polish(){
+   /* Source variants: normalize visible photo copy without touching camera/file logic. */
+   document.querySelectorAll('#recordDetails *').forEach(function(el){
+     if(el.children.length===0){
+       var t=(el.textContent||'').trim();
+       if(/^Photo\s*[—-]\s*property\s*\/\s*entrance/i.test(t) || /^Photo\s*[—-]\s*property/i.test(t)){
+         el.textContent='Property photo · Required';
+       }
+       if(t==='No photo selected yet.') el.textContent='No photo added';
+     }
+   });
+ }
+ document.addEventListener('DOMContentLoaded',polish);
+ document.addEventListener('toggle',function(e){
+   if(e.target&&e.target.id==='recordDetails'&&e.target.open)setTimeout(polish,0);
+ },true);
+})();
+</script>
+
 </head>
 <body>
-<div id="ssBuildStamp" data-build="SituSnap-PHOENIX-30" style="display:none">SituSnap-PHOENIX-30</div>
+<div id="ssBuildStamp" data-build="SituSnap-PHOENIX-31" style="display:none">SituSnap-PHOENIX-31</div>
 <div id="offlineBanner" class="offline-banner hidden" role="status" aria-live="polite">No signal — continue offline.</div><div id="celebration" aria-hidden="true"><div class="celebrate-content"><div class="celebrate-title">PIN VERIFIED!</div><div class="celebrate-sub">SituSnap location confirmed</div></div></div><header><div class="brand"><div class="brand-mark" aria-label="SituSnap logo">
 <svg viewBox="0 0 100 100" role="img" aria-hidden="true">
 <defs>
@@ -996,7 +1050,7 @@ fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round"/>
 <div class="full"><label>Access / directions</label><textarea id="accessDirections" placeholder=""></textarea></div>
 <div class="full"><label>Assisted</label><select id="localSource"><option>Not applicable</option><option>Local resident</option><option>Postie / delivery driver</option><option>Other</option></select></div><div class="full"><label>Handover notes</label><textarea id="notes" placeholder="Optional — anything useful for the next visit"></textarea></div>
 
-<div class="full"><label>Photo — property / entrance <span style="opacity:.72">(1 REQUIRED)</span></label>
+<div class="full"><label>Property photo · Required <span style="opacity:.72">(1 REQUIRED)</span></label>
 <div class="small-note" style="margin:0 0 7px">Take a photo now or choose one already taken. Extra photos are optional.</div>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
 <label for="photoCamera" style="margin:0;padding:13px 8px;border-radius:10px;background:#145a35;color:#fff;text-align:center;font-weight:900;cursor:pointer">📷 TAKE PHOTO</label>
@@ -1004,10 +1058,10 @@ fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round"/>
 </div>
 <input id="photoCamera" type="file" accept="image/*" capture="environment" style="display:none">
 <input id="photo1" type="file" accept="image/*" style="display:none">
-<div id="primaryPhotoStatus" class="small-note" style="margin-top:7px">No photo selected yet.</div></div>
+<div id="primaryPhotoStatus" class="small-note" style="margin-top:7px">No photo added</div></div>
 <div class="full"><details class="details" style="margin-top:4px"><summary>＋ Add more photos</summary><div class="inside"><input id="photo2" type="file" accept="image/*" capture="environment" multiple><div class="small-note" style="margin-top:7px">Optional — add approach, gate, landmark or access photos if useful.</div></div></details></div>
 <div class="full"><button class="save" id="detailsFoundBtn" onclick="confirmFoundFromDetails()" disabled style="opacity:.45;filter:saturate(.45);cursor:not-allowed">✓ PIN VERIFIED</button><div class="small-note" id="foundGpsNote" style="margin-top:8px;text-align:center">Confirm when physically at the property.</div><div id="localSaveStatus" class="small-note" style="margin-top:7px;text-align:center;font-weight:900;color:#9ee9ad"></div></div>
-<div class="full"><details class="details" style="margin-top:4px"><summary>Couldn’t locate the property?</summary><div class="inside"><button type="button" onclick="saveNotFound()" style="width:100%;padding:13px 8px;border-radius:12px;border:0;background:#145a35;color:#fff;font-weight:950">NOT FOUND</button><div class="small-note" style="margin-top:7px">Save the attempt for handover without creating a verified pin.</div></div></details></div></div></div></details>
+<div class="full"></div></div></div></details>
 <div style="height:8px"></div>
 <details class="details" id="reminderIdentify"><summary>🏠 Identify the property</summary><div class="inside">Record the number/name, building, entrance, gate or another clear identifier.</div></details>
 <details class="details"><summary>🧭 Record how you found it</summary><div class="inside">Add the road, track, landmark, passage, gate or approach that actually helped you locate it.</div></details>
@@ -1031,7 +1085,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   };
   new MutationObserver(keepLocalWinner).observe(card,{attributes:true,childList:true,subtree:true});
 });
-const SS_APP_VERSION="PHOENIX-30";
+const SS_APP_VERSION="PHOENIX-31";
 const SS_CANONICAL_URL="https://cryptod1.github.io/SituSnap/";
 function ssShowMore(){document.getElementById("ssMorePanel")?.classList.remove("hidden");ssCheckForUpdate()}
 function ssHideMore(){document.getElementById("ssMorePanel")?.classList.add("hidden")}
@@ -2633,7 +2687,7 @@ document.getElementById("photoCamera")?.addEventListener("change",()=>{updateFou
 document.getElementById("photo1")?.addEventListener("change",()=>{updateFoundButton();updatePrimaryPhotoStatus()});
 function updatePrimaryPhotoStatus(){
  const cam=document.getElementById("photoCamera")?.files?.[0], file=document.getElementById("photo1")?.files?.[0], el=document.getElementById("primaryPhotoStatus");
- if(el)el.textContent=(cam||file)?("✓ Photo ready: "+(cam||file).name):"No photo selected yet.";
+ if(el)el.textContent=(cam||file)?("✓ Photo ready: "+(cam||file).name):"No photo added";
 }
 </script>
 <script>
@@ -3473,7 +3527,7 @@ window.addEventListener("load",()=>{if(navigator.onLine){ssVaultRestore().then((
 })();
 </script>
 
-<script id="phoenix-30-isolation-adapter">
+<script id="phoenix-31-isolation-adapter">
 (function(){
   function clean(){
     var nav=document.querySelector("nav.bottom");
@@ -3492,7 +3546,7 @@ window.addEventListener("load",()=>{if(navigator.onLine){ssVaultRestore().then((
 </script>
 
 
-<script id="phoenix-30-update-quarantine-adapter">
+<script id="phoenix-31-update-quarantine-adapter">
 (function(){
   function quarantineUpdateControls(){
     var more=document.querySelector("#ssMorePanel,#morePanel,#menuPanel");
@@ -3520,7 +3574,7 @@ window.addEventListener("load",()=>{if(navigator.onLine){ssVaultRestore().then((
 </script>
 
 
-<script id="phoenix-30-first-page-cleanup-adapter">
+<script id="phoenix-31-first-page-cleanup-adapter">
 (function(){
   function cleanFindInstructions(){
     var card=document.getElementById("reminderCard");
@@ -3548,7 +3602,7 @@ window.addEventListener("load",()=>{if(navigator.onLine){ssVaultRestore().then((
 </script>
 
 
-<script id="phoenix-30-orphan-prompt-kill">
+<script id="phoenix-31-orphan-prompt-kill">
 (function(){
   function removeOrphanPrompt(){
     Array.from(document.querySelectorAll("body *")).forEach(function(el){
@@ -3566,7 +3620,7 @@ window.addEventListener("load",()=>{if(navigator.onLine){ssVaultRestore().then((
 </script>
 
 
-<script id="phoenix-30-handover-bridge">
+<script id="phoenix-31-handover-bridge">
 (function(){
   function syncTypedAddressToHandover(){
     var pc=document.getElementById('huntPostcode');
@@ -3609,7 +3663,7 @@ window.addEventListener("load",()=>{if(navigator.onLine){ssVaultRestore().then((
 
 
 
-<style id="phoenix-30-more-authority">
+<style id="phoenix-31-more-authority">
 #ssPhoenixMore{
  position:fixed;inset:0;z-index:2147483000;background:#061823;
  padding:18px 16px 100px;overflow:auto;color:#fff;display:none;
@@ -3643,7 +3697,7 @@ window.addEventListener("load",()=>{if(navigator.onLine){ssVaultRestore().then((
 }
 #ssPhoenixHowTo .row b{font-size:16px}
 </style>
-<script id="phoenix-30-more-authority-script">
+<script id="phoenix-31-more-authority-script">
 (function(){
  function buildPhoenixMore(){
    if(document.getElementById('ssPhoenixMore')) return;
@@ -3682,7 +3736,7 @@ window.addEventListener("load",()=>{if(navigator.onLine){ssVaultRestore().then((
 </script>
 
 
-<script id="phoenix-30-found-notes-gate">
+<script id="phoenix-31-found-notes-gate">
 (function(){
  function hasNotes(){
    var n=document.getElementById('notes');
