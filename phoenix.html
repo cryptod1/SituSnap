@@ -227,9 +227,59 @@ input,select,textarea,.street-picker-trigger,.street-picker-menu,.street-picker-
 }
 </style>
 
+
+<style id="phoenix-6-navigation-polish">
+/* Phoenix 6 — locked field layout: Find | Verified | More. */
+.ss-bottom-nav{
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+}
+.ss-bottom-nav [data-page="reminder"],
+.ss-bottom-nav [data-target="reminder"],
+.ss-bottom-nav a[href="#reminder"],
+.ss-bottom-nav button[onclick*="reminder" i],
+.ss-bottom-nav .reminder,
+.ss-bottom-nav #reminderNav,
+.ss-bottom-nav #navReminder{
+  display:none!important;
+}
+
+/* Keep instructional/reminder content off the working Find surface. */
+#fieldReminders,
+#howToUse,
+#howTo,
+#instructionsPanel{
+  display:none;
+}
+body.phoenix-more-open #fieldReminders,
+body.phoenix-more-open #howToUse,
+body.phoenix-more-open #howTo,
+body.phoenix-more-open #instructionsPanel{
+  display:block!important;
+}
+</style>
+
+<style id="phoenix-6-more-style">
+.phoenix-more-section{
+  margin:12px 0;
+  border:1px solid rgba(120,170,195,.28);
+  border-radius:16px;
+  background:#092b3a;
+  color:#f7fbff;
+  overflow:hidden;
+}
+.phoenix-more-section summary{
+  cursor:pointer;
+  padding:16px 18px;
+  font-weight:800;
+  font-size:17px;
+}
+.phoenix-more-copy,.phoenix-reminder-host{padding:0 18px 16px}
+.phoenix-more-copy p{margin:0 0 14px;line-height:1.4}
+</style>
+
 </head>
 <body>
-<div id="ssBuildStamp" data-build="SituSnap-PHOENIX-5" style="display:none">SituSnap-PHOENIX-5</div>
+<div id="ssBuildStamp" data-build="SituSnap-PHOENIX-6" style="display:none">SituSnap-PHOENIX-6</div>
 <div id="offlineBanner" class="offline-banner hidden" role="status" aria-live="polite">No signal — continue offline.</div><div id="celebration" aria-hidden="true"><div class="celebrate-content"><div class="celebrate-title">PIN VERIFIED!</div><div class="celebrate-sub">SituSnap location confirmed</div></div></div><header><div class="brand"><div class="brand-mark" aria-label="SituSnap logo">
 <svg viewBox="0 0 100 100" role="img" aria-hidden="true">
 <defs>
@@ -359,7 +409,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   };
   new MutationObserver(keepLocalWinner).observe(card,{attributes:true,childList:true,subtree:true});
 });
-const SS_APP_VERSION="PHOENIX-5";
+const SS_APP_VERSION="PHOENIX-6";
 const SS_CANONICAL_URL="https://cryptod1.github.io/SituSnap/";
 function ssShowMore(){document.getElementById("ssMorePanel")?.classList.remove("hidden");ssCheckForUpdate()}
 function ssHideMore(){document.getElementById("ssMorePanel")?.classList.add("hidden")}
@@ -2800,4 +2850,86 @@ window.addEventListener("load",()=>{if(navigator.onLine){ssVaultRestore().then((
   });
 })();
 </script>
+
+<script id="phoenix-6-menu-adapter">
+(function(){
+  function label(el){ return (el && el.textContent || "").replace(/\s+/g," ").trim().toLowerCase(); }
+  function bottomNav(){
+    return document.querySelector(".ss-bottom-nav") ||
+           document.querySelector("nav.bottom-nav") ||
+           document.querySelector(".bottom-nav");
+  }
+  function tidyBottomNav(){
+    var nav=bottomNav();
+    if(!nav) return;
+    Array.from(nav.querySelectorAll("button,a,[role=button]")).forEach(function(el){
+      if(label(el).indexOf("reminder")!==-1 || label(el)==="v"){
+        /* Hide only the obsolete Reminder slot; reminder content itself is retained. */
+        if(label(el).indexOf("reminder")!==-1 || (el.querySelector && el.querySelector('[class*="remind" i]'))) {
+          el.style.display="none";
+        }
+      }
+    });
+    nav.style.gridTemplateColumns="repeat(3,minmax(0,1fr))";
+  }
+
+  function ensureMoreSections(){
+    var more = document.querySelector("#morePage,#morePanel,#menuPage,#menuPanel,[data-page-panel='more'],[data-page='more'].page");
+    if(!more) return;
+
+    if(!more.querySelector("#phoenixHowTo")){
+      var how=document.createElement("details");
+      how.id="phoenixHowTo";
+      how.className="phoenix-more-section";
+      how.innerHTML='<summary>How to use SituSnap</summary>'+
+        '<div class="phoenix-more-copy">'+
+        '<p><strong>Identify the property</strong><br>Enter the postcode and house name/street. Add the door number when known.</p>'+
+        '<p><strong>Record how you found it</strong><br>Add the approach, track or access details that will help the next colleague.</p>'+
+        '<p><strong>Take useful photos</strong><br>Photograph the property or approach clearly enough to recognise it next time.</p>'+
+        '<p><strong>Add anything important</strong><br>Record useful handover information before verifying the pin.</p>'+
+        '</div>';
+      more.insertBefore(how, more.firstChild);
+    }
+
+    if(!more.querySelector("#phoenixReminder")){
+      var existing=document.querySelector("#reminderCard,#fieldReminders,[data-panel='reminder']");
+      var rem=document.createElement("details");
+      rem.id="phoenixReminder";
+      rem.className="phoenix-more-section";
+      rem.innerHTML='<summary>Reminder</summary><div class="phoenix-reminder-host"></div>';
+      more.appendChild(rem);
+      if(existing){
+        existing.style.display="";
+        rem.querySelector(".phoenix-reminder-host").appendChild(existing);
+      }
+    }
+  }
+
+  function wireMoreState(){
+    document.addEventListener("click",function(e){
+      var el=e.target.closest("button,a,[role=button]");
+      if(!el) return;
+      var t=label(el);
+      if(t.indexOf("more")!==-1 || t.indexOf("menu")!==-1 || el.id.toLowerCase().indexOf("menu")!==-1){
+        document.body.classList.add("phoenix-more-open");
+        setTimeout(ensureMoreSections,0);
+      }
+      if(t==="find" || t.indexOf("verified")!==-1){
+        document.body.classList.remove("phoenix-more-open");
+      }
+    },true);
+  }
+
+  function boot(){
+    tidyBottomNav();
+    ensureMoreSections();
+    wireMoreState();
+    new MutationObserver(function(){ tidyBottomNav(); ensureMoreSections(); })
+      .observe(document.body,{childList:true,subtree:true});
+  }
+  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",boot);
+  else boot();
+})();
+</script>
+
 </body></html>
