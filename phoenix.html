@@ -178,7 +178,7 @@ button{font:inherit;cursor:pointer}
 <input id="type" type="hidden" value="Property / building"/><input id="updateStatus" type="hidden" value="New location found"/><div><label>Observed by</label><select id="observedBy"><option>MGroup</option><option>Courier partner</option><option>Verified contributor</option><option>Utility partner</option><option>Emergency service</option><option>Professional survey</option></select></div>
 <input id="result" type="hidden" value="Location verified"/>
 <input id="accessDirections" type="hidden" value=""/>
-<div class="full"><label>Assisted</label><select id="localSource"><option>Not applicable</option><option>Local resident</option><option>Postie / delivery driver</option><option>Other</option></select></div><div class="full"><label>Handover notes</label><textarea id="notes" placeholder="Optional — anything useful for the next visit"></textarea></div>
+<div class="full"><label>Assisted</label><select id="localSource"><option>Not applicable</option><option>Local resident</option><option>Postie / delivery driver</option><option>Other</option></select></div><div class="full"><label>Handover notes</label><textarea id="notes" placeholder="Required — anything useful for the next visit"></textarea></div>
 <div class="full"><label>Property photo · Required</label>
 <div class="small-note" style="margin:0 0 7px">Take a photo now or choose one already taken. Extra photos are optional.</div>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
@@ -212,7 +212,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   };
   new MutationObserver(keepLocalWinner).observe(card,{attributes:true,childList:true,subtree:true});
 });
-const SS_APP_VERSION="PHOENIX-CLEAN-1";
+const SS_APP_VERSION="PHOENIX-CLEAN-2";
 function ssShowMore(){document.getElementById("ssMorePanel")?.classList.remove("hidden")}
 function ssHideMore(){document.getElementById("ssMorePanel")?.classList.add("hidden")}
 const SS_VERIFIED_ARCHIVE="situSnapVerifiedArchiveV1";
@@ -1062,16 +1062,6 @@ async function ssFindDestination(){
       row=verifiedRows[0];
     }
 
-    if(typeof window.__ssTrace==="function"){
-      window.__ssTrace("VERIFIED TAB SOURCE",JSON.stringify({
-        postcode:pc,wanted:property,count:verifiedRows.length,
-        rows:verifiedRows.map(r=>({id:r.id,address:r.address,street:r.street,postcode:r.postcode,
-          pinVerified:r.pinVerified,result:r.result,updateStatus:r.updateStatus,
-          hasGps:!!r.gps})).slice(0,12),
-        matched:row?{id:row.id,address:row.address,street:row.street}:null
-      }));
-    }
-
     if(row){
       const lat=Number(row.gps?.latitude ?? row.gps?.lat ?? row.latitude ?? row.lat);
       const lon=Number(row.gps?.longitude ?? row.gps?.lon ?? row.longitude ?? row.lon);
@@ -1454,14 +1444,16 @@ function updateFoundButton(){
   const address=(document.getElementById("address")?.value||"").trim();
   const street=(document.getElementById("street")?.value||"").trim();
   const mainPhoto=!!(document.getElementById("photoCamera")?.files?.length||document.getElementById("photo1")?.files?.length);
-  // Rural-first: street remains optional. A verified pin requires the main property/entrance photo.
-  const ready=!!(postcode&&address&&mainPhoto);
+  const notes=(document.getElementById("notes")?.value||"").trim();
+  // Rural-first: street remains optional. A verified pin requires postcode, property, notes and the main photo.
+  const ready=!!(postcode&&address&&notes&&mainPhoto);
   btn.disabled=!ready;
   btn.textContent="✓ PIN VERIFIED";
   btn.style.opacity=ready?"1":".45";btn.style.filter=ready?"none":"saturate(.45)";btn.style.cursor=ready?"pointer":"not-allowed";
   if(note){
     if(!postcode)note.textContent="Enter the postcode first.";
     else if(!address)note.textContent="Enter the property number or name.";
+    else if(!notes)note.textContent="Add handover notes for the next visit.";
     else if(!mainPhoto)note.textContent="Add the property / entrance photo to verify the pin.";
     else note.textContent="Ready for confirmation.";
   }
@@ -1476,6 +1468,8 @@ function persistFoundRecord(){
   if(!postcode||!address){alert("Please complete the postcode and property number/name or location before confirming.");return false}
   const mainPhoto=!!(document.getElementById("photoCamera")?.files?.length||document.getElementById("photo1")?.files?.length);
   if(editingRecordId===null && !mainPhoto){alert("Please add the property / entrance photo before verifying the pin.");return false}
+  const requiredNotes=(document.getElementById("notes")?.value||"").trim();
+  if(editingRecordId===null && !requiredNotes){alert("Please add handover notes before verifying the pin.");return false}
   const rs=getRecords();
   const existingIndex=editingRecordId===null?-1:rs.findIndex(r=>r.id===editingRecordId);
   const previous=existingIndex>=0?rs[existingIndex]:null;
@@ -1574,13 +1568,14 @@ function resetAfterNotFound(){
 }
 function saveNotFound(){
   const postcode=(document.getElementById("postcode")?.value||document.getElementById("huntPostcode")?.value||"").trim().toUpperCase();
-  const address=(document.getElementById("address")?.value||"").trim();
+  const address=(document.getElementById("address")?.value||document.getElementById("manualAddress")?.value||"").trim();
   if(!postcode){alert("Enter the postcode before saving the attempt.");return}
+  if(!address){alert("Enter the property name or address before saving NOT FOUND.");return}
   const rs=getRecords();
   const record={
     id:Date.now(),
     postcode,
-    address:address||"Not located",
+    address,
     street:(document.getElementById("street")?.value||"").trim(),
     type:"Property / building",
     observedBy:document.getElementById("observedBy")?.value||"MGroup",
@@ -2401,8 +2396,6 @@ window.SituSnapSharedStore={
   window.addEventListener('offline',paintConnectivity);
   window.addEventListener('online',paintConnectivity);
   paintConnectivity();
-  if('serviceWorker' in navigator){
-    /* Phoenix: service worker registration disabled for isolated testing. */}
 })();
 function ssUpdateVaultStatus(){
   const el=document.getElementById("verifiedVaultStatus"); if(!el)return;
