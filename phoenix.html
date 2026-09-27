@@ -291,46 +291,10 @@ input,select,textarea,.street-picker-trigger,.street-picker-menu,.street-picker-
 </style>
 
 
-<style id="phoenix-26-isolation">
-/* Phoenix 10: isolated test build — no production updater UI. */
-#ssUpdateBadge,
-#ssUpdatePanel,
-#ssUpdateModal,
-.update-badge,
-.update-available{
-  display:none!important;
-}
-
-/* Three controls use the full width: Find | Verified | More. */
-nav.bottom{
-  display:grid!important;
-  grid-template-columns:repeat(3,minmax(0,1fr))!important;
-  width:100%!important;
-}
-nav.bottom > .nav{
-  width:100%!important;
-  min-width:0!important;
-  justify-self:stretch!important;
-}
-</style>
 
 
-<style id="phoenix-26-update-quarantine">
-/* Phoenix 11: production update controls are quarantined during Phoenix testing. */
-#ssUpdateBtn,
-#ssCheckUpdateBtn,
-#ssInstallUpdateBtn,
-#ssUpdateNowBtn,
-#ssUpdateBadge,
-#ssUpdatePanel,
-#ssUpdateModal,
-.update-btn,
-.check-update,
-.install-update,
-.update-available{
-  display:none!important;
-}
-</style>
+
+
 
 
 <style id="phoenix-26-first-page-cleanup">
@@ -822,7 +786,7 @@ body{padding-bottom:102px!important}
 <input type="hidden" id="result" value="Location verified">
 <input type="hidden" id="accessDirections" value="">
 <div class="full"><label>Assisted</label><select id="localSource"><option>Not applicable</option><option>Local resident</option><option>Postie / delivery driver</option><option>Other</option></select></div><div class="full"><label>Handover notes</label><textarea id="notes" placeholder="Optional — anything useful for the next visit"></textarea></div>
-<div class="full" id="ssVersionCard" style="margin-top:2px;padding:11px 12px;border:1px solid rgba(126,177,235,.22);border-radius:12px;background:rgba(10,25,52,.58)"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px"><div><div style="font-size:11px;opacity:.68;font-weight:800;letter-spacing:.04em">SITUSNAP</div><div id="ssPage2Version" style="font-size:13px;font-weight:900">SituSnap 1.1.0</div></div><button id="ssPage2UpdateBtn" type="button" class="hidden" onclick="ssApplyUpdate()" style="padding:9px 11px;border:0;border-radius:10px;background:#69df83;color:#071a33;font-size:11px;font-weight:950">UPDATE AVAILABLE</button></div><div id="ssPage2UpdateNote" class="hidden" style="margin-top:7px;font-size:11px;color:#dff8e3;font-weight:800">New signed SituSnap APK available.</div></div>
+<div class="full" id="ssVersionCard" data-situsnap-version="1.1.0" style="margin-top:2px;padding:11px 12px;border:1px solid rgba(126,177,235,.22);border-radius:12px;background:rgba(10,25,52,.58)"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px"><div><div style="font-size:11px;opacity:.68;font-weight:800;letter-spacing:.04em">SITUSNAP</div><div id="ssPage2Version" style="font-size:13px;font-weight:900">SituSnap 1.1.0</div></div><button id="ssPage2UpdateBtn" type="button" class="hidden" onclick="ssApplyUpdate()" style="padding:9px 11px;border:0;border-radius:10px;background:#69df83;color:#071a33;font-size:11px;font-weight:950">UPDATE AVAILABLE</button></div><div id="ssPage2UpdateNote" class="hidden" style="margin-top:7px;font-size:11px;color:#dff8e3;font-weight:800">New signed SituSnap APK available.</div></div>
 
 <div class="full"><label>Photo — property / entrance <span style="opacity:.72">(1 REQUIRED)</span></label>
 <div class="small-note" style="margin:0 0 7px">Take a photo now or choose one already taken. Extra photos are optional.</div>
@@ -3284,8 +3248,6 @@ window.addEventListener("load",()=>{if(navigator.onLine){ssVaultRestore().then((
       nav.style.gridTemplateColumns="repeat(3,minmax(0,1fr))";
       nav.style.width="100%";
     }
-    document.querySelectorAll("#ssUpdateBadge,#ssUpdatePanel,#ssUpdateModal,.update-badge,.update-available")
-      .forEach(function(el){ el.style.display="none"; });
   }
   if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",clean);
   else clean();
@@ -3294,32 +3256,7 @@ window.addEventListener("load",()=>{if(navigator.onLine){ssVaultRestore().then((
 </script>
 
 
-<script id="phoenix-26-update-quarantine-adapter">
-(function(){
-  function quarantineUpdateControls(){
-    var more=document.querySelector("#ssMorePanel,#morePanel,#menuPanel");
-    if(!more) return;
-    Array.from(more.querySelectorAll("button,a,[role=button]")).forEach(function(el){
-      var t=(el.textContent||"").replace(/\s+/g," ").trim().toLowerCase();
-      if(t==="update" || t==="update now" || t.indexOf("check for update")!==-1 ||
-         t.indexOf("install update")!==-1 || t.indexOf("app update")!==-1){
-        el.style.display="none";
-        el.setAttribute("aria-hidden","true");
-        el.tabIndex=-1;
-      }
-    });
-    more.querySelectorAll("#ssUpdateBadge,#ssUpdatePanel,#ssUpdateModal,.update-badge,.update-available")
-      .forEach(function(el){el.style.display="none";});
-  }
-  function boot(){
-    quarantineUpdateControls();
-    new MutationObserver(quarantineUpdateControls)
-      .observe(document.body,{childList:true,subtree:true});
-  }
-  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",boot);
-  else boot();
-})();
-</script>
+
 
 
 <script id="phoenix-26-first-page-cleanup-adapter">
