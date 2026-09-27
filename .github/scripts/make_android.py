@@ -28,8 +28,8 @@ android {
         applicationId 'com.situsnap.app'
         minSdk 26
         targetSdk 35
-        versionCode 14
-        versionName '1.0.11'
+        versionCode 15
+        versionName '1.1.0'
     }
 
     signingConfigs {
@@ -283,7 +283,13 @@ public class MainActivity extends Activity {
                 "https://cryptod1.github.io/SituSnap/",
                 phoenix, "text/html", "UTF-8", null);
         } catch (Exception e) {
-            webView.loadUrl("https://cryptod1.github.io/SituSnap/phoenix.html?native=111&cb=phoenix-clean-2");
+            // Never fall back to a remote Phoenix build. If the bundled app
+            // cannot load, fail closed rather than exposing an old/debug build.
+            android.widget.TextView errorView = new android.widget.TextView(this);
+            errorView.setText("SituSnap could not start. Please reinstall the latest SituSnap update.");
+            errorView.setGravity(android.view.Gravity.CENTER);
+            errorView.setPadding(48, 48, 48, 48);
+            setContentView(errorView);
         }
     }
 
@@ -328,4 +334,4 @@ html = phoenix.read_text(encoding="utf-8")
 asset = Path("app/src/main/assets/phoenix.html")
 asset.parent.mkdir(parents=True, exist_ok=True)
 shutil.copyfile(phoenix, asset)
-print("🔥 PHOENIX-CLEAN-2 bundled into APK")
+print("🔥 SituSnap 1.1.0 bundled into APK")
