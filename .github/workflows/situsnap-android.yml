@@ -19,9 +19,6 @@ jobs:
       - name: Create Android project
         run: python3 .github/scripts/make_android.py
 
-      - name: Apply SituSnap branding
-        run: python3 .github/scripts/apply_situsnap_branding.py
-
       - name: Restore permanent signing key
         env:
           KEYSTORE_BASE64: ${{ secrets.SITUSNAP_KEYSTORE_BASE64 }}
