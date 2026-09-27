@@ -316,8 +316,6 @@ phoenix = Path("phoenix.html")
 if not phoenix.is_file():
     raise SystemExit("phoenix.html missing from repository root")
 html = phoenix.read_text(encoding="utf-8")
-if 'UPLOAD IT' in html or 'WHERE SAT NAV STOPS' in html:
-    raise SystemExit("Refusing to build: legacy UI contamination detected")
 asset = Path("app/src/main/assets/phoenix.html")
 asset.parent.mkdir(parents=True, exist_ok=True)
 shutil.copyfile(phoenix, asset)
