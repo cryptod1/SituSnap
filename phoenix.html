@@ -728,12 +728,6 @@ nav.bottom > .nav{
 /* UI-only recovery after #153 functional pass. No resolver/camera/navigation JS changes. */
 /* Handover: keep one colleague-facing notes box plus the required photo/actions.
    Address/postcode/default metadata continue to exist and sync underneath. */
-#recordDetails .form-grid > div:has(> label[for="postcode"]),
-#recordDetails .form-grid > div:has(> #postcode),
-#recordDetails .form-grid > div:has(> #address),
-#recordDetails .form-grid > div:has(> #observedBy),
-#recordDetails .form-grid > div:has(> #accessDirections),
-#recordDetails .form-grid > div:has(> #localSource){display:none!important}
 #recordDetails .inside{padding-top:8px!important}
 #recordDetails #notes{min-height:92px!important}
 /* Android three-button/gesture navigation clearance. */
@@ -3521,4 +3515,456 @@ window.addEventListener("load",()=>{if(navigator.onLine){ssVaultRestore().then((
 })();
 </script>
 
+
+
+<!-- Exact locked Handover blocks copied verbatim from SituSnap-Phoenix-35.html -->
+<style id="phoenix-33-handover-strip">
+/* Handover is now one operational control on Find. */
+#reminderCard.card{
+  padding:5px!important;
+  margin:5px 0!important;
+}
+#recordDetails{
+  margin:0!important;
+}
+#recordDetails>summary{
+  min-height:42px!important;
+  margin:0!important;
+  padding:6px 10px!important;
+  font-size:15px!important;
+  line-height:1!important;
+}
+</style>
+
+<style id="phoenix-33-handover-authority">
+/* Page 3 — Handover: compact field-first layout. */
+#recordDetails[open]{
+  padding-bottom:4px!important;
+}
+#recordDetails[open] > summary{
+  min-height:42px!important;
+  margin-bottom:7px!important;
+}
+#recordDetails[open] .inside{
+  padding:6px 2px 4px!important;
+}
+#recordDetails[open] .inside > *{
+  margin-top:7px!important;
+  margin-bottom:7px!important;
+}
+#recordDetails[open] label{
+  margin-bottom:3px!important;
+  line-height:1.15!important;
+}
+#recordDetails[open] input,
+#recordDetails[open] select,
+#recordDetails[open] textarea{
+  min-height:44px!important;
+  padding:8px 10px!important;
+  border-radius:9px!important;
+}
+#recordDetails[open] textarea{
+  min-height:76px!important;
+}
+#recordDetails[open] button{
+  min-height:44px!important;
+  border-radius:9px!important;
+}
+#recordDetails[open] .hint,
+#recordDetails[open] .small,
+#recordDetails[open] small{
+  line-height:1.2!important;
+  margin-top:2px!important;
+  margin-bottom:4px!important;
+}
+</style>
+
+<style id="phoenix-33-handover-compression">
+/* Preserve P27 Handover design; remove vertical air. */
+#recordDetails[open] .inside{
+  padding:4px 2px!important;
+}
+#recordDetails[open] .inside > *{
+  margin-top:5px!important;
+  margin-bottom:5px!important;
+}
+#recordDetails[open] label{
+  margin:0 0 2px!important;
+}
+
+/* Known property fields: compact once Find has supplied their values. */
+#recordDetails[open] input{
+  min-height:40px!important;
+  height:40px!important;
+  padding:5px 9px!important;
+}
+#recordDetails[open] select{
+  min-height:42px!important;
+  height:42px!important;
+  padding:5px 9px!important;
+}
+
+/* Writing areas start compact, but grow as the colleague types. */
+#recordDetails[open] textarea{
+  min-height:58px!important;
+  height:58px;
+  padding:7px 9px!important;
+  line-height:1.25!important;
+  overflow-y:hidden!important;
+}
+
+/* Photo section: retain both camera/file routes, remove wasted gaps. */
+#recordDetails[open] button{
+  min-height:42px!important;
+}
+#recordDetails[open] .hint,
+#recordDetails[open] .small,
+#recordDetails[open] small{
+  margin:2px 0 3px!important;
+  line-height:1.15!important;
+}
+</style>
+
+<script id="phoenix-33-autogrow">
+(function(){
+ function grow(t){
+   if(!t || t.tagName!=='TEXTAREA') return;
+   t.style.height='58px';
+   t.style.height=Math.max(58,t.scrollHeight)+'px';
+ }
+ function wire(){
+   var root=document.getElementById('recordDetails');
+   if(!root) return;
+   root.querySelectorAll('textarea').forEach(function(t){
+     if(t.dataset.p28Grow) return;
+     t.dataset.p28Grow='1';
+     t.addEventListener('input',function(){grow(t)});
+     grow(t);
+   });
+ }
+ document.addEventListener('DOMContentLoaded',wire);
+ document.addEventListener('toggle',function(e){
+   if(e.target && e.target.id==='recordDetails' && e.target.open) setTimeout(wire,0);
+ },true);
+})();
+</script>
+
+<style id="phoenix-33-handover-brutal">
+/* Exact Handover controls — no generic guessing. */
+#postcode,#address{
+  min-height:36px!important;height:36px!important;
+  padding:4px 8px!important;margin:0!important;
+  font-size:16px!important;
+}
+#observedBy,#localSource{
+  min-height:38px!important;height:38px!important;
+  padding:3px 8px!important;margin:0!important;
+  font-size:16px!important;
+}
+#accessDirections,#notes{
+  min-height:52px!important;height:52px!important;
+  padding:6px 8px!important;margin:0!important;
+  line-height:1.2!important;overflow-y:hidden!important;
+}
+/* Compress labels and field wrappers around the exact controls. */
+#recordDetails[open] label{margin:3px 0 2px!important;font-size:14px!important;line-height:1!important}
+#recordDetails[open] .inside{padding-top:2px!important}
+#recordDetails[open] .inside > *{margin-top:4px!important;margin-bottom:4px!important}
+</style>
+
+<script id="phoenix-33-exact-autogrow">
+(function(){
+ const ids=['notes'];
+ function grow(el){
+   if(!el)return;
+   el.style.setProperty('height','52px','important');
+   el.style.setProperty('height',Math.max(52,el.scrollHeight)+'px','important');
+ }
+ function wire(){
+   ids.forEach(function(id){
+     var el=document.getElementById(id); if(!el)return;
+     if(!el.dataset.p29Grow){
+       el.dataset.p29Grow='1';
+       el.addEventListener('input',function(){grow(el)});
+     }
+     grow(el);
+   });
+ }
+ document.addEventListener('DOMContentLoaded',wire);
+ document.addEventListener('toggle',function(e){
+   if(e.target&&e.target.id==='recordDetails'&&e.target.open)setTimeout(wire,0);
+ },true);
+})();
+</script>
+
+<style id="phoenix-33-single-notes">
+/* One written handover field only. Legacy accessDirections stays inert for compatibility. */
+label[for="accessDirections"], #accessDirections{
+  display:none!important;
+}
+#notes{
+  min-height:52px!important;
+  height:52px!important;
+  padding:6px 8px!important;
+  overflow-y:hidden!important;
+}
+</style>
+
+<style id="phoenix-33-handover-polish">
+/* Final Handover visual hierarchy */
+#notes::placeholder{font-size:14px!important;line-height:1.25!important;opacity:.68!important}
+#recordDetails .photoTitle,
+#recordDetails [class*="photo-title"]{line-height:1.08!important}
+
+/* Optional photos: compact, clearly secondary. */
+#extraPhotosDetails,
+#recordDetails details:has(summary[id*="extra" i]),
+#recordDetails details:has(summary[class*="extra" i]){
+  margin-top:8px!important;margin-bottom:8px!important;
+}
+#extraPhotosDetails > summary,
+#recordDetails details:has(summary[id*="extra" i]) > summary,
+#recordDetails details:has(summary[class*="extra" i]) > summary{
+  min-height:42px!important;padding:8px 12px!important;
+}
+
+/* PIN VERIFIED remains the primary field outcome. */
+#detailsFoundBtn{min-height:58px!important;margin-bottom:0!important}
+
+/* NOT FOUND is exceptional: clean safety separation + secondary treatment. */
+#detailsNotFoundBtn,
+#notFoundBtn{
+  margin-top:24px!important;
+  min-height:52px!important;
+  background:transparent!important;
+  border:2px solid rgba(255,255,255,.34)!important;
+  color:#fff!important;
+  box-shadow:none!important;
+}
+</style>
+
+<script id="phoenix-33-copy-polish">
+(function(){
+ function polish(){
+   /* Source variants: normalize visible photo copy without touching camera/file logic. */
+   document.querySelectorAll('#recordDetails *').forEach(function(el){
+     if(el.children.length===0){
+       var t=(el.textContent||'').trim();
+       if(/^Photo\s*[—-]\s*property\s*\/\s*entrance/i.test(t) || /^Photo\s*[—-]\s*property/i.test(t)){
+         el.textContent='Property photo · Required';
+       }
+       if(t==='No photo added') el.textContent='No photo added';
+     }
+   });
+ }
+ document.addEventListener('DOMContentLoaded',polish);
+ document.addEventListener('toggle',function(e){
+   if(e.target&&e.target.id==='recordDetails'&&e.target.open)setTimeout(polish,0);
+ },true);
+})();
+</script>
+
+<style id="phoenix-33-notfound-authority">
+#ssNotFoundSafetyGap{height:28px!important}
+#ssCanonicalNotFound{
+ width:100%!important;min-height:52px!important;
+ background:transparent!important;color:#fff!important;
+ border:2px solid rgba(255,255,255,.34)!important;
+ border-radius:12px!important;font:inherit!important;font-weight:900!important;
+ box-shadow:none!important;margin:0!important;
+}
+</style>
+
+<script id="phoenix-33-render-authority">
+(function(){
+ function normalize(){
+   var rd=document.getElementById('recordDetails');
+   if(!rd)return;
+
+   /* Remove any inherited/dynamically-rendered locate-property dropdown. */
+   rd.querySelectorAll('details').forEach(function(d){
+     var sm=d.querySelector(':scope > summary');
+     var t=(sm&&sm.textContent||'').replace(/\s+/g,' ').trim().toLowerCase();
+     if(t.indexOf("couldn")===0 && t.indexOf('locate the property')>=0) d.remove();
+   });
+
+   /* Belt-and-braces: Access/directions is no longer a colleague-facing field. */
+   rd.querySelectorAll('label').forEach(function(l){
+     if((l.textContent||'').trim().toLowerCase()==='access / directions'){
+       var wrap=l.closest('.full')||l.parentElement;
+       if(wrap && !wrap.querySelector('#accessDirections[type="hidden"]')) wrap.remove();
+     }
+   });
+
+   /* Normalize any legacy photo copy that another layer tries to paint. */
+   rd.querySelectorAll('*').forEach(function(el){
+     if(el.children.length)return;
+     var t=(el.textContent||'').replace(/\s+/g,' ').trim();
+     if(/^Photo\s*[—-]\s*property\s*\/\s*entrance/i.test(t)) el.textContent='Property photo · Required';
+     if(t==='No photo selected yet.') el.textContent='No photo added';
+   });
+ }
+ document.addEventListener('DOMContentLoaded',function(){
+   normalize();
+   var rd=document.getElementById('recordDetails');
+   if(rd) new MutationObserver(normalize).observe(rd,{childList:true,subtree:true,characterData:true});
+ });
+ document.addEventListener('toggle',function(e){
+   if(e.target&&e.target.id==='recordDetails'&&e.target.open)setTimeout(normalize,0);
+ },true);
+})();
+</script>
+
+<style id="phoenix-33-notfound-fix">
+#ssNotFoundSafetyGap{height:28px!important;display:block!important;pointer-events:none!important}
+#ssCanonicalNotFound{
+ display:block!important;width:100%!important;min-height:54px!important;
+ margin:0!important;padding:12px!important;
+ background:transparent!important;color:#fff!important;
+ border:2px solid rgba(255,255,255,.38)!important;border-radius:12px!important;
+ font:inherit!important;font-weight:900!important;box-shadow:none!important;
+}
+</style>
+
+<script id="phoenix-33-notfound-render">
+(function(){
+ function install(){
+   var rd=document.getElementById('recordDetails');
+   var note=document.getElementById('foundGpsNote');
+   if(!rd||!note)return;
+
+   /* Keep exactly one safety gap + NOT FOUND pair, immediately after confirmation. */
+   rd.querySelectorAll('#ssNotFoundSafetyGap,#ssCanonicalNotFound').forEach(function(x){x.remove()});
+   var gap=document.createElement('div');
+   gap.id='ssNotFoundSafetyGap';
+   gap.setAttribute('aria-hidden','true');
+
+   var btn=document.createElement('button');
+   btn.id='ssCanonicalNotFound';
+   btn.type='button';
+   btn.textContent='NOT FOUND';
+   btn.addEventListener('click',function(){ saveNotFound(); });
+
+   note.insertAdjacentElement('afterend',gap);
+   gap.insertAdjacentElement('afterend',btn);
+
+   /* Final copy cleanup. */
+   rd.querySelectorAll('*').forEach(function(el){
+     if(el.children.length)return;
+     var t=(el.textContent||'').replace(/\s+/g,' ').trim();
+     if(/^Property photo · Required\s*\(1 REQUIRED\)$/i.test(t)) el.textContent='Property photo · Required';
+   });
+ }
+ document.addEventListener('DOMContentLoaded',install);
+ document.addEventListener('toggle',function(e){
+   if(e.target&&e.target.id==='recordDetails'&&e.target.open)setTimeout(install,0);
+ },true);
+})();
+</script>
+
+<script id="phoenix-33-handover-bridge">
+(function(){
+  function syncTypedAddressToHandover(){
+    var pc=document.getElementById('huntPostcode');
+    var no=document.getElementById('doorNumber');
+    var addr=document.getElementById('manualAddress');
+    var values={
+      postcode:pc?pc.value.trim():'',
+      number:no?no.value.trim():'',
+      address:addr?addr.value.trim():''
+    };
+    /* Fill only compatible empty handover fields; never invent a verified pin. */
+    var candidates=[
+      ['postcode',['handoverPostcode','recordPostcode','notFoundPostcode']],
+      ['number',['handoverNumber','recordNumber','notFoundNumber']],
+      ['address',['handoverAddress','recordAddress','notFoundAddress','propertyName']]
+    ];
+    candidates.forEach(function(row){
+      var value=values[row[0]];
+      if(!value) return;
+      row[1].forEach(function(id){
+        var el=document.getElementById(id);
+        if(el && !el.value) el.value=value;
+      });
+    });
+  }
+  function enableSingleHandoverDoor(){
+    var d=document.getElementById('recordDetails');
+    if(!d) return;
+    var summary=d.querySelector(':scope > summary');
+    if(summary){
+      summary.removeAttribute('aria-disabled');
+      summary.classList.remove('disabled');
+      summary.style.pointerEvents='auto';
+      summary.addEventListener('click',syncTypedAddressToHandover,true);
+    }
+  }
+  document.addEventListener('DOMContentLoaded',enableSingleHandoverDoor);
+})();
+</script>
+
+<script id="phoenix-33-found-notes-gate">
+(function(){
+ function hasNotes(){
+   var n=document.getElementById('notes');
+   return !!(n && n.value.trim());
+ }
+ function reinforce(){
+   var n=document.getElementById('notes');
+   if(!n) return;
+   n.required=true;
+   n.setAttribute('aria-required','true');
+   n.placeholder='Required — access road, landmark, entrance, gate, hazard or anything useful for the next visit';
+ }
+ document.addEventListener('DOMContentLoaded',reinforce);
+ document.addEventListener('toggle',function(e){
+   if(e.target&&e.target.id==='recordDetails'&&e.target.open) reinforce();
+ },true);
+
+ /* Capture PIN VERIFIED attempts only when notes are empty.
+    Existing photo/GPS/other gates continue to run normally when notes exist. */
+ document.addEventListener('click',function(e){
+   var b=e.target.closest && e.target.closest('#detailsFoundBtn');
+   if(!b || hasNotes()) return;
+   e.preventDefault();
+   e.stopImmediatePropagation();
+   var n=document.getElementById('notes');
+   if(n){
+     n.setCustomValidity('Add a handover note before PIN VERIFIED.');
+     n.reportValidity();
+     n.focus();
+     setTimeout(function(){n.setCustomValidity('')},1500);
+   }
+ },true);
+})();
+</script>
+
+<script id="phoenix-35-locked-design-script">
+(function(){
+ function p35(){
+   /* Exact locked copy. */
+   var k=document.querySelector('.ss-home-kicker');
+   if(k) k.textContent='FIND IT. SNAP IT. UPDATE IT.';
+
+   /* Handover is the single field route. */
+   var s=document.querySelector('#recordDetails > summary');
+   if(s) s.textContent='Handover notes';
+
+   /* Remove Reminder from primary navigation without touching its stored data. */
+   var r=document.getElementById('ssReminderNavBtn');
+   if(r){
+     r.style.setProperty('display','none','important');
+     r.setAttribute('aria-hidden','true');
+     r.tabIndex=-1;
+   }
+   var b=document.querySelector('nav.bottom,.bottom');
+   if(b)b.style.setProperty('grid-template-columns','repeat(3,minmax(0,1fr))','important');
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',p35);
+ else p35();
+ window.addEventListener('load',p35);
+ setTimeout(p35,250);
+ setTimeout(p35,1000);
+})();
+</script>
 </body></html>
