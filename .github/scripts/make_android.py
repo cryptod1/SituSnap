@@ -1,4 +1,5 @@
 from pathlib import Path
+import shutil
 
 def put(name, data):
     p = Path(name)
@@ -26,8 +27,8 @@ android {
         applicationId 'com.situsnap.app'
         minSdk 26
         targetSdk 35
-        versionCode 10
-        versionName '1.0.10'
+        versionCode 11
+        versionName '1.0.11'
     }
 
     signingConfigs {
@@ -67,7 +68,7 @@ put("app/src/main/AndroidManifest.xml", """<manifest xmlns:android="http://schem
 <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
 <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
 <uses-permission android:name="android.permission.CAMERA"/>
-<application android:theme="@style/AppTheme" android:label="SituSnap" android:usesCleartextTraffic="false">
+<application android:theme="@style/AppTheme" android:label="SituSnap" android:icon="@drawable/ic_situsnap" android:roundIcon="@drawable/ic_situsnap" android:usesCleartextTraffic="false">
 <activity android:name=".SplashActivity" android:theme="@style/SplashTheme" android:exported="true">
 <intent-filter>
 <action android:name="android.intent.action.MAIN"/>
@@ -78,6 +79,17 @@ put("app/src/main/AndroidManifest.xml", """<manifest xmlns:android="http://schem
 </application>
 </manifest>
 """)
+put("app/src/main/res/drawable/ic_situsnap.xml", """<vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="108dp" android:height="108dp" android:viewportWidth="100" android:viewportHeight="100">
+<path android:fillColor="#07192B" android:pathData="M0,0h100v100h-100z"/>
+<path android:fillColor="#69DF83" android:pathData="M50,91C44,80 22,66 22,43a28,28 0,1 1,56 0c0,23 -22,37 -28,48z"/>
+<path android:fillColor="#F8FBFF" android:pathData="M50,23.5a19.5,19.5 0,1 0,0 39a19.5,19.5 0,1 0,0 -39"/>
+<path android:fillColor="#176D52" android:pathData="M31,47 L40,39 L49,45 L58,36 L69,48 L69,58 L31,58z"/>
+<path android:fillColor="#5FD36D" android:pathData="M31,50 C38,46 43,47 49,51 C54,54 58,56 63,52 C67,49 70,49 72,50 L72,60 L31,60z"/>
+<path android:fillColor="@android:color/transparent" android:strokeColor="#FFFFFF" android:strokeWidth="4.2" android:strokeLineCap="round" android:pathData="M48,44 C53,46 57,48 58,51 C59,55 53,56 51,59 C49,62 53,65 58,67"/>
+<path android:fillColor="@android:color/transparent" android:strokeColor="#FFFFFF" android:strokeWidth="6" android:strokeLineCap="round" android:pathData="M9,30 L9,16 C9,12 12,9 16,9 L30,9 M91,30 L91,16 C91,12 88,9 84,9 L70,9 M9,70 L9,84 C9,88 12,91 16,91 L30,91 M91,70 L91,84 C91,88 88,91 84,91 L70,91"/>
+</vector>
+""")
+
 put("app/src/main/java/com/situsnap/app/SplashActivity.java", """package com.situsnap.app;
 import android.app.Activity;
 import android.content.Intent;
@@ -97,11 +109,9 @@ public class SplashActivity extends Activity {
         FrameLayout root = new FrameLayout(this);
         root.setBackgroundColor(Color.rgb(7, 25, 43));
 
-        // Final approved splash artwork can be added as
-        // app/src/main/res/drawable/situsnap_splash.png.
+        // Use the same approved SituSnap mark as the launcher.
         // CENTER_INSIDE is intentional: never crop the outer logo/artwork.
-        int splashId = getResources().getIdentifier(
-                "situsnap_splash", "drawable", getPackageName());
+        int splashId = R.drawable.ic_situsnap;
         if (splashId != 0) {
             ImageView image = new ImageView(this);
             image.setImageResource(splashId);
@@ -250,10 +260,22 @@ public class MainActivity extends Activity {
             }
         });
 
-        webView.evaluateJavascript(
-            "(async()=>{try{if('serviceWorker' in navigator){const rs=await navigator.serviceWorker.getRegistrations();for(const r of rs){await r.unregister();}}}catch(e){}})()",
-            null);
-        webView.loadUrl("https://cryptod1.github.io/SituSnap/phoenix.html?native=110&cb=freshphoenix-c4b2edb");
+        try {
+            java.io.InputStream in = getAssets().open("phoenix.html");
+            java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
+            byte[] buf = new byte[8192];
+            int n;
+            while ((n = in.read(buf)) != -1) out.write(buf, 0, n);
+            in.close();
+            String phoenix = out.toString("UTF-8");
+            // Bundle the exact audited Phoenix in the APK, but retain the HTTPS
+            // base origin so Breadcrumbs CORS and secure browser APIs behave normally.
+            webView.loadDataWithBaseURL(
+                "https://cryptod1.github.io/SituSnap/",
+                phoenix, "text/html", "UTF-8", null);
+        } catch (Exception e) {
+            webView.loadUrl("https://cryptod1.github.io/SituSnap/phoenix.html?native=111&cb=phoenix-clean-2");
+        }
     }
 
     @Override
@@ -288,3 +310,17 @@ public class MainActivity extends Activity {
     }
 }
 """)
+
+# Freeze the exact audited Phoenix into this APK build.
+phoenix = Path("phoenix.html")
+if not phoenix.is_file():
+    raise SystemExit("phoenix.html missing from repository root")
+html = phoenix.read_text(encoding="utf-8")
+if 'PHOENIX-CLEAN-2' not in html:
+    raise SystemExit("Refusing to build: expected PHOENIX-CLEAN-2")
+if 'UPLOAD IT' in html or 'WHERE SAT NAV STOPS' in html:
+    raise SystemExit("Refusing to build: legacy UI contamination detected")
+asset = Path("app/src/main/assets/phoenix.html")
+asset.parent.mkdir(parents=True, exist_ok=True)
+shutil.copyfile(phoenix, asset)
+print("🔥 PHOENIX-CLEAN-2 bundled into APK")
