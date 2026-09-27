@@ -1,4 +1,5 @@
 <!doctype html>
+<!-- PHOENIX-CLEAN-2: recovered from Phoenix 26 with approved final wording/build gate -->
 <html lang="en"><head>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="mobile-web-app-capable" content="yes"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#071a33"><title>SituSnap Phoenix — Find · Snap · Update</title>
@@ -198,7 +199,7 @@ input,select,textarea,.street-picker-trigger,.street-picker-menu,.street-picker-
 </style>
 
 
-<style id="phoenix-27-field-polish">
+<style id="phoenix-26-field-polish">
 /* Phoenix 5: presentation-only field polish. */
 .ss-address-row{
   grid-template-columns:minmax(88px,25%) minmax(0,1fr)!important;
@@ -228,7 +229,7 @@ input,select,textarea,.street-picker-trigger,.street-picker-menu,.street-picker-
 </style>
 
 
-<style id="phoenix-27-locked-layout">
+<style id="phoenix-26-locked-layout">
 /* Phoenix 8 — based on known-good Phoenix 5. */
 .ss-bottom-nav{
   grid-template-columns:repeat(3,minmax(0,1fr))!important;
@@ -245,7 +246,7 @@ input,select,textarea,.street-picker-trigger,.street-picker-menu,.street-picker-
 </style>
 
 
-<style id="phoenix-27-micro-fix">
+<style id="phoenix-26-micro-fix">
 /* Phoenix 9 — ONLY the three field-layout fixes confirmed from the updated app screenshot. */
 
 /* Remaining nav buttons fill the bar evenly after Reminder is removed. */
@@ -290,7 +291,7 @@ input,select,textarea,.street-picker-trigger,.street-picker-menu,.street-picker-
 </style>
 
 
-<style id="phoenix-27-isolation">
+<style id="phoenix-26-isolation">
 /* Phoenix 10: isolated test build — no production updater UI. */
 #ssUpdateBadge,
 #ssUpdatePanel,
@@ -314,7 +315,7 @@ nav.bottom > .nav{
 </style>
 
 
-<style id="phoenix-27-update-quarantine">
+<style id="phoenix-26-update-quarantine">
 /* Phoenix 11: production update controls are quarantined during Phoenix testing. */
 #ssUpdateBtn,
 #ssCheckUpdateBtn,
@@ -332,7 +333,7 @@ nav.bottom > .nav{
 </style>
 
 
-<style id="phoenix-27-first-page-cleanup">
+<style id="phoenix-26-first-page-cleanup">
 /* Phoenix 12 — locked layout: instructions live in More, not on Find. */
 #reminderCard > details:not(#recordDetails),
 #reminderCard > .reminder-row,
@@ -344,7 +345,7 @@ nav.bottom > .nav{
 </style>
 
 
-<style id="phoenix-27-final-find-polish">
+<style id="phoenix-26-final-find-polish">
 /* Phoenix 13 — final Find-page wording/fit only. */
 #manualAddress{
   min-width:0!important;
@@ -364,7 +365,7 @@ nav.bottom > .nav{
 </style>
 
 
-<style id="phoenix-27-compact-find">
+<style id="phoenix-26-compact-find">
 #huntPostcode{min-height:58px!important;height:58px!important;padding:10px 18px!important}
 .ss-address-row{grid-template-columns:92px minmax(0,1fr)!important;gap:8px!important}
 #doorNumber,#manualAddress{min-height:58px!important;height:58px!important}
@@ -373,7 +374,7 @@ nav.bottom > .nav{
 </style>
 
 
-<style id="phoenix-27-card-squeeze">
+<style id="phoenix-26-card-squeeze">
 /* Phoenix 15 — reclaim vertical space for Verified locations. */
 
 /* WHOLE Find Destination card: remove excess outer whitespace and gaps. */
@@ -439,7 +440,7 @@ nav.bottom > .nav{
 </style>
 
 
-<style id="phoenix-27-container-squeeze">
+<style id="phoenix-26-container-squeeze">
 /* Phoenix 17 — remove dead space, not usability. */
 
 /* Whole Find card */
@@ -501,7 +502,7 @@ nav.bottom > .nav{
 </style>
 
 
-<style id="phoenix-27-real-containers">
+<style id="phoenix-26-real-containers">
 /* Exact containers found in Phoenix markup. */
 
 /* OUTER Find box */
@@ -541,7 +542,7 @@ nav.bottom > .nav{
 </style>
 
 
-<style id="phoenix-27-brutal-mobile">
+<style id="phoenix-26-brutal-mobile">
 @media (max-width:700px){
   /* Find card: function first */
   .ss-home-shell{
@@ -611,7 +612,7 @@ nav.bottom > .nav{
 </style>
 
 
-<style id="phoenix-27-mobile-authority">
+<style id="phoenix-26-mobile-authority">
 /* PHOENIX 20 — one compact operational authority. */
 .ss-home-shell{
   padding:6px 8px!important;
@@ -685,7 +686,7 @@ nav.bottom > .nav{
 </style>
 
 
-<style id="phoenix-27-tagline-swap">
+<style id="phoenix-26-tagline-swap">
 .ss-home-kicker{
   display:block!important;
   font-size:15px!important;
@@ -697,7 +698,7 @@ nav.bottom > .nav{
 </style>
 
 
-<style id="phoenix-27-handover-strip">
+<style id="phoenix-26-handover-strip">
 /* Handover is now one operational control on Find. */
 #reminderCard.card{
   padding:5px!important;
@@ -716,172 +717,15 @@ nav.bottom > .nav{
 </style>
 
 
-<style id="phoenix-27-reminder-exorcism">
+<style id="phoenix-26-reminder-exorcism">
 /* No Reminder control survives in colleague-facing More UI. */
 #ssPhoenixMore details:not(#ssPhoenixHowTo){display:none!important}
 #ssPhoenixMore #ssPhoenixHowTo{display:block!important}
 </style>
 
-
-<style id="phoenix-27-handover-authority">
-/* Page 3 — Handover: compact field-first layout. */
-#recordDetails[open]{
-  padding-bottom:4px!important;
-}
-#recordDetails[open] > summary{
-  min-height:42px!important;
-  margin-bottom:7px!important;
-}
-#recordDetails[open] .inside{
-  padding:6px 2px 4px!important;
-}
-#recordDetails[open] .inside > *{
-  margin-top:7px!important;
-  margin-bottom:7px!important;
-}
-#recordDetails[open] label{
-  margin-bottom:3px!important;
-  line-height:1.15!important;
-}
-#recordDetails[open] input,
-#recordDetails[open] select,
-#recordDetails[open] textarea{
-  min-height:44px!important;
-  padding:8px 10px!important;
-  border-radius:9px!important;
-}
-#recordDetails[open] textarea{
-  min-height:76px!important;
-}
-#recordDetails[open] button{
-  min-height:44px!important;
-  border-radius:9px!important;
-}
-#recordDetails[open] .hint,
-#recordDetails[open] .small,
-#recordDetails[open] small{
-  line-height:1.2!important;
-  margin-top:2px!important;
-  margin-bottom:4px!important;
-}
-</style>
-
-
-<style id="situsnap-approved-ui">
-/* SituSnap precision UI — V1.0.5za
-   Surgical display repair only. App logic untouched. */
-
-body{
-  background:#f3f6f8!important;color:#101820!important;
-  padding-bottom:calc(76px + env(safe-area-inset-bottom,0px))!important;
-}
-header{
-  height:calc(82px + env(safe-area-inset-top,0px))!important;
-  padding:env(safe-area-inset-top,0px) 16px 0!important;
-  background:#061827!important;box-shadow:none!important;
-}
-.brand{gap:10px!important}
-.brand-mark,.brand-mark svg{width:52px!important;height:52px!important}
-.brand-name{font-size:25px!important;line-height:1!important}
-.tag{font-size:11px!important;letter-spacing:0!important;color:#fff!important;margin-top:5px!important;font-weight:650!important}
-.menu{background:transparent!important;border:0!important;font-size:30px!important;color:#fff!important;transform:translateY(3px)!important}
-main{padding:0 0 calc(90px + env(safe-area-inset-bottom,0px))!important;max-width:680px!important;overflow-x:hidden!important}
-.ss-home-shell{
-  border:0!important;border-radius:0!important;background:#fff!important;
-  box-shadow:0 2px 10px #00000012!important;margin:0 0 10px!important;
-  padding:14px!important;overflow:hidden!important;
-}
-.ss-home-shell:before{display:none!important}
-.ss-home-kicker,.ss-home-copy{display:none!important}
-
-/* Keep the three-part strapline on one line even on narrow Android screens. */
-.ss-home-title{
-  display:block!important;white-space:nowrap!important;
-  font-size:clamp(18px,5.35vw,28px)!important;
-  line-height:1.1!important;letter-spacing:-1.15px!important;
-  color:#071a33!important;margin:4px 0 14px!important;
-  width:100%!important;max-width:100%!important;
-}
-
-.ss-find-card{padding:0!important;box-shadow:none!important;background:#fff!important}
-.ss-find-card .ss-field{margin-top:0!important;min-width:0!important}
-.ss-find-card input{
-  height:56px!important;min-height:56px!important;border:1px solid #d5dde5!important;
-  border-radius:12px!important;background:#fff!important;color:#334155!important;
-  -webkit-text-fill-color:#334155!important;font-size:15px!important;
-}
-#huntPostcode{padding-left:18px!important}
-
-/* Give NUMBER enough physical width and reduce its text slightly. */
-.ss-address-row{
-  grid-template-columns:116px minmax(0,1fr)!important;gap:10px!important;
-  margin-top:10px!important;align-items:stretch!important;
-}
-.ss-address-row .ss-field{display:flex!important;margin:0!important;min-width:0!important}
-.ss-address-row input,.ss-address-row .street-picker,.ss-address-row .street-picker-trigger{
-  height:56px!important;min-height:56px!important;min-width:0!important;
-}
-.ss-address-row .ss-field:first-child input{
-  font-size:13px!important;padding-left:10px!important;padding-right:6px!important;
-  letter-spacing:-.2px!important;
-}
-.ss-address-row .street-picker-trigger,
-.ss-address-row .ss-field:last-child input{
-  font-size:13px!important;padding-left:11px!important;padding-right:7px!important;
-  letter-spacing:-.15px!important;
-}
-
-.ss-find-primary{
-  height:60px!important;min-height:60px!important;margin-top:12px!important;
-  border-radius:12px!important;background:linear-gradient(135deg,#078a60,#006f63)!important;
-  color:#fff!important;font-size:18px!important;letter-spacing:0!important;
-}
-.ss-secondary{
-  min-height:52px!important;margin:9px 0 0!important;width:100%!important;
-  color:#17663b!important;border-color:#b9dfc4!important;font-size:15px!important;
-}
-.card{margin:10px 12px!important}
-#recordsCard{background:#fff!important;color:#101820!important;border:0!important;box-shadow:0 2px 12px #00000010!important}
-#recordsCard .muted,#recordsCard .meta{color:#64748b!important}
-
-/* The handover card is navy: force its direct content and controls readable. */
-#handoverCard,#detailsCard{
-  color:#fff!important;
-}
-#handoverCard h1,#handoverCard h2,#handoverCard h3,#handoverCard h4,
-#handoverCard label,#handoverCard summary,#handoverCard button,
-#detailsCard h1,#detailsCard h2,#detailsCard h3,#detailsCard h4,
-#detailsCard label,#detailsCard summary{
-  color:#fff!important;
-}
-#handoverCard .muted,#handoverCard .small-note,#handoverCard p,
-#detailsCard .muted,#detailsCard .small-note{
-  color:#dce6f2!important;
-}
-/* Catch the existing Handover card even if it has no stable ID. */
-.card[style*="navy"],.card[style*="#071a33"],.card[style*="#123761"]{color:#fff!important}
-.card[style*="navy"] h2,.card[style*="#071a33"] h2,.card[style*="#123761"] h2,
-.card[style*="navy"] summary,.card[style*="#071a33"] summary,.card[style*="#123761"] summary{
-  color:#fff!important;
-}
-
-.bottom{
-  height:calc(72px + env(safe-area-inset-bottom,0px))!important;background:#061827!important;
-  padding:5px 4px calc(6px + env(safe-area-inset-bottom,0px))!important;border:0!important;
-}
-.nav{color:#aeb8c5!important;font-size:10px!important}
-.nav.active{color:#34e66b!important;background:transparent!important;border-bottom:3px solid #34e66b!important;border-radius:0!important}
-.nav .ico{font-size:21px!important}
-
-@media(max-width:380px){
-  .ss-home-title{font-size:18px!important;letter-spacing:-1px!important}
-  .ss-address-row{grid-template-columns:110px minmax(0,1fr)!important}
-}
-
-</style>
 </head>
 <body>
-<div id="ssBuildStamp" data-build="SituSnap-PHOENIX-27" style="display:none">SituSnap-PHOENIX-27</div>
+<div id="ssBuildStamp" data-build="SituSnap-PHOENIX-26" style="display:none">SituSnap-PHOENIX-26</div>
 <div id="offlineBanner" class="offline-banner hidden" role="status" aria-live="polite">No signal — continue offline.</div><div id="celebration" aria-hidden="true"><div class="celebrate-content"><div class="celebrate-title">PIN VERIFIED!</div><div class="celebrate-sub">SituSnap location confirmed</div></div></div><header><div class="brand"><div class="brand-mark" aria-label="SituSnap logo">
 <svg viewBox="0 0 100 100" role="img" aria-hidden="true">
 <defs>
@@ -902,10 +746,10 @@ fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/>
 <!-- winding white road -->
 <path d="M48 44c5 2 9 4 10 7 1 4-5 5-7 8-2 3 2 6 7 8"
 fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round"/>
-</svg></div><div><div class="brand-name"><span style="color:#fff">Situ</span><span style="color:#69df83">Snap</span></div><div class="tag">WHERE SATNAV STOPS.</div></div></div><div class="menu">☰</div></header>
+</svg></div><div><div class="brand-name"><span style="color:#fff">Situ</span><span style="color:#69df83">Snap</span></div><div class="tag">Find it. Snap it. Update it.</div></div></div><div class="menu">☰</div></header>
 <main><div id="breadcrumbsBridge" class="card hidden" style="border:2px solid #69df83;margin-top:12px"><div class="eyebrow">BREADCRUMBS</div><h2 id="bridgeTitle" style="margin:5px 0">Continue</h2><div class="meta" id="bridgeText"></div></div>
 <section class="ss-home-shell" aria-labelledby="ssHomeTitle">
-<div class="ss-home-kicker">FIND IT. SNAP IT. UPLOAD IT.</div>
+<div class="ss-home-kicker">Find it. Snap it. Update it.</div>
 
 <div class="ss-find-card">
   <div class="ss-field" style="margin-top:0">
@@ -929,7 +773,7 @@ fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round"/>
     </div>
   </div>
 
-  <button class="ss-find-primary" type="button" onclick="ssFindDestination()">FIND DESTINATION</button>
+  <button class="ss-find-primary" type="button" onclick="ssFindDestination()">CHECK DESTINATION</button>
   <div id="ssFindResult" class="hidden" style="margin-top:10px;padding:13px;border-radius:13px;background:#eaf6ee;border:1px solid #b9dfc4;color:#163b28">
     <div id="ssFindResultKicker" style="font-size:10px;font-weight:950;letter-spacing:.7px;color:#28734a">DESTINATION</div>
     <div id="ssFindResultTitle" style="font-size:18px;font-weight:1000;margin-top:3px">Checking…</div>
@@ -968,7 +812,7 @@ fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round"/>
 <div class="live-grid"><div class="metric"><b id="distanceMetric">—</b><span>From target</span></div><div class="metric"><b id="accuracyMetric">—</b><span>GPS accuracy</span></div></div><div class="meta" id="liveStatus" style="margin-top:9px">Waiting for GPS…</div></div><div class="quick" id="huntActions" style="margin-top:10px;display:flex;gap:10px"><button id="retryGpsBtn" type="button" onclick="startLiveHunt()" style="display:none;flex:1;padding:12px 10px;border-radius:10px;border:0;font-weight:900;background:#145a35;color:#fff">RETRY GPS</button></div></section>
 <section class="card" id="reminderCard">
 </div>
-<details class="details" id="recordDetails"><summary>✓ UPDATE FOUND / NOT FOUND PROPERTY</summary><div class="inside"><div class="form-grid">
+<details class="details" id="recordDetails"><summary>HANDOVER NOTES</summary><div class="inside"><div class="form-grid">
 <div><label>Postcode given</label><input id="postcode" placeholder="Enter postcode" autocomplete="off" autocapitalize="characters" spellcheck="false" oninput="syncHuntPostcodeFromRecord();queuePostcodeLookup();render()"></div><div><label>First line of address</label><input id="address" placeholder="" autocomplete="off"></div><input type="hidden" id="street" value=""><div id="recordPostcodeChoices" class="hidden"><div id="recordStreetPickerMenu" class="hidden"></div><div id="streetLiveResults" class="hidden"></div><div id="streetMatchHint" class="hidden"></div></div>
 
 <input type="hidden" id="type" value="Property / building"><input type="hidden" id="updateStatus" value="New location found"><div><label>Observed by</label><select id="observedBy"><option>MGroup</option><option>Courier partner</option><option>Verified contributor</option><option>Utility partner</option><option>Emergency service</option><option>Professional survey</option></select></div>
@@ -1012,7 +856,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   };
   new MutationObserver(keepLocalWinner).observe(card,{attributes:true,childList:true,subtree:true});
 });
-const SS_APP_VERSION="PHOENIX-27";
+const SS_APP_VERSION="PHOENIX-26";
 const SS_CANONICAL_URL="https://cryptod1.github.io/SituSnap/";
 function ssShowMore(){document.getElementById("ssMorePanel")?.classList.remove("hidden");ssCheckForUpdate()}
 function ssHideMore(){document.getElementById("ssMorePanel")?.classList.add("hidden")}
@@ -3454,7 +3298,7 @@ window.addEventListener("load",()=>{if(navigator.onLine){ssVaultRestore().then((
 })();
 </script>
 
-<script id="phoenix-27-isolation-adapter">
+<script id="phoenix-26-isolation-adapter">
 (function(){
   function clean(){
     var nav=document.querySelector("nav.bottom");
@@ -3473,7 +3317,7 @@ window.addEventListener("load",()=>{if(navigator.onLine){ssVaultRestore().then((
 </script>
 
 
-<script id="phoenix-27-update-quarantine-adapter">
+<script id="phoenix-26-update-quarantine-adapter">
 (function(){
   function quarantineUpdateControls(){
     var more=document.querySelector("#ssMorePanel,#morePanel,#menuPanel");
@@ -3501,7 +3345,7 @@ window.addEventListener("load",()=>{if(navigator.onLine){ssVaultRestore().then((
 </script>
 
 
-<script id="phoenix-27-first-page-cleanup-adapter">
+<script id="phoenix-26-first-page-cleanup-adapter">
 (function(){
   function cleanFindInstructions(){
     var card=document.getElementById("reminderCard");
@@ -3529,7 +3373,7 @@ window.addEventListener("load",()=>{if(navigator.onLine){ssVaultRestore().then((
 </script>
 
 
-<script id="phoenix-27-orphan-prompt-kill">
+<script id="phoenix-26-orphan-prompt-kill">
 (function(){
   function removeOrphanPrompt(){
     Array.from(document.querySelectorAll("body *")).forEach(function(el){
@@ -3547,7 +3391,7 @@ window.addEventListener("load",()=>{if(navigator.onLine){ssVaultRestore().then((
 </script>
 
 
-<script id="phoenix-27-handover-bridge">
+<script id="phoenix-26-handover-bridge">
 (function(){
   function syncTypedAddressToHandover(){
     var pc=document.getElementById('huntPostcode');
@@ -3590,7 +3434,7 @@ window.addEventListener("load",()=>{if(navigator.onLine){ssVaultRestore().then((
 
 
 
-<style id="phoenix-27-more-authority">
+<style id="phoenix-26-more-authority">
 #ssPhoenixMore{
  position:fixed;inset:0;z-index:2147483000;background:#061823;
  padding:18px 16px 100px;overflow:auto;color:#fff;display:none;
@@ -3624,7 +3468,7 @@ window.addEventListener("load",()=>{if(navigator.onLine){ssVaultRestore().then((
 }
 #ssPhoenixHowTo .row b{font-size:16px}
 </style>
-<script id="phoenix-27-more-authority-script">
+<script id="phoenix-26-more-authority-script">
 (function(){
  function buildPhoenixMore(){
    if(document.getElementById('ssPhoenixMore')) return;
