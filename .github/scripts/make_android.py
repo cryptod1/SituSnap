@@ -28,7 +28,7 @@ android {
         applicationId 'com.situsnap.app'
         minSdk 26
         targetSdk 35
-        versionCode 11
+        versionCode 12
         versionName '1.0.11'
     }
 
@@ -121,16 +121,13 @@ public class SplashActivity extends Activity {
         FrameLayout root = new FrameLayout(this);
         root.setBackgroundColor(Color.rgb(7, 25, 43));
 
-        // Use the same approved SituSnap mark as the launcher.
-        // CENTER_INSIDE is intentional: never crop the outer logo/artwork.
-        int splashId = R.drawable.ic_situsnap;
+        // FOUNDATION 1 native splash: display the packaged approved Welsh artwork directly.
+        int splashId = R.drawable.situsnap_splash;
         if (splashId != 0) {
             ImageView image = new ImageView(this);
             image.setImageResource(splashId);
-            image.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+            image.setScaleType(ImageView.ScaleType.CENTER_CROP);
             image.setAdjustViewBounds(true);
-            int pad = (int) (24 * getResources().getDisplayMetrics().density);
-            image.setPadding(pad, pad, pad, pad);
             root.addView(image, new FrameLayout.LayoutParams(
                     FrameLayout.LayoutParams.MATCH_PARENT,
                     FrameLayout.LayoutParams.MATCH_PARENT,
