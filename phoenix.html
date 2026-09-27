@@ -723,29 +723,44 @@ nav.bottom > .nav{
 #ssPhoenixMore #ssPhoenixHowTo{display:block!important}
 </style>
 
+
+<style id="foundation-ui-recovery">
+/* UI-only recovery after #153 functional pass. No resolver/camera/navigation JS changes. */
+/* Handover: keep one colleague-facing notes box plus the required photo/actions.
+   Address/postcode/default metadata continue to exist and sync underneath. */
+#recordDetails .form-grid > div:has(> label[for="postcode"]),
+#recordDetails .form-grid > div:has(> #postcode),
+#recordDetails .form-grid > div:has(> #address),
+#recordDetails .form-grid > div:has(> #observedBy),
+#recordDetails .form-grid > div:has(> #accessDirections),
+#recordDetails .form-grid > div:has(> #localSource){display:none!important}
+#recordDetails .inside{padding-top:8px!important}
+#recordDetails #notes{min-height:92px!important}
+/* Android three-button/gesture navigation clearance. */
+nav.bottom{
+  bottom:34px!important;
+  height:64px!important;
+  padding:3px 5px!important;
+}
+main{padding-bottom:112px!important}
+body{padding-bottom:102px!important}
+@supports (padding-bottom: env(safe-area-inset-bottom)){
+  nav.bottom{bottom:max(34px,env(safe-area-inset-bottom))!important}
+  main{padding-bottom:calc(112px + env(safe-area-inset-bottom))!important}
+}
+</style>
 </head>
 <body>
 <div id="ssBuildStamp" data-build="SituSnap-PHOENIX-26" style="display:none">SituSnap-PHOENIX-26</div>
 <div id="offlineBanner" class="offline-banner hidden" role="status" aria-live="polite">No signal — continue offline.</div><div id="celebration" aria-hidden="true"><div class="celebrate-content"><div class="celebrate-title">PIN VERIFIED!</div><div class="celebrate-sub">SituSnap location confirmed</div></div></div><header><div class="brand"><div class="brand-mark" aria-label="SituSnap logo">
 <svg viewBox="0 0 100 100" role="img" aria-hidden="true">
-<defs>
-<linearGradient id="ssg2" x1="15" y1="5" x2="82" y2="92" gradientUnits="userSpaceOnUse">
-<stop offset="0" stop-color="#9af25f"/><stop offset=".55" stop-color="#58d878"/><stop offset="1" stop-color="#19a96b"/>
-</linearGradient>
-</defs>
-<!-- white scan brackets -->
-<path d="M9 30V16a7 7 0 0 1 7-7h14 M91 30V16a7 7 0 0 0-7-7H70 M9 70v14a7 7 0 0 0 7 7h14 M91 70v14a7 7 0 0 1-7 7H70"
-fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/>
-<!-- green location pin -->
-<path d="M50 91C44 80 22 66 22 43a28 28 0 1 1 56 0c0 23-22 37-28 48Z" fill="url(#ssg2)"/>
-<!-- white inner lens -->
-<circle cx="50" cy="43" r="19.5" fill="#f8fbff"/>
-<!-- landscape -->
-<path d="M31 47 40 39l9 6 9-9 11 12v10H31Z" fill="#176d52"/>
-<path d="M31 50c7-4 12-3 18 1 5 3 9 5 14 1 4-3 7-3 9-2v10H31Z" fill="#5fd36d"/>
-<!-- winding white road -->
-<path d="M48 44c5 2 9 4 10 7 1 4-5 5-7 8-2 3 2 6 7 8"
-fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round"/>
+<defs><linearGradient id="foundationPin" x1="18" y1="10" x2="82" y2="90" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#8ff36b"/><stop offset=".55" stop-color="#4bd276"/><stop offset="1" stop-color="#16a568"/></linearGradient></defs>
+<!-- approved NAV PIN: no scan brackets, no landscape -->
+<path d="M50 6c-20.4 0-37 16.2-37 36.2C13 69.1 42.7 91 50 96c7.3-5 37-26.9 37-53.8C87 22.2 70.4 6 50 6Z" fill="url(#foundationPin)"/>
+<circle cx="50" cy="40" r="17" fill="#f8fbff"/>
+<!-- sweeping road/path -->
+<path d="M28 73c13-4 24-10 31-18 6-7 10-15 18-20" fill="none" stroke="#f8fbff" stroke-width="8" stroke-linecap="round"/>
+<path d="M35 82c13-4 25-10 34-19" fill="none" stroke="#8ff36b" stroke-width="6" stroke-linecap="round"/>
 </svg></div><div><div class="brand-name"><span style="color:#fff">Situ</span><span style="color:#69df83">Snap</span></div><div class="tag">Find it. Snap it. Update it.</div></div></div><div class="menu">☰</div></header>
 <main><div id="breadcrumbsBridge" class="card hidden" style="border:2px solid #69df83;margin-top:12px"><div class="eyebrow">BREADCRUMBS</div><h2 id="bridgeTitle" style="margin:5px 0">Continue</h2><div class="meta" id="bridgeText"></div></div>
 <section class="ss-home-shell" aria-labelledby="ssHomeTitle">
