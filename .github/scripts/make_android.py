@@ -26,8 +26,8 @@ android {
         applicationId 'com.situsnap.app'
         minSdk 26
         targetSdk 35
-        versionCode 9
-        versionName '1.0.9'
+        versionCode 10
+        versionName '1.0.10'
     }
 
     signingConfigs {
@@ -53,6 +53,12 @@ put("app/src/main/res/values/styles.xml", """<resources>
 <item name="android:statusBarColor">#07192b</item>
 <item name="android:navigationBarColor">#07192b</item>
 </style>
+<style name="SplashTheme" parent="android:style/Theme.Material.Light.NoActionBar">
+<item name="android:windowLightStatusBar">false</item>
+<item name="android:statusBarColor">#07192b</item>
+<item name="android:navigationBarColor">#07192b</item>
+<item name="android:windowBackground">#07192b</item>
+</style>
 </resources>
 """)
 put("app/src/main/AndroidManifest.xml", """<manifest xmlns:android="http://schemas.android.com/apk/res/android">
@@ -62,15 +68,63 @@ put("app/src/main/AndroidManifest.xml", """<manifest xmlns:android="http://schem
 <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
 <uses-permission android:name="android.permission.CAMERA"/>
 <application android:theme="@style/AppTheme" android:label="SituSnap" android:usesCleartextTraffic="false">
-<activity android:name=".MainActivity" android:exported="true">
+<activity android:name=".SplashActivity" android:theme="@style/SplashTheme" android:exported="true">
 <intent-filter>
 <action android:name="android.intent.action.MAIN"/>
 <category android:name="android.intent.category.LAUNCHER"/>
 </intent-filter>
 </activity>
+<activity android:name=".MainActivity" android:exported="false"/>
 </application>
 </manifest>
 """)
+put("app/src/main/java/com/situsnap/app/SplashActivity.java", """package com.situsnap.app;
+import android.app.Activity;
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.graphics.Color;
+import android.view.Gravity;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+
+public class SplashActivity extends Activity {
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        FrameLayout root = new FrameLayout(this);
+        root.setBackgroundColor(Color.rgb(7, 25, 43));
+
+        // Final approved splash artwork can be added as
+        // app/src/main/res/drawable/situsnap_splash.png.
+        // CENTER_INSIDE is intentional: never crop the outer logo/artwork.
+        int splashId = getResources().getIdentifier(
+                "situsnap_splash", "drawable", getPackageName());
+        if (splashId != 0) {
+            ImageView image = new ImageView(this);
+            image.setImageResource(splashId);
+            image.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+            image.setAdjustViewBounds(true);
+            int pad = (int) (24 * getResources().getDisplayMetrics().density);
+            image.setPadding(pad, pad, pad, pad);
+            root.addView(image, new FrameLayout.LayoutParams(
+                    FrameLayout.LayoutParams.MATCH_PARENT,
+                    FrameLayout.LayoutParams.MATCH_PARENT,
+                    Gravity.CENTER));
+        }
+
+        setContentView(root);
+
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            startActivity(new Intent(this, MainActivity.class));
+            finish();
+        }, 2000);
+    }
+}
+""")
+
 put("app/src/main/java/com/situsnap/app/MainActivity.java", """package com.situsnap.app;
 import android.Manifest;
 import android.app.Activity;
@@ -199,7 +253,7 @@ public class MainActivity extends Activity {
         webView.evaluateJavascript(
             "(async()=>{try{if('serviceWorker' in navigator){const rs=await navigator.serviceWorker.getRegistrations();for(const r of rs){await r.unregister();}}}catch(e){}})()",
             null);
-        webView.loadUrl("https://cryptod1.github.io/SituSnap/phoenix.html?native=109&cb=freshphoenix-c4b2edb");
+        webView.loadUrl("https://cryptod1.github.io/SituSnap/phoenix.html?native=110&cb=freshphoenix-c4b2edb");
     }
 
     @Override
