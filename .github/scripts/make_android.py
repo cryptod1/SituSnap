@@ -26,8 +26,8 @@ android {
         applicationId 'com.situsnap.app'
         minSdk 26
         targetSdk 35
-        versionCode 8
-        versionName '1.0.8'
+        versionCode 9
+        versionName '1.0.9'
     }
 
     signingConfigs {
@@ -199,7 +199,7 @@ public class MainActivity extends Activity {
         webView.evaluateJavascript(
             "(async()=>{try{if('serviceWorker' in navigator){const rs=await navigator.serviceWorker.getRegistrations();for(const r of rs){await r.unregister();}}}catch(e){}})()",
             null);
-        webView.loadUrl("https://cryptod1.github.io/SituSnap/phoenix.html?native=108&cb=20260927");
+        webView.loadUrl("https://cryptod1.github.io/SituSnap/phoenix.html?native=109&cb=freshphoenix-c4b2edb");
     }
 
     @Override
