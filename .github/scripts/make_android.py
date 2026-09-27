@@ -26,8 +26,8 @@ android {
         applicationId 'com.situsnap.app'
         minSdk 26
         targetSdk 35
-        versionCode 7
-        versionName '1.0.7'
+        versionCode 8
+        versionName '1.0.8'
     }
 
     signingConfigs {
@@ -85,6 +85,7 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.webkit.ServiceWorkerController;
 
 public class MainActivity extends Activity {
     private WebView webView;
@@ -111,6 +112,20 @@ public class MainActivity extends Activity {
         s.setDomStorageEnabled(true);
         s.setDatabaseEnabled(true);
         s.setGeolocationEnabled(true);
+        s.setCacheMode(WebSettings.LOAD_NO_CACHE);
+        webView.clearCache(true);
+
+        // Phoenix must never be hijacked by the old production service worker.
+        if (android.os.Build.VERSION.SDK_INT >= 24) {
+            ServiceWorkerController.getInstance().setServiceWorkerClient(
+                new android.webkit.ServiceWorkerClient() {
+                    @Override
+                    public android.webkit.WebResourceResponse shouldInterceptRequest(
+                            android.webkit.WebResourceRequest request) {
+                        return null;
+                    }
+                });
+        }
 
         webView.setWebViewClient(new WebViewClient() {
             @Override
@@ -181,7 +196,10 @@ public class MainActivity extends Activity {
             }
         });
 
-        webView.loadUrl("https://cryptod1.github.io/SituSnap/phoenix.html");
+        webView.evaluateJavascript(
+            "(async()=>{try{if('serviceWorker' in navigator){const rs=await navigator.serviceWorker.getRegistrations();for(const r of rs){await r.unregister();}}}catch(e){}})()",
+            null);
+        webView.loadUrl("https://cryptod1.github.io/SituSnap/phoenix.html?native=108&cb=20260927");
     }
 
     @Override
