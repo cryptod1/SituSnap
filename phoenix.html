@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 
 <html lang="en"><head>
-<link href="manifest.webmanifest" rel="manifest"/>
 <meta content="yes" name="mobile-web-app-capable"/><meta charset="utf-8"/><meta content="width=device-width,initial-scale=1" name="viewport"/><meta content="#071a33" name="theme-color"/><title>SituSnap Phoenix — Find · Snap · Update</title>
 
 
@@ -198,7 +197,7 @@ button{font:inherit;cursor:pointer}
 <details class="details"><summary>📸 Take useful photos</summary><div class="inside">Capture the approach and the property/entrance so the next person can recognise the correct place.</div></details>
 <details class="details"><summary>⚠️ Add anything important</summary><div class="inside">Access restrictions, hazards, corrections and anything else that would save the next person time.</div></details></section>
 <section class="card" id="recordsCard"><div class="section-head"><div><h2>Verified locations</h2><p class="muted">Previously verified properties for this postcode.</p></div></div><div id="records"></div></section>
-</main><nav class="bottom"><button class="nav active" onclick="window.scrollTo({top:0,behavior:'smooth'})"><span class="ico">⌂</span>Find</button><button class="nav" onclick="document.getElementById('recordsCard').scrollIntoView({behavior:'smooth'})"><span class="ico">↻</span>Verified</button><button class="nav" id="ssMoreNavBtn" onclick="ssShowMore()" style="position:relative"><span class="ico">☰</span>More<span aria-label="Update available" class="hidden" id="ssUpdateBadge">UPDATE</span></button></nav>
+</main><nav class="bottom"><button class="nav active" onclick="window.scrollTo({top:0,behavior:'smooth'})"><span class="ico">⌂</span>Find</button><button class="nav" onclick="document.getElementById('recordsCard').scrollIntoView({behavior:'smooth'})"><span class="ico">↻</span>Verified</button><button class="nav" id="ssMoreNavBtn" onclick="ssShowMore()" style="position:relative"><span class="ico">☰</span>More</button></nav>
 
 <script>
 let gps=null,huntPostcode="",huntAddressQuery="",target=null,watchId=null,postcodeTimer=null,editingRecordId=null;
@@ -213,73 +212,9 @@ window.addEventListener('DOMContentLoaded',()=>{
   };
   new MutationObserver(keepLocalWinner).observe(card,{attributes:true,childList:true,subtree:true});
 });
-const SS_APP_VERSION="PHOENIX-33";
-const SS_CANONICAL_URL="https://cryptod1.github.io/SituSnap/";
-function ssShowMore(){document.getElementById("ssMorePanel")?.classList.remove("hidden");ssCheckForUpdate()}
+const SS_APP_VERSION="PHOENIX-CLEAN-1";
+function ssShowMore(){document.getElementById("ssMorePanel")?.classList.remove("hidden")}
 function ssHideMore(){document.getElementById("ssMorePanel")?.classList.add("hidden")}
-// V1.0.5g safety net: suppress any legacy cached update confirm without
-// suppressing unrelated confirmations elsewhere in SituSnap.
-(function(){
-  const nativeConfirm=window.confirm.bind(window);
-  window.confirm=function(message){
-    if(String(message||'').trim().toLowerCase().startsWith('situsnap update available')) return false;
-    return nativeConfirm(message);
-  };
-})();
-
-async function ssCheckForUpdate(){
-  const btn=document.getElementById("ssUpdateBtn");
-  const status=document.getElementById("ssUpdateStatus");
-  const badge=document.getElementById("ssUpdateBadge");
-  try{
-    if(!navigator.onLine){
-      if(status) status.textContent="Offline — update check paused";
-      if(btn) btn.style.display="none";
-      return;
-    }
-    const res=await fetch(SS_CANONICAL_URL+"?update_check="+Date.now(),{cache:"no-store"});
-    if(!res.ok) throw new Error("update check failed");
-    const remoteHtml=await res.text();
-    const match=remoteHtml.match(/id=["']ssBuildStamp["'][^>]*data-build=["']([^"']+)["']/i);
-    const latest=match ? match[1] : "";
-    const current=(document.getElementById("ssBuildStamp")?.dataset.build||"").trim();
-
-    if(latest && current && latest!==current){
-      if(status) status.textContent="SituSnap update available · "+latest;
-      if(btn){
-        btn.textContent="UPDATE NOW";
-        btn.style.display="block";
-      }
-      if(badge) badge.classList.remove("hidden");
-    }else{
-      if(status) status.textContent="SituSnap is up to date";
-      if(btn) btn.style.display="none";
-      if(badge) badge.classList.add("hidden");
-    }
-  }catch(e){
-    if(status) status.textContent="Update check unavailable";
-    if(btn) btn.style.display="none";
-  }
-}
-async function ssApplyUpdate(){
-  const btn=document.getElementById("ssUpdateBtn");
-  if(btn){btn.disabled=true;btn.textContent="UPDATING…";}
-  try{
-    const url=SS_CANONICAL_URL+"?ss_update="+Date.now();
-    const res=await fetch(url,{cache:"reload",headers:{"Cache-Control":"no-cache"}});
-    if(!res.ok)throw new Error("update_http_"+res.status);
-    const latest=await res.text();
-    if(!/id=["']ssBuildStamp["']/.test(latest))throw new Error("invalid_update");
-    document.open();
-    document.write(latest);
-    document.close();
-  }catch(e){
-    if(btn){btn.disabled=false;btn.textContent="UPDATE NOW";}
-    const status=document.getElementById("ssUpdateStatus");
-    if(status)status.textContent="Update could not be applied — try again";
-  }
-}
-/* Phoenix: production update checker disabled during isolated testing. */
 const SS_VERIFIED_ARCHIVE="situSnapVerifiedArchiveV1";
 const SS_VAULT_ENDPOINT="https://holy-frost-eda0.stopjunkmail35.workers.dev/api/situ-vault";
 const SS_VAULT_QUEUE="situSnapVaultQueueV1";
@@ -2438,80 +2373,7 @@ window.SituSnapResilienceTest={
   })
 };
 </script>
-<script>
-/* V11 — engineering crash-test harness. Run with SituSnapCrashTest.run(). */
-window.SituSnapCrashTest={
- async run(){
-  const report=[], assert=(name,ok,detail='')=>report.push({name,pass:!!ok,detail});
-  const backup={
-   pins:localStorage.getItem(SS_LEARNING_KEY), attempts:localStorage.getItem(SS_ATTEMPT_KEY),
-   queue:localStorage.getItem(SS_SYNC_QUEUE), journal:localStorage.getItem(SS_JOURNAL_KEY)
-  };
-  try{
-   localStorage.setItem(SS_LEARNING_KEY,'[]');localStorage.setItem(SS_ATTEMPT_KEY,'[]');
-   localStorage.setItem(SS_SYNC_QUEUE,'[]');localStorage.setItem(SS_JOURNAL_KEY,'[]');
 
-   const base={address:'CRASH TEST COTTAGE',postcode:'ZZ1 1ZZ',
-     gps:{latitude:51.500000,longitude:-3.500000,accuracy:8},
-     observedBy:'MGroup',localSource:'Not applicable',notes:'synthetic test'};
-   const resolution={verified:true,uprn:'TEST0001',latitude:51.50001,longitude:-3.50001,source:'Synthetic authoritative record'};
-
-   const p1=ssLearnVerified(base,resolution);
-   assert('Verified pin persists',ssLookupLearned(base.address,base.postcode)?.pinId===p1.pinId);
-
-   ssRecover();
-   assert('Restart recovery keeps pending sync',ssPrepareQueue().some(x=>x.payload?.pinId===p1.pinId));
-
-   ssLearnVerified(base,resolution); ssDedupeQueue();
-   const dup=ssPrepareQueue().filter(x=>x.payload?.pinId===p1.pinId);
-   assert('Duplicate verification deduped',dup.length===1,`pending=${dup.length}`);
-
-   ssLearnNotFound(base);
-   const afterNF=ssLookupLearned(base.address,base.postcode);
-   assert('NOT FOUND does not delete verified pin',!!afterNF&&afterNF.state==='field_verified');
-
-   ssLearnNotFound(base);
-   const afterNF2=ssLookupLearned(base.address,base.postcode);
-   assert('Repeated NOT FOUND flags review',afterNF2.reviewRequired===true);
-
-   // Reset review so coordinate-conflict test is isolated.
-   afterNF2.reviewRequired=false; afterNF2.notFoundAfterVerification=0;
-   ssPutJSON(SS_LEARNING_KEY,[afterNF2]);
-   const moved={...base,gps:{latitude:51.501000,longitude:-3.500000,accuracy:8}};
-   const p2=ssLearnVerified(moved,resolution);
-   assert('Large field-pin movement flags review',p2.reviewRequired===true);
-
-   // Former-name lookup via an explicit shared record alias.
-   p2.formerNames=['OLD CRASH COTTAGE'];ssPutJSON(SS_LEARNING_KEY,[p2]);
-   assert('Former property name resolves',ssLookupLearned('OLD CRASH COTTAGE','ZZ1 1ZZ')?.pinId===p2.pinId);
-
-   const qBefore=ssPrepareQueue().length; ssRecover(); ssRecover();
-   assert('Repeated recovery is idempotent',ssPrepareQueue().length===qBefore);
-
-   const remote={...ssPublicPin(p2),version:2,
-     fieldPin:{latitude:51.510000,longitude:-3.500000},
-     verification:{...p2.verification,verifiedAt:new Date(Date.now()+1000).toISOString()}};
-   const merge=ssMergeRemotePin(remote);
-   assert('Second-device coordinate conflict is quarantined',merge.status==='conflict');
-
-   const sync=await ssSyncNow();
-   assert('Unconfigured shared server fails safely',sync.prototype===true&&sync.ok===false);
-
-   assert('Sensitive handover excluded from shared payload',
-     !('handover' in ssPublicPin(p2))&&!('photo' in ssPublicPin(p2)));
-
-  }catch(e){assert('Harness completed without exception',false,String(e?.stack||e))}
-  finally{
-   for(const [k,v] of Object.entries(backup)){
-    const key={pins:SS_LEARNING_KEY,attempts:SS_ATTEMPT_KEY,queue:SS_SYNC_QUEUE,journal:SS_JOURNAL_KEY}[k];
-    if(v===null)localStorage.removeItem(key);else localStorage.setItem(key,v);
-   }
-  }
-  const passed=report.filter(x=>x.pass).length;
-  return {passed,failed:report.length-passed,total:report.length,report};
- }
-};
-</script>
 <script>
 /* V12 shared-store adapter.
    IMPORTANT: endpoint remains intentionally disabled in this candidate.
@@ -2556,90 +2418,6 @@ setTimeout(()=>{try{ssUpdateVaultStatus()}catch(e){}},100);
 <script>
 window.addEventListener("load",()=>{if(navigator.onLine){ssVaultRestore().then(()=>ssVaultFlush())}});
 </script>
-<script>
-/* V1.0.5q VERIFIED-PATH TRACE — diagnostic only */
-(function(){
-  const KEY="situSnapDebugTraceV1";
-  const MAX=120;
-  function load(){try{return JSON.parse(localStorage.getItem(KEY)||"[]")}catch(e){return []}}
-  function save(a){try{localStorage.setItem(KEY,JSON.stringify(a.slice(-MAX)))}catch(e){}}
-  window.__ssTrace=function(event,detail){
-    const a=load();
-    a.push({t:new Date().toISOString(),event:String(event),detail:String(detail||"").slice(0,700)});
-    save(a);
-  };
-  window.__ssTrace("BOOT","SituSnap 1.0.5q tracer loaded");
-
-  function watch(id){
-    const el=document.getElementById(id); if(!el)return;
-    let last=(el.innerText||el.textContent||"").trim();
-    new MutationObserver(()=>{
-      const now=(el.innerText||el.textContent||"").trim();
-      if(now!==last){
-        window.__ssTrace("DOM "+id, now);
-        last=now;
-      }
-    }).observe(el,{subtree:true,childList:true,characterData:true,attributes:true});
-  }
-
-  window.addEventListener("load",()=>{
-    ["ssFindResult","ssFindResultTitle","ssFindResultMeta","bcResolveCard",
-     "bcResolveTitle","bcResolveMeta","bcQuickStatus"].forEach(watch);
-
-    ["ssFindDestination","ssShowFindResult","bcResolve","bcQueueResolve",
-     "bcUI","bcRender","bcSetStatus","bcSetMainAvailable"].forEach(name=>{
-      const original=window[name];
-      if(typeof original!=="function")return;
-      window[name]=function(){
-        let args="";
-        try{args=[...arguments].map(v=>{
-          if(v && typeof v==="object")return JSON.stringify(v).slice(0,350);
-          return String(v);
-        }).join(" | ")}catch(e){}
-        window.__ssTrace("CALL "+name,args);
-        let result;
-        try{result=original.apply(this,arguments)}
-        catch(e){window.__ssTrace("THROW "+name,e.stack||e);throw e}
-        if(result && typeof result.then==="function"){
-          return result.then(v=>{
-            let x="";try{x=typeof v==="object"?JSON.stringify(v).slice(0,600):String(v)}catch(e){}
-            window.__ssTrace("RETURN "+name,x);return v;
-          },e=>{window.__ssTrace("REJECT "+name,e.stack||e);throw e});
-        }
-        return result;
-      };
-    });
-  });
-
-  window.ssCopyTrace=async function(){
-    const text=JSON.stringify(load(),null,2);
-    try{await navigator.clipboard.writeText(text);alert("TRACE COPIED");}
-    catch(e){prompt("Copy trace:",text);}
-  };
-  window.ssClearTrace=function(){localStorage.removeItem(KEY);alert("TRACE CLEARED");};
-  window.ssShowTrace=function(){
-    let box=document.getElementById("ssTraceBox");
-    if(!box){
-      box=document.createElement("div");box.id="ssTraceBox";
-      box.style.cssText="position:fixed;z-index:99999;inset:8% 4% 10%;background:#071a33;color:#fff;border:2px solid #69df83;border-radius:16px;padding:12px;overflow:auto;font:11px monospace;white-space:pre-wrap";
-      document.body.appendChild(box);
-    }
-    box.innerHTML='<div style="font:900 15px system-ui;margin-bottom:10px">PHOENIX 2 TRACE</div>'+
-      '<button onclick="ssCopyTrace()" style="margin:3px;padding:8px">COPY TRACE</button>'+
-      '<button onclick="ssClearTrace()" style="margin:3px;padding:8px">CLEAR</button>'+
-      '<button onclick="document.getElementById(\'ssTraceBox\').remove()" style="margin:3px;padding:8px">CLOSE</button><hr>'+
-      JSON.stringify(load(),null,2).replace(/&/g,"&amp;").replace(/</g,"&lt;");
-  };
-
-  // Long-press the header menu button to open trace; normal tap remains untouched.
-  window.addEventListener("load",()=>{
-    const m=document.querySelector(".menu"); if(!m)return;
-    let timer;
-    m.addEventListener("pointerdown",()=>timer=setTimeout(()=>window.ssShowTrace(),700));
-    ["pointerup","pointercancel","pointerleave"].forEach(x=>m.addEventListener(x,()=>clearTimeout(timer)));
-  });
-})();
-</script>
 
 
 
@@ -2649,15 +2427,6 @@ window.addEventListener("load",()=>{if(navigator.onLine){ssVaultRestore().then((
 
 
 
-<script id="phoenix-fresh-shell">
-(function(){
- function boot(){
-  var k=document.querySelector('.ss-home-kicker'); if(k)k.textContent='FIND IT. SNAP IT. UPDATE IT.';
-  var s=document.querySelector('#recordDetails>summary'); if(s)s.textContent='Handover notes';
-  var n=document.querySelector('nav.bottom,.bottom'); if(n)n.style.gridTemplateColumns='repeat(3,minmax(0,1fr))';
- }
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
- window.addEventListener('load',boot);
-})();
-</script>
+
+
 </body></html>
