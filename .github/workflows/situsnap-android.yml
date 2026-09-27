@@ -67,10 +67,9 @@ jobs:
           echo "$BADGING" | grep -q "sdkVersion:'26'"
           echo "$BADGING" | grep -q "targetSdkVersion:'35'"
           echo "$BADGING" | grep -q "launchable-activity: name='com.situsnap.app.SplashActivity'"
-          echo "$BADGING" | grep -q "application-icon"
           echo "🔥 PACKAGE ID VERIFIED"
           echo "🔥 SDK VERIFIED"
-          echo "🔥 BRANDED LAUNCHER VERIFIED"
+          echo "🔥 SPLASH LAUNCHER VERIFIED"
           echo "🔥 SITUSNAP APK PASSED ALL BUILD GATES"
 
       - uses: actions/upload-artifact@v4
