@@ -181,7 +181,7 @@ public class MainActivity extends Activity {
             }
         });
 
-        webView.loadUrl("https://cryptod1.github.io/SituSnap/");
+        webView.loadUrl("https://cryptod1.github.io/SituSnap/phoenix.html");
     }
 
     @Override
