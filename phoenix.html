@@ -1,1176 +1,205 @@
-<!doctype html>
+<!DOCTYPE html>
+
 <html lang="en"><head>
-<link rel="manifest" href="manifest.webmanifest">
-<link rel="stylesheet" href="situsnap-ui.css?v=phoenix35">
-<meta name="mobile-web-app-capable" content="yes"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#071a33"><title>SituSnap Phoenix — Find · Snap · Update</title>
-<style>
-*{box-sizing:border-box}:root{--navy:#071a33;--navy2:#0c3a25;--blue:#69df83;--ink:#10233f;--muted:#a9bad0;--line:#dce5ef}html{scroll-behavior:smooth}body{margin:0;color:#f3f7fc;font-family:Inter,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;background:linear-gradient(rgba(7,26,51,.80),rgba(7,26,51,.90)),url("situsnap-background.png");background-size:cover;background-position:center;background-attachment:fixed;padding-bottom:90px}header{height:70px;background:var(--navy);display:flex;align-items:center;justify-content:space-between;padding:0 18px;position:sticky;top:0;z-index:20;box-shadow:0 4px 18px #071a3330}.brand{display:flex;gap:10px;align-items:center} .brand-mark{width:40px;height:40px;display:grid;place-items:center;position:relative;overflow:visible}.brand-mark svg{width:40px;height:40px;display:block;filter:drop-shadow(0 0 8px rgba(53,216,233,.22))}.brand-name{font-size:19px;font-weight:900}.tag{font-size:8px;letter-spacing:1.7px;color:#dff8e3;font-weight:800}.menu{width:42px;height:42px;border-radius:12px;background:#ffffff12;border:1px solid #ffffff1c;display:grid;place-items:center;font-size:22px}main{max-width:680px;margin:auto;padding:18px 13px 95px}.hero{background:linear-gradient(145deg,var(--navy),var(--navy2) 58%,#146b3a);border-radius:20px;padding:20px 18px;color:#fff;box-shadow:0 18px 35px #071a3328;margin-bottom:13px}.eyebrow{font-size:9px;letter-spacing:2px;font-weight:900;color:#8fe7a1}.hero h1{font-size:clamp(28px,8vw,42px);line-height:1.02;margin:6px 0 7px;letter-spacing:-1px}.hero p{margin:0;color:#e3f8e8;font-size:13px;line-height:1.5}.find{color-scheme:only light;margin-top:18px;background:rgba(255,255,255,.97);border-radius:16px;padding:10px;box-shadow:0 10px 25px #0005}.find-row{display:flex;gap:7px}.find input{flex:1;min-width:0;border:0;outline:0;padding:12px 10px;font-size:14px;color:var(--ink)}button{border:0;cursor:pointer;font:inherit;font-weight:850;min-height:52px}.find button{padding:0 16px;border-radius:11px;background:var(--blue);color:#fff}.quick{display:grid;grid-template-columns:1fr 1fr;gap:9px}.quick button{padding:15px 12px;border-radius:14px;background:rgba(13,34,67,.92);color:#9ee9ad;border:1px solid rgba(126,177,235,.25);box-shadow:0 10px 22px #02091450}.quick button.primary{background:var(--blue);color:#fff}.card{background:rgba(10,25,52,.88);backdrop-filter:blur(16px);border:1px solid rgba(126,177,235,.22);border-radius:18px;padding:14px;margin-bottom:10px;box-shadow:0 16px 36px #02091470}.card h2{font-size:17px;margin:0}.muted{color:var(--muted);font-size:11px;margin:4px 0 12px}.section-head{display:flex;justify-content:space-between;align-items:center;gap:10px}.pill{padding:5px 8px;border-radius:99px;background:#145a35;color:#9ee9ad;font-size:9px;font-weight:850}.hidden{display:none}.location{display:flex;gap:11px;align-items:center;padding:12px;border:1px solid rgba(126,177,235,.2);border-radius:13px;margin-top:8px;background:rgba(17,39,73,.58)}.pin{width:38px;height:38px;border-radius:12px;background:#145a35;display:grid;place-items:center;font-size:19px}.location b{display:block;font-size:12px}.location span{display:block;font-size:10px;color:var(--muted);margin-top:3px}.details{border:1px solid rgba(126,177,235,.2);border-radius:13px;background:rgba(17,39,73,.58);margin-top:8px;overflow:hidden}.details summary{list-style:none;cursor:pointer;padding:12px 13px;font-size:12px;font-weight:850;display:flex;align-items:center;justify-content:space-between}.details summary:after{content:"＋";color:#69df83;font-size:16px}.details[open] summary:after{content:"−"}.details .inside{padding:0 13px 13px;color:var(--muted);font-size:10px;line-height:1.5}.searchbox,input,select,textarea{width:100%;min-height:52px;padding:11px;border:1px solid rgba(126,177,235,.25);border-radius:10px;background:#0d3525;color:#f3f7fc;font:inherit;font-size:16px;outline:0}textarea{min-height:78px;resize:vertical}label{display:block;font-size:10px;font-weight:850;color:#aebed2;margin:8px 0 5px}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 11px}.full{grid-column:1/-1}.gps{display:flex;justify-content:space-between;gap:8px;align-items:center;background:#103d29;border:1px solid rgba(126,177,235,.2);padding:10px;border-radius:11px;margin-top:8px}.gps span{font-size:9px;color:var(--muted)}.gps button{padding:8px 10px;border-radius:9px;background:#2f9b55;color:#fff}.bottom{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(680px,100%);height:72px;background:rgba(6,19,39,.97);backdrop-filter:blur(14px);border-top:1px solid rgba(126,177,235,.2);display:grid;grid-template-columns:repeat(4,1fr);z-index:25;padding:7px 5px}.nav{background:none;color:#91a5be;font-size:9px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border-radius:10px;min-height:0}.nav .ico{font-size:19px}.nav.active{color:#69df83;background:#123f2a}.record{border:1px solid rgba(126,177,235,.2);border-radius:14px;padding:13px;margin-top:9px;background:rgba(18,40,75,.78);cursor:pointer}.record:active{transform:scale(.995)}.record h3{margin:0 0 6px;font-size:13px}.meta{font-size:10px;color:var(--muted);line-height:1.5;margin-top:7px}.pills{display:flex;gap:6px;flex-wrap:wrap}.scroll-hint{text-align:center;color:#9ee9ad;font-size:9px;font-weight:850;letter-spacing:1.2px;margin:8px 0 10px}.scroll-hint span{display:block;font-size:17px}.save{width:100%;padding:13px;border-radius:12px;background:var(--blue);color:#fff;margin-top:10px}.link{background:none;color:#69df83;padding:4px;min-height:40px}.empty{text-align:center;padding:24px 10px;color:var(--muted);font-size:11px}.offline-banner{position:fixed;top:70px;left:50%;transform:translateX(-50%);z-index:30;width:min(680px,calc(100% - 18px));padding:9px 12px;border-radius:0 0 12px 12px;background:#f5f1e7;color:#17221c;text-align:center;font-size:12px;font-weight:900;box-shadow:0 8px 20px #0004}.offline-banner.hidden{display:none}@media(max-width:520px){.form-grid{grid-template-columns:1fr}.full{grid-column:auto}.hero{padding:21px 17px}.quick button{font-size:12px}.find-row{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(138px,.75fr);gap:8px}.find button{font-size:11px;padding:0 9px;line-height:1.15}}
+<link href="manifest.webmanifest" rel="manifest"/>
+<meta content="yes" name="mobile-web-app-capable"/><meta charset="utf-8"/><meta content="width=device-width,initial-scale=1" name="viewport"/><meta content="#071a33" name="theme-color"/><title>SituSnap Phoenix — Find · Snap · Update</title>
 
-.precision{margin-top:10px;border:1px solid rgba(126,177,235,.22);background:linear-gradient(135deg,#0d294e,#123761);border-radius:14px;padding:12px}.precision-top{display:flex;justify-content:space-between;align-items:center;gap:10px}.precision-title{font-size:11px;font-weight:900;letter-spacing:.3px}.precision-badge{font-size:9px;font-weight:900;padding:5px 8px;border-radius:999px;background:#173f69;color:#b8f7c3}.precision-bar{height:7px;background:#071a33;border-radius:99px;overflow:hidden;margin:9px 0 7px}.precision-fill{height:100%;width:45%;background:#69df83;border-radius:99px}.small-note{font-size:9px;color:#a9bad0;line-height:1.45}.live-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px}.metric{background:#0a2040;border:1px solid rgba(126,177,235,.18);border-radius:11px;padding:10px}.metric b{display:block;font-size:15px}.metric span{font-size:8px;color:#9fb3ca;text-transform:uppercase;letter-spacing:.5px}
 
-/* Postcode search input: keep entered text clearly visible on dark/auto-dark browsers */
-/* Force the postcode search control to remain readable on Android/Chrome,
-   including Auto Dark Mode. The app itself stays in its normal dark design. */
-.find input#huntPostcode {
-  color: #111827 !important;
-  -webkit-text-fill-color: #111827 !important;
-  caret-color: #69df83 !important;
-  background: #ffffff !important;
-  background-color: #ffffff !important;
-  opacity: 1 !important;
-  color-scheme: only light !important;
-  -webkit-appearance: none !important;
-  appearance: none !important;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<style id="phoenix-fresh-authority">
+*{box-sizing:border-box}
+:root{
+ --bg:#061a20;--bg2:#09272a;--panel:#0c3030;--panel2:#0d3832;
+ --green:#38e06f;--green2:#16b85a;--text:#f7fbf8;--muted:#b6c9c2;
+ --line:#315b55;--soft:#102f35;--danger:#ff7878;
 }
-.find input#huntPostcode::placeholder {
-  color: #6b7280 !important;
-  -webkit-text-fill-color: #6b7280 !important;
-  opacity: 1 !important;
-}
-.find input#huntPostcode:focus {
-  color: #111827 !important;
-  -webkit-text-fill-color: #111827 !important;
-  background: #ffffff !important;
-  background-color: #ffffff !important;
-  color-scheme: only light !important;
-  outline: 3px solid rgba(105,223,131,.22) !important;
-  outline-offset: 0 !important;
-}
-
-.live-active{color:#8ff0a0;font-weight:900;letter-spacing:.4px}
-
-/* V1.5 celebration: full-screen, colourful, no scroll jump */
-#celebration{position:fixed;inset:0;width:100vw;height:100dvh;min-height:100vh;display:none;align-items:center;justify-content:center;z-index:1000;overflow:hidden;background:radial-gradient(circle at 50% 42%,rgba(35,105,72,.96),rgba(7,26,51,.98) 68%);pointer-events:none}
-#celebration.show{display:flex;animation:celebrateIn .35s ease-out both}
-#celebration .celebrate-content{text-align:center;padding:24px;position:relative;z-index:2}
-#celebration .celebrate-title{font-size:clamp(42px,12vw,76px);font-weight:1000;line-height:.95;letter-spacing:-2px;text-shadow:0 5px 25px #0008;margin:0 0 10px}
-#celebration .celebrate-sub{font-size:clamp(13px,4vw,20px);font-weight:800;color:#dff2ff;letter-spacing:1px}
-.celebrate-particle{position:absolute;width:10px;height:10px;border-radius:2px;animation:confettiFall 4.2s ease-in forwards;opacity:0}
-.celebrate-firework{position:absolute;width:8px;height:8px;border-radius:50%;box-shadow:0 0 0 0 rgba(255,255,255,0);animation:firework 2.8s ease-out forwards}
-@keyframes celebrateIn{from{opacity:0;transform:scale(1.04)}to{opacity:1;transform:scale(1)}}
-@keyframes confettiFall{0%{opacity:1;transform:translate3d(0,-12vh,0) rotate(0deg)}100%{opacity:1;transform:translate3d(var(--dx),110vh,0) rotate(900deg)}}
-@keyframes firework{0%{opacity:1;transform:scale(.2);box-shadow:0 0 0 0 rgba(255,255,255,.95),0 0 0 0 rgba(90,190,255,.8)}45%{opacity:1;transform:scale(1);box-shadow:0 -75px 0 0 rgba(255,255,255,.9),55px -55px 0 0 rgba(90,190,255,.9),75px 0 0 0 rgba(255,210,70,.9),55px 55px 0 0 rgba(255,100,160,.9),0 75px 0 0 rgba(100,255,180,.9),-55px 55px 0 0 rgba(255,210,70,.9),-75px 0 0 0 rgba(90,190,255,.9),-55px -55px 0 0 rgba(255,100,160,.9)}100%{opacity:0;transform:scale(1.2);box-shadow:0 -125px 0 0 transparent,90px -90px 0 0 transparent,125px 0 0 0 transparent,90px 90px 0 0 transparent,0 125px 0 0 transparent,-90px 90px 0 0 transparent,-125px 0 0 0 transparent,-90px -90px 0 0 transparent}}
-
-/* Field-first polish: compact postcode search + hide technical target details */
-.find{margin-top:14px;padding:7px;border-radius:13px}
-.find-row{gap:6px}
-.find input#huntPostcode{padding:9px 10px;min-height:44px;font-size:14px}
-.find button{min-height:44px;padding:0 13px;border-radius:10px;font-size:12px}
-#targetBox{display:none !important}
-#postcodeChoices{display:none!important}.postcode-choices{margin-top:8px;padding:9px 10px;border-radius:12px;background:rgba(255,255,255,.96);border:1px solid rgba(105,223,131,.45)}
-.postcode-choices label{display:block;font-size:9px;font-weight:900;letter-spacing:.5px;color:#31506b;margin-bottom:5px}
-.postcode-choices select{width:100%;min-height:40px;border-radius:9px;border:1px solid #cbd5e1;padding:8px 10px;font-weight:750;color:#10253d;background:#fff}
-#manualAddress{min-height:52px!important;background:#fff!important;color:#111827!important;-webkit-text-fill-color:#111827!important;caret-color:#145a35!important;font-size:16px!important;pointer-events:auto!important;user-select:text!important;-webkit-user-select:text!important}
-#manualAddress:focus{outline:3px solid rgba(105,223,131,.22)!important}
-.property-split{display:grid;grid-template-columns:minmax(105px,24%) minmax(0,1fr);gap:10px;align-items:start}.property-split>div{min-width:0;display:flex;flex-direction:column}.property-split .property-label{display:block;min-height:36px;box-sizing:border-box;padding:0 4px 7px;font-size:10px;font-weight:950;color:#43566f;letter-spacing:.25px;line-height:14px;white-space:normal;overflow:visible}.property-split input,.property-split #doorNumber,.property-split #manualAddress{box-sizing:border-box;width:100%!important;min-width:0;height:52px!important;min-height:52px!important;padding:11px 12px!important;background:#fff!important;color:#111827!important;-webkit-text-fill-color:#111827!important;border:1px solid #cbd5e1!important;border-radius:10px!important;font-size:16px!important}.property-split #doorNumber{padding-left:12px!important}@media(max-width:360px){.property-split{grid-template-columns:92px minmax(0,1fr);gap:8px}.property-split .property-label{font-size:9px;letter-spacing:0}}
-
-
-/* SituSnap custom dark-green location picker */
-.street-picker{position:relative;width:100%}.street-picker-trigger{width:100%;min-height:52px;padding:11px 44px 11px 12px;border:1px solid rgba(126,177,235,.25);border-radius:10px;background:#0d3525;color:#f3f7fc;text-align:left;font:inherit;font-size:16px;position:relative}.street-picker-trigger:after{content:"⌄";position:absolute;right:14px;top:50%;transform:translateY(-50%);color:#69df83;font-weight:900}.street-picker-menu{position:absolute;z-index:60;left:0;right:0;top:calc(100% + 6px);max-height:58vh;overflow:auto;background:#0d3525;border:1px solid rgba(105,223,131,.45);border-radius:14px;box-shadow:0 18px 40px rgba(0,0,0,.45);padding:6px}.street-picker-menu.hidden{display:none}.street-picker-heading{padding:9px 11px 5px;color:#9ee9ad;font-size:10px;font-weight:900;letter-spacing:.6px;text-transform:uppercase}.street-picker-item{display:block;width:100%;text-align:left;padding:12px 11px;border:0;border-bottom:1px solid rgba(255,255,255,.09);background:#0d3525;color:#f3f7fc;font:inherit;font-size:15px}.street-picker-item:last-child{border-bottom:0}.street-picker-item:active,.street-picker-item:hover{background:#145a35}.street-picker-empty{padding:12px;color:#aebed2;font-size:13px}.previous-edit-hint{font-size:9px;color:#9ee9ad;margin-top:7px;font-weight:800}.record-editing{outline:2px solid rgba(105,223,131,.55)}
-
-#recordPostcodeChoices{margin-top:2px;padding:10px 0 2px;background:transparent;border:0}
-#recordPostcodeChoices>label{font-size:9px;font-weight:900;letter-spacing:.5px;color:#aebed2}
-#recordPostcodeChoices .street-picker-trigger{background:#0d3525;color:#f3f7fc;border-color:rgba(126,177,235,.25)}
-
-/* Outdoor readability polish */
-label{color:#d5deea;font-size:11px}
-input::placeholder,textarea::placeholder{color:#aeb9c7;opacity:1}
-#accessDirections{min-height:96px;line-height:1.45}
-
-/* V1.0.5 — professional front-page refresh. Engine IDs/functions deliberately preserved. */
-.ss-home-shell{position:relative;overflow:hidden;background:linear-gradient(155deg,rgba(7,26,51,.98),rgba(10,54,37,.97) 68%,rgba(20,90,53,.96));border:1px solid rgba(143,231,161,.20);border-radius:24px;padding:22px 17px 18px;box-shadow:0 22px 55px rgba(0,0,0,.34);margin-bottom:13px}
-.ss-home-shell:before{content:"";position:absolute;width:220px;height:220px;border-radius:50%;right:-105px;top:-125px;background:radial-gradient(circle,rgba(105,223,131,.20),transparent 68%);pointer-events:none}
-.ss-home-kicker{position:relative;font-size:10px;letter-spacing:2px;font-weight:950;color:#8fe7a1;text-transform:uppercase}
-.ss-home-title{position:relative;margin:6px 0 5px;font-size:clamp(29px,8vw,42px);line-height:1.02;letter-spacing:-1.2px;color:#fff}
-.ss-home-copy{position:relative;margin:0 0 18px;color:#d8e8e0;font-size:13px;line-height:1.5;max-width:480px}
-.ss-find-card{position:relative;background:#f8fbf9;color:#10233f;border-radius:18px;padding:14px;box-shadow:0 14px 32px rgba(0,0,0,.22)}
-.ss-field-label{display:block;min-height:30px;margin:0 0 6px;font-size:10px;font-weight:950;letter-spacing:.35px;line-height:1.25;color:#43566f;white-space:normal}
-.ss-optional{font-weight:800;opacity:.62;letter-spacing:0}
-.ss-find-card input{background:#fff!important;color:#111827!important;-webkit-text-fill-color:#111827!important;border:1px solid #cbd5e1!important;border-radius:12px!important;min-height:54px!important;padding:12px 13px!important;font-size:16px!important;box-shadow:0 1px 0 rgba(16,35,63,.03)}
-.ss-find-card input:focus{outline:3px solid rgba(105,223,131,.24)!important;border-color:#69df83!important}
-.ss-field{margin-top:12px}
-.ss-address-row{display:grid;grid-template-columns:minmax(72px,26%) minmax(0,1fr);gap:10px;align-items:start}
-.ss-find-primary{width:100%;min-height:56px;margin-top:15px;border-radius:13px;background:linear-gradient(135deg,#1c8d4b,#69df83);color:#061a10;font-size:14px;font-weight:1000;letter-spacing:.35px;box-shadow:0 10px 22px rgba(28,141,75,.24)}
-.ss-find-primary:active{transform:translateY(1px)}
-.ss-trust{display:flex;align-items:flex-start;gap:8px;margin-top:11px;padding:10px 11px;border-radius:11px;background:#eaf6ee;color:#285943;font-size:11px;font-weight:850;line-height:1.35}
-.ss-secondary{width:100%;min-height:48px;margin-top:10px;border-radius:12px;background:transparent;color:#dff8e3;border:1px solid rgba(143,231,161,.34);font-size:12px;font-weight:900}
-.ss-engine-hidden{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;opacity:0!important;pointer-events:none!important}
-.ss-home-shell #verifiedFirstPanel{margin-top:12px!important;border-radius:12px!important}
-.ss-home-shell #mainStreetResults{z-index:80}
-@media(max-width:360px){.ss-address-row{grid-template-columns:minmax(68px,25%) minmax(0,1fr);gap:8px}.ss-field-label{font-size:9px;letter-spacing:.2px}.ss-home-shell{padding:19px 13px 15px}}
-
-
-/* V1.0.5b — compact mobile entrance: labels live inside fields. */
-.ss-home-shell{padding-top:16px!important}
-.ss-home-title{margin-top:3px!important;margin-bottom:12px!important}
-.ss-find-card{padding:12px!important}
-.ss-find-card .ss-field{margin-top:8px!important}
-.ss-address-row{margin-top:2px!important}
-.ss-address-row .ss-field{margin-top:8px!important}
-.ss-find-card input::placeholder{color:#53657a!important;opacity:1;font-size:12px;font-weight:950;letter-spacing:.45px}
-.ss-find-primary{margin-top:11px!important}
-.ss-secondary{margin-top:8px!important}
-
-
-/* V1.0.5c — FIND shows a result in SituSnap; navigation is a separate deliberate action. */
-#ssFindResult.hidden,#ssNavigateBtn.hidden{display:none!important}
-#ssFindResult{animation:ssResultIn .18s ease-out both}
-@keyframes ssResultIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
-
-
-/* V1.0.5f — non-interrupting update notification. */
-#ssUpdateBadge{position:absolute;top:5px;right:7px;padding:2px 5px;border-radius:999px;background:#69df83;color:#071a33;font-size:7px;line-height:1.25;font-weight:1000;letter-spacing:.35px;box-shadow:0 2px 7px rgba(0,0,0,.28)}
-#ssUpdateBadge.hidden{display:none!important}
-
+html,body{margin:0;min-height:100%;background:linear-gradient(180deg,var(--bg),#04161b);color:var(--text);
+ font-family:Inter,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;color-scheme:dark}
+body{padding-bottom:76px}
+.hidden{display:none!important}
+header{height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;
+ background:#071b25;border-bottom:1px solid rgba(255,255,255,.06);position:sticky;top:0;z-index:50}
+.brand{display:flex;align-items:center;gap:9px}.brand-mark{width:34px;height:34px}.brand-mark svg{width:34px;height:34px;display:block}
+.brand-name{font-size:20px;font-weight:950;letter-spacing:-.4px}.menu{width:40px;height:40px;border:0;border-radius:11px;
+ background:#102d36;color:#fff;font-size:22px}
+main{max-width:680px;margin:auto;padding:10px 10px 86px}
+.ss-home-shell,.card{background:linear-gradient(150deg,var(--panel),#09272e);border:1px solid var(--line);
+ border-radius:18px;padding:12px;margin:0 0 9px;box-shadow:0 12px 28px rgba(0,0,0,.20)}
+.ss-home-shell:before,.ss-home-title,.ss-home-copy{display:none!important}
+.ss-home-kicker{font-size:15px;font-weight:950;letter-spacing:1.5px;color:#8df0a8;margin:1px 2px 10px}
+.ss-find-card{background:transparent!important;padding:0!important;box-shadow:none!important}
+.ss-field{margin-top:7px}.ss-address-row{display:grid;grid-template-columns:92px minmax(0,1fr);gap:7px}
+input,select,textarea,.street-picker-trigger{width:100%;min-width:0;min-height:48px;border:1px solid #52736f;border-radius:11px;
+ background:#0a2530!important;color:#fff!important;-webkit-text-fill-color:#fff!important;padding:10px 12px;font:inherit;font-size:16px}
+input::placeholder,textarea::placeholder{color:#b7c5c7!important;opacity:1}
+.ss-find-primary{width:100%;min-height:52px;margin-top:8px;border:0;border-radius:12px;
+ background:linear-gradient(135deg,var(--green2),var(--green));color:#041a0d;font-size:17px;font-weight:1000}
+.ss-secondary{width:100%;min-height:43px;margin-top:6px;border:1px solid #3e7165;border-radius:11px;background:#0a2930;color:#e8fff0;font-weight:850}
+#verifiedFirstPanel,#ssFindResult{margin-top:7px!important;background:#0c3a2c!important;border:1px solid #2c8657!important;border-radius:12px!important;padding:10px!important}
+#reminderCard{padding:0;background:transparent;border:0;box-shadow:none}
+#recordDetails{margin:0;border:0;background:transparent}
+#recordDetails>summary{list-style:none;min-height:46px;display:flex;align-items:center;justify-content:space-between;
+ padding:10px 13px;border:1px solid #3a625d;border-radius:12px;background:#0a2930;font-size:15px;font-weight:900}
+#recordDetails>summary:after{content:"＋";font-size:22px;color:var(--green)}
+#recordDetails[open]>summary:after{content:"−"}
+#recordDetails .inside{padding:9px 2px 3px}
+#recordDetails label{display:block;margin:7px 0 3px;font-size:12px;font-weight:850;color:#d1ded9}
+#recordDetails textarea{min-height:68px;resize:vertical}
+#recordDetails button{min-height:46px;border-radius:11px}
+#recordsCard{padding:12px}
+#recordsCard h2{margin:0;font-size:20px}#recordsCard .muted{margin:3px 0 8px;color:var(--muted);font-size:11px}
+.record{padding:10px 11px;margin-top:7px;border:1px solid #315b55;border-radius:13px;background:#092831}
+.record h3{margin:0 0 5px;font-size:15px}.record .meta{margin-top:4px;font-size:10px;line-height:1.3;color:var(--muted)}
+.pills{display:flex;gap:5px;flex-wrap:wrap}.pill{padding:4px 7px;border-radius:999px;background:#155f38;color:#a7f6ba;font-size:9px;font-weight:900}
+.record button{min-height:40px!important}
+.bottom{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(680px,100%);height:68px;
+ display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;padding:6px;background:#061b23;
+ border-top:1px solid #29484b;z-index:60}
+.nav{border:0;background:transparent;color:#a9bbb9;display:flex;flex-direction:column;align-items:center;justify-content:center;
+ gap:2px;font-size:10px;font-weight:800;min-width:0}.nav .ico{font-size:20px}.nav.active{color:var(--green);background:#0b352b;border-radius:10px}
+button{font:inherit;cursor:pointer}
+#detailsFoundBtn{width:100%;background:linear-gradient(135deg,var(--green2),var(--green));color:#041a0d;font-weight:1000}
+#detailsNotFoundBtn,#notFoundBtn,#ssCanonicalNotFound{width:100%;background:transparent;color:#fff;border:1px solid #765050!important}
+.offline-banner{position:fixed;top:60px;left:50%;transform:translateX(-50%);z-index:80;width:min(680px,calc(100% - 20px));
+ padding:8px;border-radius:0 0 10px 10px;background:#f1e9cf;color:#17221c;text-align:center;font-size:12px;font-weight:900}
+@media(max-width:360px){.ss-address-row{grid-template-columns:84px minmax(0,1fr)}.ss-home-kicker{font-size:13px;letter-spacing:1.2px}}
 </style>
-<style>
-.bc-resolve{margin:12px 0 14px;padding:15px 16px;border-radius:16px;background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.13)}
-.bc-kicker{font-size:12px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;opacity:.72}
-.bc-title{font-size:18px;font-weight:900;margin-top:6px}
-.bc-meta{font-size:13px;line-height:1.45;opacity:.78;margin-top:5px}
-.bc-action{margin-top:12px;width:100%;border:0;border-radius:12px;padding:13px 14px;font-weight:900;background:#17663b;color:#fff}
-.bc-action.investigate{background:#26384f}
-.bc-resolve.bc-green{border:2px solid #69df83;background:rgba(20,90,53,.30)}
-.bc-resolve.bc-amber{border:2px solid #d79a35;background:rgba(115,76,18,.26)}
-.bc-resolve.bc-red{border:2px solid #d75b5b;background:rgba(100,28,28,.22)}
-.bc-state{display:inline-block;margin-top:8px;padding:5px 9px;border-radius:999px;font-size:10px;font-weight:950;letter-spacing:.04em}
-.bc-green .bc-state{background:#145a35;color:#dff8e3}.bc-amber .bc-state{background:#765016;color:#ffe7b0}.bc-red .bc-state{background:#6b2626;color:#ffd4d4}
-</style>
-
-
-<style id="phoenix-ui-authority">
-/* PHOENIX 1 — final visual authority. Legacy rules remain inert underneath until engine consolidation. */
-:root{--ph-bg:#031923;--ph-card:#082433;--ph-card2:#0a2a38;--ph-green:#31df68;--ph-green2:#00a75e;--ph-text:#f7fbff;--ph-muted:#aebdca;--ph-line:#31566a}
-html,body{background:linear-gradient(180deg,#041b25,#031923)!important;color:var(--ph-text)!important;color-scheme:dark!important}
-header{background:#061827!important}
-.ss-home-shell{background:linear-gradient(145deg,#0b2a38,#082433)!important;border-color:rgba(49,223,104,.22)!important;color:#fff!important}
-.ss-find-card{background:transparent!important;color:#fff!important;box-shadow:none!important;padding:2px!important}
-.ss-find-card input#huntPostcode,.ss-find-card input#doorNumber,.ss-find-card input#manualAddress{background:#0a2438!important;background-color:#0a2438!important;color:#fff!important;-webkit-text-fill-color:#fff!important;border:1px solid #6f8ba0!important;color-scheme:dark!important}
-.ss-find-card input::placeholder{color:#aebdca!important;-webkit-text-fill-color:#aebdca!important}
-.ss-find-card input:focus{border-color:var(--ph-green)!important;outline:3px solid rgba(49,223,104,.18)!important}
-.ss-find-primary,.save{background:linear-gradient(135deg,#00a75e,#31df68)!important;color:#041b16!important}
-.ss-secondary{background:#082433!important;border:1px solid rgba(49,223,104,.55)!important;color:#dfffe8!important}
-#verifiedFirstPanel,#ssFindResult{background:#0a3028!important;background-color:#0a3028!important;border-color:#287b59!important;color:#fff!important}
-#verifiedFirstPanel>div:first-child,#ssFindResultKicker{color:var(--ph-green)!important}
-#ssNavigateBtn{background:#00a75e!important;color:#fff!important}
-.card,#reminderCard,#recordsCard{background:rgba(8,36,51,.96)!important;border-color:rgba(111,139,160,.25)!important;color:#fff!important}
-.record,.location,.details,.metric{background:#0a2438!important;color:#fff!important;border-color:rgba(111,139,160,.25)!important}
-input,select,textarea,.street-picker-trigger,.street-picker-menu,.street-picker-item{background:#0a2438!important;color:#fff!important;-webkit-text-fill-color:#fff!important;border-color:rgba(111,139,160,.4)!important;color-scheme:dark!important}
-.muted,.meta,.small-note{color:var(--ph-muted)!important}
-.bottom{background:rgba(4,24,36,.98)!important}.nav.active{color:var(--ph-green)!important;background:#0a3028!important}
-#ssMorePanel>div{background:#082433!important}
-</style>
-
-<style id="phoenix-2-polish">
-/* PHOENIX 2 — test-build polish. Engine/storage IDs deliberately unchanged. */
-#verifiedFirstPanel,#ssFindResult{
-  background:linear-gradient(145deg,#0b302b,#082b35)!important;
-  border:1px solid rgba(49,223,104,.42)!important;
-  color:#f7fbff!important;
-  box-shadow:0 10px 24px rgba(0,0,0,.22)!important;
-}
-#verifiedFirstPanel *:not(button),#ssFindResult *:not(button){color:inherit}
-#verifiedFirstPanel>div:first-child,#ssFindResultKicker{color:#31df68!important}
-#ssFindResultTitle{color:#fff!important}
-#ssNavigateBtn{background:linear-gradient(135deg,#00a75e,#18c96e)!important;color:#fff!important}
-#postcodeChoices,.postcode-choices{background:#082433!important;border-color:#31566a!important;color:#fff!important}
-.postcode-choices label{color:#b8c7d5!important}
-.postcode-choices select{background:#0a2438!important;color:#fff!important}
-#reminderCard,#recordsCard{background:linear-gradient(145deg,#0b2a38,#082433)!important}
-</style>
-
-
-<style id="phoenix-4-number-fix">
-/* Phoenix 4 — mobile Number-field fit only. */
-.ss-address-row{
-  grid-template-columns:minmax(112px,30%) minmax(0,1fr)!important;
-}
-#doorNumber{
-  padding-left:10px!important;
-  padding-right:8px!important;
-  font-size:14px!important;
-}
-@media(max-width:360px){
-  .ss-address-row{
-    grid-template-columns:108px minmax(0,1fr)!important;
-    gap:8px!important;
-  }
-}
-</style>
-
-
-<style id="phoenix-33-field-polish">
-/* Phoenix 5: presentation-only field polish. */
-.ss-address-row{
-  grid-template-columns:minmax(88px,25%) minmax(0,1fr)!important;
-}
-#doorNumber{min-width:0!important}
-#manualAddress{
-  min-width:0!important;
-  padding-left:14px!important;
-  padding-right:10px!important;
-  font-size:clamp(12px,3.45vw,16px)!important;
-}
-@media(max-width:360px){
-  .ss-address-row{
-    grid-template-columns:86px minmax(0,1fr)!important;
-    gap:8px!important;
-  }
-  #manualAddress{font-size:12px!important}
-}
-
-/* Reminder remains available, but no longer occupies a primary bottom-nav slot. */
-.ss-bottom-nav [data-page="reminder"],
-.ss-bottom-nav [data-target="reminder"],
-.ss-bottom-nav a[href="#reminder"],
-.ss-bottom-nav button[onclick*="reminder" i]{
-  display:none!important;
-}
-</style>
-
-
-<style id="phoenix-33-locked-layout">
-/* Phoenix 8 — based on known-good Phoenix 5. */
-.ss-bottom-nav{
-  grid-template-columns:repeat(3,minmax(0,1fr))!important;
-}
-.phoenix-compact-record{
-  min-height:48px!important;
-  padding:10px 14px!important;
-  margin-top:8px!important;
-  margin-bottom:8px!important;
-  border-radius:14px!important;
-  font-size:clamp(14px,3.8vw,18px)!important;
-  line-height:1.1!important;
-}
-</style>
-
-
-<style id="phoenix-33-micro-fix">
-/* Phoenix 9 — ONLY the three field-layout fixes confirmed from the updated app screenshot. */
-
-/* Remaining nav buttons fill the bar evenly after Reminder is removed. */
-#ssBottomNav,.bottom-nav,.nav-bar{
-  grid-template-columns:repeat(3,minmax(0,1fr))!important;
-}
-
-/* Protect the previously approved Number/House split against later rules. */
-.ss-address-row{
-  grid-template-columns:minmax(112px,30%) minmax(0,1fr)!important;
-}
-#doorNumber{
-  min-width:0!important;
-  padding-left:10px!important;
-  padding-right:8px!important;
-  font-size:14px!important;
-}
-#manualAddress{
-  min-width:0!important;
-  padding-left:14px!important;
-  padding-right:10px!important;
-  font-size:clamp(12px,3.45vw,16px)!important;
-}
-@media(max-width:360px){
-  .ss-address-row{
-    grid-template-columns:108px minmax(0,1fr)!important;
-    gap:8px!important;
-  }
-  #manualAddress{font-size:12px!important}
-}
-
-/* Secondary action: slightly slimmer, same behaviour. */
-.phoenix-compact-record{
-  min-height:44px!important;
-  padding:8px 14px!important;
-  margin-top:7px!important;
-  margin-bottom:7px!important;
-  border-radius:13px!important;
-  font-size:clamp(14px,3.7vw,17px)!important;
-  line-height:1.05!important;
-}
-</style>
-
-
-<style id="phoenix-33-isolation">
-/* Phoenix 10: isolated test build — no production updater UI. */
-#ssUpdateBadge,
-#ssUpdatePanel,
-#ssUpdateModal,
-.update-badge,
-.update-available{
-  display:none!important;
-}
-
-/* Three controls use the full width: Find | Verified | More. */
-nav.bottom{
-  display:grid!important;
-  grid-template-columns:repeat(3,minmax(0,1fr))!important;
-  width:100%!important;
-}
-nav.bottom > .nav{
-  width:100%!important;
-  min-width:0!important;
-  justify-self:stretch!important;
-}
-</style>
-
-
-<style id="phoenix-33-update-quarantine">
-/* Phoenix 11: production update controls are quarantined during Phoenix testing. */
-#ssUpdateBtn,
-#ssCheckUpdateBtn,
-#ssInstallUpdateBtn,
-#ssUpdateNowBtn,
-#ssUpdateBadge,
-#ssUpdatePanel,
-#ssUpdateModal,
-.update-btn,
-.check-update,
-.install-update,
-.update-available{
-  display:none!important;
-}
-</style>
-
-
-<style id="phoenix-33-first-page-cleanup">
-/* Phoenix 12 — locked layout: instructions live in More, not on Find. */
-#reminderCard > details:not(#recordDetails),
-#reminderCard > .reminder-row,
-#reminderCard > .instruction-row,
-#reminderCard > .more-below,
-#reminderCard > [class*="swipe" i]{
-  display:none!important;
-}
-</style>
-
-
-<style id="phoenix-33-final-find-polish">
-/* Phoenix 13 — final Find-page wording/fit only. */
-#manualAddress{
-  min-width:0!important;
-  padding-left:12px!important;
-  padding-right:8px!important;
-  font-size:clamp(11px,3.15vw,15px)!important;
-  letter-spacing:-0.15px!important;
-}
-@media(max-width:380px){
-  .ss-address-row{
-    grid-template-columns:104px minmax(0,1fr)!important;
-    gap:8px!important;
-  }
-  #doorNumber{font-size:13px!important;padding-left:8px!important;padding-right:6px!important}
-  #manualAddress{font-size:11.5px!important;padding-left:10px!important;padding-right:6px!important}
-}
-</style>
-
-
-<style id="phoenix-33-compact-find">
-#huntPostcode{min-height:58px!important;height:58px!important;padding:10px 18px!important}
-.ss-address-row{grid-template-columns:92px minmax(0,1fr)!important;gap:8px!important}
-#doorNumber,#manualAddress{min-height:58px!important;height:58px!important}
-#doorNumber{padding:8px 7px!important;font-size:12.5px!important}
-#manualAddress{padding:8px 8px!important;font-size:clamp(10.5px,2.9vw,13.5px)!important;letter-spacing:-.25px!important}
-</style>
-
-
-<style id="phoenix-33-card-squeeze">
-/* Phoenix 15 — reclaim vertical space for Verified locations. */
-
-/* WHOLE Find Destination card: remove excess outer whitespace and gaps. */
-.ss-find-card,
-.find.card,
-#findCard{
-  padding-top:16px!important;
-  padding-bottom:14px!important;
-}
-.ss-find-card .section-head,
-.find.card .section-head{
-  margin-bottom:10px!important;
-}
-.ss-find-card h1,
-.find.card h1{
-  margin-top:0!important;
-  margin-bottom:10px!important;
-  line-height:1.02!important;
-}
-.ss-find-card .form-grid,
-.find.card .form-grid{
-  gap:8px!important;
-}
-.ss-find-card button,
-.find.card button{
-  margin-top:8px!important;
-}
-.phoenix-compact-record{
-  margin-top:6px!important;
-  margin-bottom:0!important;
-}
-
-/* WHOLE Handover card: collapsed state should be a compact field action. */
-#reminderCard{
-  padding-top:14px!important;
-  padding-bottom:14px!important;
-}
-#reminderCard .section-head{
-  margin-bottom:8px!important;
-}
-#reminderCard .section-head h2{
-  margin:0 0 3px!important;
-  line-height:1.08!important;
-}
-#reminderCard .section-head p{
-  margin:0!important;
-  line-height:1.25!important;
-}
-#recordDetails{
-  margin-top:10px!important;
-  margin-bottom:0!important;
-}
-#recordDetails > summary{
-  min-height:52px!important;
-  padding:10px 14px!important;
-  display:flex!important;
-  align-items:center!important;
-}
-/* Expanded form remains usable; only collapsed shell is squeezed. */
-#recordDetails[open] > .inside{
-  padding-top:12px!important;
-}
-</style>
-
-
-<style id="phoenix-33-container-squeeze">
-/* Phoenix 17 — remove dead space, not usability. */
-
-/* Whole Find card */
-.ss-find-card,.find.card,#findCard{
-  padding-top:8px!important;
-  padding-bottom:8px!important;
-}
-.ss-find-card .section-head,.find.card .section-head{
-  margin:0 0 4px!important;
-  padding:0!important;
-}
-.ss-find-card h1,.find.card h1{
-  margin:0 0 5px!important;
-  line-height:1!important;
-}
-.ss-find-card .form-grid,.find.card .form-grid{
-  gap:5px!important;
-  margin-top:0!important;
-}
-.ss-find-card .ss-address-row,.find.card .ss-address-row{
-  margin-top:5px!important;
-}
-.ss-find-primary,button[onclick*="ssFindDestination"]{
-  margin-top:5px!important;
-  margin-bottom:0!important;
-}
-.phoenix-compact-record{
-  margin-top:5px!important;
-  margin-bottom:0!important;
-}
-
-/* Whole collapsed Handover card */
-#reminderCard{
-  padding-top:9px!important;
-  padding-bottom:9px!important;
-}
-#reminderCard .section-head{
-  margin:0 0 5px!important;
-  padding:0!important;
-}
-#reminderCard .section-head h2{margin:0 0 2px!important}
-#reminderCard .section-head p{margin:0!important;line-height:1.15!important}
-#recordDetails{margin:6px 0 0!important}
-#recordDetails > summary{
-  min-height:48px!important;
-  padding:8px 12px!important;
-}
-
-/* Keyboard-open: collapse only decorative heading space.
-   Inputs/buttons keep the Phoenix 15 dimensions. */
-.ss-find-card:focus-within .section-head,
-.find.card:focus-within .section-head{
-  margin-bottom:2px!important;
-}
-.ss-find-card:focus-within h1,
-.find.card:focus-within h1{
-  margin-bottom:3px!important;
-}
-</style>
-
-
-<style id="phoenix-33-real-containers">
-/* Exact containers found in Phoenix markup. */
-
-/* OUTER Find box */
-.ss-home-shell{
-  padding:10px 12px 10px!important;
-  margin-bottom:8px!important;
-  border-radius:20px!important;
-}
-.ss-home-kicker{margin:0!important;line-height:1.1!important}
-.ss-home-title{
-  margin:3px 0 7px!important;
-  line-height:1!important;
-}
-.ss-find-card{
-  padding:8px!important;
-}
-.ss-find-card .ss-field{margin-top:5px!important}
-.ss-find-card > .ss-field:first-child{margin-top:0!important}
-.ss-address-row{gap:6px!important;margin-top:5px!important}
-.ss-find-primary{margin-top:6px!important}
-.ss-secondary,.phoenix-compact-record{margin-top:5px!important;margin-bottom:0!important}
-
-/* OUTER Handover box: actual element is #reminderCard.card */
-#reminderCard.card{
-  padding:10px 12px!important;
-  margin-top:8px!important;
-  margin-bottom:8px!important;
-}
-#reminderCard > .section-head{margin:0 0 6px!important}
-#reminderCard > .section-head h2{margin:0 0 2px!important;line-height:1.05!important}
-#reminderCard > .section-head p{margin:0!important;line-height:1.18!important}
-#recordDetails{margin:6px 0 0!important}
-#recordDetails > summary{min-height:46px!important;padding:7px 10px!important}
-
-/* Do not compress the opened Handover form itself. */
-#recordDetails[open] > .inside{padding-top:12px!important}
-</style>
-
-
-<style id="phoenix-33-brutal-mobile">
-@media (max-width:700px){
-  /* Find card: function first */
-  .ss-home-shell{
-    padding:6px 8px!important;
-    margin:4px 8px 6px!important;
-    border-radius:16px!important;
-  }
-  .ss-home-kicker{
-    font-size:13px!important;
-    line-height:1!important;
-    margin:0 0 2px!important;
-    letter-spacing:1.5px!important;
-  }
-  .ss-home-title{
-    font-size:30px!important;
-    line-height:.95!important;
-    margin:0 0 5px!important;
-  }
-  .ss-find-card{
-    padding:5px!important;
-    gap:4px!important;
-  }
-  #huntPostcode,#doorNumber,#manualAddress{
-    min-height:48px!important;
-    height:48px!important;
-    padding-top:6px!important;
-    padding-bottom:6px!important;
-  }
-  .ss-address-row{gap:5px!important;margin-top:4px!important}
-  .ss-find-primary,button[onclick*="ssFindDestination"]{
-    min-height:48px!important;
-    height:48px!important;
-    margin-top:5px!important;
-    padding:5px 10px!important;
-  }
-  .phoenix-compact-record,.ss-secondary{
-    min-height:44px!important;
-    margin-top:4px!important;
-    padding:5px 10px!important;
-  }
-
-  /* Handover collapsed: one compact operational strip */
-  #reminderCard.card{
-    padding:6px 8px!important;
-    margin:5px 8px!important;
-    border-radius:14px!important;
-  }
-  #reminderCard > .section-head{margin:0 0 3px!important}
-  #reminderCard > .section-head h2{
-    font-size:20px!important;line-height:1!important;margin:0!important;
-  }
-  #reminderCard > .section-head p{
-    font-size:12px!important;line-height:1.05!important;margin:2px 0 0!important;
-  }
-  #recordDetails{margin:4px 0 0!important}
-  #recordDetails > summary{
-    min-height:42px!important;padding:5px 8px!important;
-  }
-
-  /* Keyboard open: branding/heading yields space to the job controls */
-  .ss-home-shell:focus-within .ss-home-kicker{display:none!important}
-  .ss-home-shell:focus-within .ss-home-title{
-    font-size:22px!important;
-    margin-bottom:3px!important;
-  }
-}
-</style>
-
-
-<style id="phoenix-33-mobile-authority">
-/* PHOENIX 20 — one compact operational authority. */
-.ss-home-shell{
-  padding:6px 8px!important;
-  margin:4px 0 6px!important;
-  border-radius:15px!important;
-}
-.ss-home-shell:before{display:none!important}
-.ss-home-title{
-  font-size:24px!important;
-  line-height:1!important;
-  margin:0 0 5px!important;
-}
-.ss-find-card{
-  padding:0!important;
-  margin:0!important;
-  box-shadow:none!important;
-}
-.ss-find-card .ss-field,
-.ss-address-row .ss-field{
-  margin-top:4px!important;
-}
-.ss-address-row{
-  gap:5px!important;
-  margin-top:0!important;
-}
-#huntPostcode,#doorNumber,#manualAddress{
-  min-height:44px!important;
-  height:44px!important;
-  padding:5px 9px!important;
-  border-radius:9px!important;
-  font-size:14px!important;
-}
-.ss-find-primary{
-  min-height:44px!important;
-  height:44px!important;
-  margin-top:5px!important;
-  padding:4px 8px!important;
-  border-radius:10px!important;
-}
-.ss-secondary.phoenix-compact-record{
-  min-height:40px!important;
-  height:40px!important;
-  margin-top:4px!important;
-  padding:3px 8px!important;
-  border-radius:9px!important;
-}
-#verifiedFirstPanel{margin-top:5px!important}
-
-/* Handover collapsed footprint */
-#reminderCard.card{
-  padding:7px 8px!important;
-  margin:5px 0!important;
-  border-radius:13px!important;
-}
-#reminderCard>.section-head{margin:0 0 3px!important}
-#reminderCard>.section-head h2{
-  font-size:17px!important;line-height:1!important;margin:0!important;
-}
-#reminderCard>.section-head p{
-  font-size:10px!important;line-height:1.1!important;margin:2px 0 0!important;
-}
-#recordDetails{margin:3px 0 0!important}
-#recordDetails>summary{
-  min-height:38px!important;
-  padding:4px 8px!important;
-}
-
-/* Old four instruction accordions stay off the Find page. */
-#reminderCard > details:not(#recordDetails){display:none!important}
-#reminderCard > div[style*="height:8px"]{display:none!important}
-</style>
-
-
-<style id="phoenix-33-tagline-swap">
-.ss-home-kicker{
-  display:block!important;
-  font-size:15px!important;
-  line-height:1!important;
-  margin:2px 2px 7px!important;
-  letter-spacing:1.8px!important;
-  font-weight:900!important;
-}
-</style>
-
-
-<style id="phoenix-33-handover-strip">
-/* Handover is now one operational control on Find. */
-#reminderCard.card{
-  padding:5px!important;
-  margin:5px 0!important;
-}
-#recordDetails{
-  margin:0!important;
-}
-#recordDetails>summary{
-  min-height:42px!important;
-  margin:0!important;
-  padding:6px 10px!important;
-  font-size:15px!important;
-  line-height:1!important;
-}
-</style>
-
-
-<style id="phoenix-33-reminder-exorcism">
-/* No Reminder control survives in colleague-facing More UI. */
-#ssPhoenixMore details:not(#ssPhoenixHowTo){display:none!important}
-#ssPhoenixMore #ssPhoenixHowTo{display:block!important}
-</style>
-
-
-<style id="phoenix-33-handover-authority">
-/* Page 3 — Handover: compact field-first layout. */
-#recordDetails[open]{
-  padding-bottom:4px!important;
-}
-#recordDetails[open] > summary{
-  min-height:42px!important;
-  margin-bottom:7px!important;
-}
-#recordDetails[open] .inside{
-  padding:6px 2px 4px!important;
-}
-#recordDetails[open] .inside > *{
-  margin-top:7px!important;
-  margin-bottom:7px!important;
-}
-#recordDetails[open] label{
-  margin-bottom:3px!important;
-  line-height:1.15!important;
-}
-#recordDetails[open] input,
-#recordDetails[open] select,
-#recordDetails[open] textarea{
-  min-height:44px!important;
-  padding:8px 10px!important;
-  border-radius:9px!important;
-}
-#recordDetails[open] textarea{
-  min-height:76px!important;
-}
-#recordDetails[open] button{
-  min-height:44px!important;
-  border-radius:9px!important;
-}
-#recordDetails[open] .hint,
-#recordDetails[open] .small,
-#recordDetails[open] small{
-  line-height:1.2!important;
-  margin-top:2px!important;
-  margin-bottom:4px!important;
-}
-</style>
-
-
-<style id="phoenix-33-handover-compression">
-/* Preserve P27 Handover design; remove vertical air. */
-#recordDetails[open] .inside{
-  padding:4px 2px!important;
-}
-#recordDetails[open] .inside > *{
-  margin-top:5px!important;
-  margin-bottom:5px!important;
-}
-#recordDetails[open] label{
-  margin:0 0 2px!important;
-}
-
-/* Known property fields: compact once Find has supplied their values. */
-#recordDetails[open] input{
-  min-height:40px!important;
-  height:40px!important;
-  padding:5px 9px!important;
-}
-#recordDetails[open] select{
-  min-height:42px!important;
-  height:42px!important;
-  padding:5px 9px!important;
-}
-
-/* Writing areas start compact, but grow as the colleague types. */
-#recordDetails[open] textarea{
-  min-height:58px!important;
-  height:58px;
-  padding:7px 9px!important;
-  line-height:1.25!important;
-  overflow-y:hidden!important;
-}
-
-/* Photo section: retain both camera/file routes, remove wasted gaps. */
-#recordDetails[open] button{
-  min-height:42px!important;
-}
-#recordDetails[open] .hint,
-#recordDetails[open] .small,
-#recordDetails[open] small{
-  margin:2px 0 3px!important;
-  line-height:1.15!important;
-}
-</style>
-<script id="phoenix-33-autogrow">
-(function(){
- function grow(t){
-   if(!t || t.tagName!=='TEXTAREA') return;
-   t.style.height='58px';
-   t.style.height=Math.max(58,t.scrollHeight)+'px';
- }
- function wire(){
-   var root=document.getElementById('recordDetails');
-   if(!root) return;
-   root.querySelectorAll('textarea').forEach(function(t){
-     if(t.dataset.p28Grow) return;
-     t.dataset.p28Grow='1';
-     t.addEventListener('input',function(){grow(t)});
-     grow(t);
-   });
- }
- document.addEventListener('DOMContentLoaded',wire);
- document.addEventListener('toggle',function(e){
-   if(e.target && e.target.id==='recordDetails' && e.target.open) setTimeout(wire,0);
- },true);
-})();
-</script>
-
-
-<style id="phoenix-33-handover-brutal">
-/* Exact Handover controls — no generic guessing. */
-#postcode,#address{
-  min-height:36px!important;height:36px!important;
-  padding:4px 8px!important;margin:0!important;
-  font-size:16px!important;
-}
-#observedBy,#localSource{
-  min-height:38px!important;height:38px!important;
-  padding:3px 8px!important;margin:0!important;
-  font-size:16px!important;
-}
-#accessDirections,#notes{
-  min-height:52px!important;height:52px!important;
-  padding:6px 8px!important;margin:0!important;
-  line-height:1.2!important;overflow-y:hidden!important;
-}
-/* Compress labels and field wrappers around the exact controls. */
-#recordDetails[open] label{margin:3px 0 2px!important;font-size:14px!important;line-height:1!important}
-#recordDetails[open] .inside{padding-top:2px!important}
-#recordDetails[open] .inside > *{margin-top:4px!important;margin-bottom:4px!important}
-</style>
-<script id="phoenix-33-exact-autogrow">
-(function(){
- const ids=['notes'];
- function grow(el){
-   if(!el)return;
-   el.style.setProperty('height','52px','important');
-   el.style.setProperty('height',Math.max(52,el.scrollHeight)+'px','important');
- }
- function wire(){
-   ids.forEach(function(id){
-     var el=document.getElementById(id); if(!el)return;
-     if(!el.dataset.p29Grow){
-       el.dataset.p29Grow='1';
-       el.addEventListener('input',function(){grow(el)});
-     }
-     grow(el);
-   });
- }
- document.addEventListener('DOMContentLoaded',wire);
- document.addEventListener('toggle',function(e){
-   if(e.target&&e.target.id==='recordDetails'&&e.target.open)setTimeout(wire,0);
- },true);
-})();
-</script>
-
-
-<style id="phoenix-33-single-notes">
-/* One written handover field only. Legacy accessDirections stays inert for compatibility. */
-label[for="accessDirections"], #accessDirections{
-  display:none!important;
-}
-#notes{
-  min-height:52px!important;
-  height:52px!important;
-  padding:6px 8px!important;
-  overflow-y:hidden!important;
-}
-</style>
-
-
-<style id="phoenix-33-handover-polish">
-/* Final Handover visual hierarchy */
-#notes::placeholder{font-size:14px!important;line-height:1.25!important;opacity:.68!important}
-#recordDetails .photoTitle,
-#recordDetails [class*="photo-title"]{line-height:1.08!important}
-
-/* Optional photos: compact, clearly secondary. */
-#extraPhotosDetails,
-#recordDetails details:has(summary[id*="extra" i]),
-#recordDetails details:has(summary[class*="extra" i]){
-  margin-top:8px!important;margin-bottom:8px!important;
-}
-#extraPhotosDetails > summary,
-#recordDetails details:has(summary[id*="extra" i]) > summary,
-#recordDetails details:has(summary[class*="extra" i]) > summary{
-  min-height:42px!important;padding:8px 12px!important;
-}
-
-/* PIN VERIFIED remains the primary field outcome. */
-#detailsFoundBtn{min-height:58px!important;margin-bottom:0!important}
-
-/* NOT FOUND is exceptional: clean safety separation + secondary treatment. */
-#detailsNotFoundBtn,
-#notFoundBtn{
-  margin-top:24px!important;
-  min-height:52px!important;
-  background:transparent!important;
-  border:2px solid rgba(255,255,255,.34)!important;
-  color:#fff!important;
-  box-shadow:none!important;
-}
-</style>
-<script id="phoenix-33-copy-polish">
-(function(){
- function polish(){
-   /* Source variants: normalize visible photo copy without touching camera/file logic. */
-   document.querySelectorAll('#recordDetails *').forEach(function(el){
-     if(el.children.length===0){
-       var t=(el.textContent||'').trim();
-       if(/^Photo\s*[—-]\s*property\s*\/\s*entrance/i.test(t) || /^Photo\s*[—-]\s*property/i.test(t)){
-         el.textContent='Property photo · Required';
-       }
-       if(t==='No photo added') el.textContent='No photo added';
-     }
-   });
- }
- document.addEventListener('DOMContentLoaded',polish);
- document.addEventListener('toggle',function(e){
-   if(e.target&&e.target.id==='recordDetails'&&e.target.open)setTimeout(polish,0);
- },true);
-})();
-</script>
-
-
-<style id="phoenix-33-notfound-authority">
-#ssNotFoundSafetyGap{height:28px!important}
-#ssCanonicalNotFound{
- width:100%!important;min-height:52px!important;
- background:transparent!important;color:#fff!important;
- border:2px solid rgba(255,255,255,.34)!important;
- border-radius:12px!important;font:inherit!important;font-weight:900!important;
- box-shadow:none!important;margin:0!important;
-}
-</style>
-<script id="phoenix-33-render-authority">
-(function(){
- function normalize(){
-   var rd=document.getElementById('recordDetails');
-   if(!rd)return;
-
-   /* Remove any inherited/dynamically-rendered locate-property dropdown. */
-   rd.querySelectorAll('details').forEach(function(d){
-     var sm=d.querySelector(':scope > summary');
-     var t=(sm&&sm.textContent||'').replace(/\s+/g,' ').trim().toLowerCase();
-     if(t.indexOf("couldn")===0 && t.indexOf('locate the property')>=0) d.remove();
-   });
-
-   /* Belt-and-braces: Access/directions is no longer a colleague-facing field. */
-   rd.querySelectorAll('label').forEach(function(l){
-     if((l.textContent||'').trim().toLowerCase()==='access / directions'){
-       var wrap=l.closest('.full')||l.parentElement;
-       if(wrap && !wrap.querySelector('#accessDirections[type="hidden"]')) wrap.remove();
-     }
-   });
-
-   /* Normalize any legacy photo copy that another layer tries to paint. */
-   rd.querySelectorAll('*').forEach(function(el){
-     if(el.children.length)return;
-     var t=(el.textContent||'').replace(/\s+/g,' ').trim();
-     if(/^Photo\s*[—-]\s*property\s*\/\s*entrance/i.test(t)) el.textContent='Property photo · Required';
-     if(t==='No photo selected yet.') el.textContent='No photo added';
-   });
- }
- document.addEventListener('DOMContentLoaded',function(){
-   normalize();
-   var rd=document.getElementById('recordDetails');
-   if(rd) new MutationObserver(normalize).observe(rd,{childList:true,subtree:true,characterData:true});
- });
- document.addEventListener('toggle',function(e){
-   if(e.target&&e.target.id==='recordDetails'&&e.target.open)setTimeout(normalize,0);
- },true);
-})();
-</script>
-
-
-<style id="phoenix-33-notfound-fix">
-#ssNotFoundSafetyGap{height:28px!important;display:block!important;pointer-events:none!important}
-#ssCanonicalNotFound{
- display:block!important;width:100%!important;min-height:54px!important;
- margin:0!important;padding:12px!important;
- background:transparent!important;color:#fff!important;
- border:2px solid rgba(255,255,255,.38)!important;border-radius:12px!important;
- font:inherit!important;font-weight:900!important;box-shadow:none!important;
-}
-</style>
-<script id="phoenix-33-notfound-render">
-(function(){
- function install(){
-   var rd=document.getElementById('recordDetails');
-   var note=document.getElementById('foundGpsNote');
-   if(!rd||!note)return;
-
-   /* Keep exactly one safety gap + NOT FOUND pair, immediately after confirmation. */
-   rd.querySelectorAll('#ssNotFoundSafetyGap,#ssCanonicalNotFound').forEach(function(x){x.remove()});
-   var gap=document.createElement('div');
-   gap.id='ssNotFoundSafetyGap';
-   gap.setAttribute('aria-hidden','true');
-
-   var btn=document.createElement('button');
-   btn.id='ssCanonicalNotFound';
-   btn.type='button';
-   btn.textContent='NOT FOUND';
-   btn.addEventListener('click',function(){ saveNotFound(); });
-
-   note.insertAdjacentElement('afterend',gap);
-   gap.insertAdjacentElement('afterend',btn);
-
-   /* Final copy cleanup. */
-   rd.querySelectorAll('*').forEach(function(el){
-     if(el.children.length)return;
-     var t=(el.textContent||'').replace(/\s+/g,' ').trim();
-     if(/^Property photo · Required\s*\(1 REQUIRED\)$/i.test(t)) el.textContent='Property photo · Required';
-   });
- }
- document.addEventListener('DOMContentLoaded',install);
- document.addEventListener('toggle',function(e){
-   if(e.target&&e.target.id==='recordDetails'&&e.target.open)setTimeout(install,0);
- },true);
-})();
-</script>
-
 </head>
 <body>
-<div id="ssBuildStamp" data-build="SituSnap-PHOENIX-33" style="display:none">SituSnap-PHOENIX-33</div>
-<div id="offlineBanner" class="offline-banner hidden" role="status" aria-live="polite">No signal — continue offline.</div><div id="celebration" aria-hidden="true"><div class="celebrate-content"><div class="celebrate-title">PIN VERIFIED!</div><div class="celebrate-sub">SituSnap location confirmed</div></div></div><header><div class="brand"><div class="brand-mark" aria-label="SituSnap logo">
-<svg viewBox="0 0 100 100" role="img" aria-hidden="true">
+
+<div aria-live="polite" class="offline-banner hidden" id="offlineBanner" role="status">No signal — continue offline.</div><div aria-hidden="true" id="celebration"><div class="celebrate-content"><div class="celebrate-title">PIN VERIFIED!</div><div class="celebrate-sub">SituSnap location confirmed</div></div></div><header><div class="brand"><div aria-label="SituSnap logo" class="brand-mark">
+<svg aria-hidden="true" role="img" viewbox="0 0 100 100">
 <defs>
-<linearGradient id="ssg2" x1="15" y1="5" x2="82" y2="92" gradientUnits="userSpaceOnUse">
-<stop offset="0" stop-color="#9af25f"/><stop offset=".55" stop-color="#58d878"/><stop offset="1" stop-color="#19a96b"/>
-</linearGradient>
+<lineargradient gradientunits="userSpaceOnUse" id="ssg2" x1="15" x2="82" y1="5" y2="92">
+<stop offset="0" stop-color="#9af25f"></stop><stop offset=".55" stop-color="#58d878"></stop><stop offset="1" stop-color="#19a96b"></stop>
+</lineargradient>
 </defs>
 <!-- white scan brackets -->
-<path d="M9 30V16a7 7 0 0 1 7-7h14 M91 30V16a7 7 0 0 0-7-7H70 M9 70v14a7 7 0 0 0 7 7h14 M91 70v14a7 7 0 0 1-7 7H70"
-fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/>
+<path d="M9 30V16a7 7 0 0 1 7-7h14 M91 30V16a7 7 0 0 0-7-7H70 M9 70v14a7 7 0 0 0 7 7h14 M91 70v14a7 7 0 0 1-7 7H70" fill="none" stroke="#fff" stroke-linecap="round" stroke-width="6"></path>
 <!-- green location pin -->
-<path d="M50 91C44 80 22 66 22 43a28 28 0 1 1 56 0c0 23-22 37-28 48Z" fill="url(#ssg2)"/>
+<path d="M50 91C44 80 22 66 22 43a28 28 0 1 1 56 0c0 23-22 37-28 48Z" fill="url(#ssg2)"></path>
 <!-- white inner lens -->
-<circle cx="50" cy="43" r="19.5" fill="#f8fbff"/>
+<circle cx="50" cy="43" fill="#f8fbff" r="19.5"></circle>
 <!-- landscape -->
-<path d="M31 47 40 39l9 6 9-9 11 12v10H31Z" fill="#176d52"/>
-<path d="M31 50c7-4 12-3 18 1 5 3 9 5 14 1 4-3 7-3 9-2v10H31Z" fill="#5fd36d"/>
+<path d="M31 47 40 39l9 6 9-9 11 12v10H31Z" fill="#176d52"></path>
+<path d="M31 50c7-4 12-3 18 1 5 3 9 5 14 1 4-3 7-3 9-2v10H31Z" fill="#5fd36d"></path>
 <!-- winding white road -->
-<path d="M48 44c5 2 9 4 10 7 1 4-5 5-7 8-2 3 2 6 7 8"
-fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round"/>
-</svg></div><div><div class="brand-name"><span style="color:#fff">Situ</span><span style="color:#69df83">Snap</span></div><div class="tag">WHERE SATNAV STOPS.</div></div></div><div class="menu">☰</div></header>
-<main><div id="breadcrumbsBridge" class="card hidden" style="border:2px solid #69df83;margin-top:12px"><div class="eyebrow">BREADCRUMBS</div><h2 id="bridgeTitle" style="margin:5px 0">Continue</h2><div class="meta" id="bridgeText"></div></div>
-<section class="ss-home-shell" aria-labelledby="ssHomeTitle">
-<div class="ss-home-kicker">FIND IT. SNAP IT. UPLOAD IT.</div>
-
+<path d="M48 44c5 2 9 4 10 7 1 4-5 5-7 8-2 3 2 6 7 8" fill="none" stroke="#fff" stroke-linecap="round" stroke-width="4.2"></path>
+</svg></div><div><div class="brand-name"><span style="color:#fff">Situ</span><span style="color:#69df83">Snap</span></div></div></div><div class="menu">☰</div></header>
+<main><div class="card hidden" id="breadcrumbsBridge" style="border:2px solid #69df83;margin-top:12px"><div class="eyebrow">BREADCRUMBS</div><h2 id="bridgeTitle" style="margin:5px 0">Continue</h2><div class="meta" id="bridgeText"></div></div>
+<section aria-labelledby="ssHomeTitle" class="ss-home-shell">
+<div class="ss-home-kicker">FIND IT. SNAP IT. UPDATE IT.</div>
 <div class="ss-find-card">
-  <div class="ss-field" style="margin-top:0">
-    <input id="huntPostcode" aria-label="Postcode" placeholder="POSTCODE" autocomplete="off" autocapitalize="characters" spellcheck="false" oninput="queuePostcodeLookup();syncRecordPostcode();bcQueueFromSimpleInputs()">
-  </div>
-
-  <div id="verifiedFirstPanel" class="hidden" style="padding:10px;background:#eef8f1;border:1px solid #b9dfc4">
-    <div style="font-weight:950;color:#145a35;margin-bottom:6px">✓ PREVIOUSLY VERIFIED</div>
-    <div id="verifiedFirstList"></div>
-  </div>
-
-  <div class="ss-address-row">
-    <div class="ss-field">
-      <input id="doorNumber" aria-label="Number" type="text" inputmode="text" autocomplete="off" placeholder="NUMBER" oninput="syncManualAddress();bcQueueFromSimpleInputs();render()">
-    </div>
-    <div class="ss-field">
-      <div class="street-picker">
-        <input id="manualAddress" aria-label="House name or street" type="text" inputmode="text" enterkeyhint="done" autocomplete="off" autocapitalize="words" placeholder="HOUSE NAME OR STREET" oninput="syncManualAddress();queueMainStreetSearch();bcQueueFromSimpleInputs();render()" onfocus="openMainStreetResults()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();ssFindDestination();}">
-        <div id="mainStreetResults" class="street-picker-menu hidden"></div>
-      </div>
-    </div>
-  </div>
-
-  <button class="ss-find-primary" type="button" onclick="ssFindDestination()">FIND DESTINATION</button>
-  <div id="ssFindResult" class="hidden" style="margin-top:10px;padding:13px;border-radius:13px;background:#eaf6ee;border:1px solid #b9dfc4;color:#163b28">
-    <div id="ssFindResultKicker" style="font-size:10px;font-weight:950;letter-spacing:.7px;color:#28734a">DESTINATION</div>
-    <div id="ssFindResultTitle" style="font-size:18px;font-weight:1000;margin-top:3px">Checking…</div>
-    <div id="ssFindResultText" style="font-size:12px;font-weight:750;line-height:1.4;margin-top:4px"></div>
-    <button id="ssNavigateBtn" type="button" class="hidden" onclick="ssNavigateFound()" style="width:100%;min-height:50px;margin-top:11px;border-radius:11px;background:#145a35;color:#fff;font-weight:1000">NAVIGATE TO PIN</button>
-  </div>
-
-  <!-- Existing engine controls stay in the DOM because current resolver code updates them. -->
-  <div class="ss-engine-hidden" aria-hidden="true">
-    <button id="googleMapsBtn" type="button" onclick="googleMapsNow()" disabled>GOOGLE MAPS — UNVERIFIED</button>
-    <div id="bcMainWrap"><button id="bcMainBtn" type="button" onclick="openBreadcrumbsRoute()" disabled>BREADCRUMBS</button></div>
-    <div id="bcQuickStatus">Enter property name</div>
-  </div>
-
-  <div id="postcodeChoices" class="postcode-choices hidden">
-    <label for="streetChoice">DESTINATIONS FOR THIS POSTCODE</label>
-    <div class="street-picker">
-      <button type="button" id="streetPickerTrigger" class="street-picker-trigger" onclick="toggleStreetPicker()">Looking up locations…</button>
-      <div id="streetPickerMenu" class="street-picker-menu hidden"></div>
-      <select id="streetChoice" class="hidden" onchange="syncSelectedAddress()"><option value="">Looking up locations…</option></select>
-    </div>
-  </div>
+<div class="ss-field" style="margin-top:0">
+<input aria-label="Postcode" autocapitalize="characters" autocomplete="off" id="huntPostcode" oninput="queuePostcodeLookup();syncRecordPostcode();bcQueueFromSimpleInputs()" placeholder="POSTCODE" spellcheck="false"/>
 </div>
-
-
+<div class="hidden" id="verifiedFirstPanel" style="padding:10px;background:#eef8f1;border:1px solid #b9dfc4">
+<div style="font-weight:950;color:#145a35;margin-bottom:6px">✓ PREVIOUSLY VERIFIED</div>
+<div id="verifiedFirstList"></div>
+</div>
+<div class="ss-address-row">
+<div class="ss-field">
+<input aria-label="Number" autocomplete="off" id="doorNumber" inputmode="text" oninput="syncManualAddress();bcQueueFromSimpleInputs();render()" placeholder="NUMBER" type="text"/>
+</div>
+<div class="ss-field">
+<div class="street-picker">
+<input aria-label="House name or street" autocapitalize="words" autocomplete="off" enterkeyhint="done" id="manualAddress" inputmode="text" onfocus="openMainStreetResults()" oninput="syncManualAddress();queueMainStreetSearch();bcQueueFromSimpleInputs();render()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();ssFindDestination();}" placeholder="HOUSE NAME OR STREET" type="text"/>
+<div class="street-picker-menu hidden" id="mainStreetResults"></div>
+</div>
+</div>
+</div>
+<button class="ss-find-primary" onclick="ssFindDestination()" type="button">FIND DESTINATION</button>
+<div class="hidden" id="ssFindResult" style="margin-top:10px;padding:13px;border-radius:13px;background:#eaf6ee;border:1px solid #b9dfc4;color:#163b28">
+<div id="ssFindResultKicker" style="font-size:10px;font-weight:950;letter-spacing:.7px;color:#28734a">DESTINATION</div>
+<div id="ssFindResultTitle" style="font-size:18px;font-weight:1000;margin-top:3px">Checking…</div>
+<div id="ssFindResultText" style="font-size:12px;font-weight:750;line-height:1.4;margin-top:4px"></div>
+<button class="hidden" id="ssNavigateBtn" onclick="ssNavigateFound()" style="width:100%;min-height:50px;margin-top:11px;border-radius:11px;background:#145a35;color:#fff;font-weight:1000" type="button">NAVIGATE TO PIN</button>
+</div>
+<!-- Existing engine controls stay in the DOM because current resolver code updates them. -->
+<div aria-hidden="true" class="ss-engine-hidden">
+<button disabled="" id="googleMapsBtn" onclick="googleMapsNow()" type="button">GOOGLE MAPS — UNVERIFIED</button>
+<div id="bcMainWrap"><button disabled="" id="bcMainBtn" onclick="openBreadcrumbsRoute()" type="button">BREADCRUMBS</button></div>
+<div id="bcQuickStatus">Enter property name</div>
+</div>
+<div class="postcode-choices hidden" id="postcodeChoices">
+<label for="streetChoice">DESTINATIONS FOR THIS POSTCODE</label>
+<div class="street-picker">
+<button class="street-picker-trigger" id="streetPickerTrigger" onclick="toggleStreetPicker()" type="button">Looking up locations…</button>
+<div class="street-picker-menu hidden" id="streetPickerMenu"></div>
+<select class="hidden" id="streetChoice" onchange="syncSelectedAddress()"><option value="">Looking up locations…</option></select>
+</div>
+</div>
+</div>
 </section>
-<section id="huntPanel" class="card hidden"><div class="section-head"><div><h2>Destination</h2></div><span class="pill">ACTIVE</span></div><div class="location"><div class="pin">📍</div><div><b id="huntPc"></b><span id="targetStatus">Checking destination…</span></div></div><div id="targetBox" class="record" style="margin-top:9px"><h3>🎯 SituSnap target</h3><div class="meta" id="targetDetails">Waiting for postcode lookup.</div><div class="precision"><div class="precision-top"><div class="precision-title">DESTINATION ENGINE</div><span class="precision-badge" id="precisionBadge">CHECKING</span></div><div class="precision-bar"><div class="precision-fill" id="precisionFill"></div></div><div class="small-note" id="precisionNote">SituSnap will use the best available postcode coordinate, then measure the phone's live GPS against it. The field observation confirms the real-world location.</div></div></div><div id="liveHunt" class="record hidden"><h3>Live hunt</h3>
-<div id="bcResolveCard" class="bc-resolve">
-  <div class="bc-kicker">Resolved by Breadcrumbs</div>
-  <div id="bcResolveTitle" class="bc-title">Ready when you are</div>
-  <div id="bcResolveMeta" class="bc-meta">Property + postcode are checked against the secure Breadcrumbs resolver.</div>
-  <div id="bcResolveState" class="bc-state" style="display:none"></div>
-  <div id="bcAlternativeActions" style="display:none"></div>
-  <button id="bcResolveAction" class="bc-action investigate" type="button" style="display:none">INVESTIGATE →</button>
+<section class="card hidden" id="huntPanel"><div class="section-head"><div><h2>Destination</h2></div><span class="pill">ACTIVE</span></div><div class="location"><div class="pin">📍</div><div><b id="huntPc"></b><span id="targetStatus">Checking destination…</span></div></div><div class="record" id="targetBox" style="margin-top:9px"><h3>🎯 SituSnap target</h3><div class="meta" id="targetDetails">Waiting for postcode lookup.</div><div class="precision"><div class="precision-top"><div class="precision-title">DESTINATION ENGINE</div><span class="precision-badge" id="precisionBadge">CHECKING</span></div><div class="precision-bar"><div class="precision-fill" id="precisionFill"></div></div><div class="small-note" id="precisionNote">SituSnap will use the best available postcode coordinate, then measure the phone's live GPS against it. The field observation confirms the real-world location.</div></div></div><div class="record hidden" id="liveHunt"><h3>Live hunt</h3>
+<div class="bc-resolve" id="bcResolveCard">
+<div class="bc-kicker">Resolved by Breadcrumbs</div>
+<div class="bc-title" id="bcResolveTitle">Ready when you are</div>
+<div class="bc-meta" id="bcResolveMeta">Property + postcode are checked against the secure Breadcrumbs resolver.</div>
+<div class="bc-state" id="bcResolveState" style="display:none"></div>
+<div id="bcAlternativeActions" style="display:none"></div>
+<button class="bc-action investigate" id="bcResolveAction" style="display:none" type="button">INVESTIGATE →</button>
 </div>
-<div class="live-grid"><div class="metric"><b id="distanceMetric">—</b><span>From target</span></div><div class="metric"><b id="accuracyMetric">—</b><span>GPS accuracy</span></div></div><div class="meta" id="liveStatus" style="margin-top:9px">Waiting for GPS…</div></div><div class="quick" id="huntActions" style="margin-top:10px;display:flex;gap:10px"><button id="retryGpsBtn" type="button" onclick="startLiveHunt()" style="display:none;flex:1;padding:12px 10px;border-radius:10px;border:0;font-weight:900;background:#145a35;color:#fff">RETRY GPS</button></div></section>
+<div class="live-grid"><div class="metric"><b id="distanceMetric">—</b><span>From target</span></div><div class="metric"><b id="accuracyMetric">—</b><span>GPS accuracy</span></div></div><div class="meta" id="liveStatus" style="margin-top:9px">Waiting for GPS…</div></div><div class="quick" id="huntActions" style="margin-top:10px;display:flex;gap:10px"><button id="retryGpsBtn" onclick="startLiveHunt()" style="display:none;flex:1;padding:12px 10px;border-radius:10px;border:0;font-weight:900;background:#145a35;color:#fff" type="button">RETRY GPS</button></div></section>
 <section class="card" id="reminderCard">
-</div>
-<details class="details" id="recordDetails"><summary>✓ UPDATE FOUND / NOT FOUND PROPERTY</summary><div class="inside"><div class="form-grid">
-<div><label>Postcode given</label><input id="postcode" placeholder="Enter postcode" autocomplete="off" autocapitalize="characters" spellcheck="false" oninput="syncHuntPostcodeFromRecord();queuePostcodeLookup();render()"></div><div><label>First line of address</label><input id="address" placeholder="" autocomplete="off"></div><input type="hidden" id="street" value=""><div id="recordPostcodeChoices" class="hidden"><div id="recordStreetPickerMenu" class="hidden"></div><div id="streetLiveResults" class="hidden"></div><div id="streetMatchHint" class="hidden"></div></div>
 
-<input type="hidden" id="type" value="Property / building"><input type="hidden" id="updateStatus" value="New location found"><div><label>Observed by</label><select id="observedBy"><option>MGroup</option><option>Courier partner</option><option>Verified contributor</option><option>Utility partner</option><option>Emergency service</option><option>Professional survey</option></select></div>
-
-<input type="hidden" id="result" value="Location verified">
-<input type="hidden" id="accessDirections" value="">
+<details class="details" id="recordDetails"><summary>Handover notes</summary><div class="inside"><div class="form-grid">
+<div><label>Postcode given</label><input autocapitalize="characters" autocomplete="off" id="postcode" oninput="syncHuntPostcodeFromRecord();queuePostcodeLookup();render()" placeholder="Enter postcode" spellcheck="false"/></div><div><label>First line of address</label><input autocomplete="off" id="address" placeholder=""/></div><input id="street" type="hidden" value=""/><div class="hidden" id="recordPostcodeChoices"><div class="hidden" id="recordStreetPickerMenu"></div><div class="hidden" id="streetLiveResults"></div><div class="hidden" id="streetMatchHint"></div></div>
+<input id="type" type="hidden" value="Property / building"/><input id="updateStatus" type="hidden" value="New location found"/><div><label>Observed by</label><select id="observedBy"><option>MGroup</option><option>Courier partner</option><option>Verified contributor</option><option>Utility partner</option><option>Emergency service</option><option>Professional survey</option></select></div>
+<input id="result" type="hidden" value="Location verified"/>
+<input id="accessDirections" type="hidden" value=""/>
 <div class="full"><label>Assisted</label><select id="localSource"><option>Not applicable</option><option>Local resident</option><option>Postie / delivery driver</option><option>Other</option></select></div><div class="full"><label>Handover notes</label><textarea id="notes" placeholder="Optional — anything useful for the next visit"></textarea></div>
-
 <div class="full"><label>Property photo · Required</label>
 <div class="small-note" style="margin:0 0 7px">Take a photo now or choose one already taken. Extra photos are optional.</div>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
 <label for="photoCamera" style="margin:0;padding:13px 8px;border-radius:10px;background:#145a35;color:#fff;text-align:center;font-weight:900;cursor:pointer">📷 TAKE PHOTO</label>
 <label for="photo1" style="margin:0;padding:13px 8px;border-radius:10px;background:#26384f;color:#fff;text-align:center;font-weight:900;cursor:pointer">▣ CHOOSE FILE</label>
 </div>
-<input id="photoCamera" type="file" accept="image/*" capture="environment" style="display:none">
-<input id="photo1" type="file" accept="image/*" style="display:none">
-<div id="primaryPhotoStatus" class="small-note" style="margin-top:7px">No photo added</div></div>
-<div class="full"><details class="details" style="margin-top:4px"><summary>＋ Add more photos</summary><div class="inside"><input id="photo2" type="file" accept="image/*" capture="environment" multiple><div class="small-note" style="margin-top:7px">Optional — add approach, gate, landmark or access photos if useful.</div></div></details></div>
-<div class="full"><button class="save" id="detailsFoundBtn" onclick="confirmFoundFromDetails()" disabled style="opacity:.45;filter:saturate(.45);cursor:not-allowed">✓ PIN VERIFIED</button><div class="small-note" id="foundGpsNote" style="margin-top:8px;text-align:center">Confirm when physically at the property.</div><div id="localSaveStatus" class="small-note" style="margin-top:7px;text-align:center;font-weight:900;color:#9ee9ad"></div></div>
+<input accept="image/*" capture="environment" id="photoCamera" style="display:none" type="file"/>
+<input accept="image/*" id="photo1" style="display:none" type="file"/>
+<div class="small-note" id="primaryPhotoStatus" style="margin-top:7px">No photo added</div></div>
+<div class="full"><details class="details" style="margin-top:4px"><summary>＋ Add more photos</summary><div class="inside"><input accept="image/*" capture="environment" id="photo2" multiple="" type="file"/><div class="small-note" style="margin-top:7px">Optional — add approach, gate, landmark or access photos if useful.</div></div></details></div>
+<div class="full"><button class="save" disabled="" id="detailsFoundBtn" onclick="confirmFoundFromDetails()" style="opacity:.45;filter:saturate(.45);cursor:not-allowed">✓ PIN VERIFIED</button><div class="small-note" id="foundGpsNote" style="margin-top:8px;text-align:center">Confirm when physically at the property.</div><div class="small-note" id="localSaveStatus" style="margin-top:7px;text-align:center;font-weight:900;color:#9ee9ad"></div></div>
 <div class="full"></div></div></div></details>
 <div style="height:8px"></div>
 <details class="details" id="reminderIdentify"><summary>🏠 Identify the property</summary><div class="inside">Record the number/name, building, entrance, gate or another clear identifier.</div></details>
 <details class="details"><summary>🧭 Record how you found it</summary><div class="inside">Add the road, track, landmark, passage, gate or approach that actually helped you locate it.</div></details>
 <details class="details"><summary>📸 Take useful photos</summary><div class="inside">Capture the approach and the property/entrance so the next person can recognise the correct place.</div></details>
 <details class="details"><summary>⚠️ Add anything important</summary><div class="inside">Access restrictions, hazards, corrections and anything else that would save the next person time.</div></details></section>
-
 <section class="card" id="recordsCard"><div class="section-head"><div><h2>Verified locations</h2><p class="muted">Previously verified properties for this postcode.</p></div></div><div id="records"></div></section>
+</main><nav class="bottom"><button class="nav active" onclick="window.scrollTo({top:0,behavior:'smooth'})"><span class="ico">⌂</span>Find</button><button class="nav" onclick="document.getElementById('recordsCard').scrollIntoView({behavior:'smooth'})"><span class="ico">↻</span>Verified</button><button class="nav" id="ssMoreNavBtn" onclick="ssShowMore()" style="position:relative"><span class="ico">☰</span>More<span aria-label="Update available" class="hidden" id="ssUpdateBadge">UPDATE</span></button></nav>
 
-</main><nav class="bottom"><button class="nav active" onclick="window.scrollTo({top:0,behavior:'smooth'})"><span class="ico">⌂</span>Find</button><button class="nav" onclick="document.getElementById('recordsCard').scrollIntoView({behavior:'smooth'})"><span class="ico">↻</span>Verified</button><button id="ssMoreNavBtn" class="nav" onclick="ssShowMore()" style="position:relative"><span class="ico">☰</span>More<span id="ssUpdateBadge" class="hidden" aria-label="Update available">UPDATE</span></button></nav>
-<div id="ssMorePanel" class="hidden" style="position:fixed;inset:0;z-index:900;background:rgba(2,9,20,.72);padding:90px 16px;overflow:auto" onclick="if(event.target===this)ssHideMore()"><div style="max-width:520px;margin:auto;background:#0a1934;border:1px solid rgba(126,177,235,.25);border-radius:18px;padding:18px"><div style="display:flex;justify-content:space-between;align-items:center"><div><b>SituSnap</b><div id="ssVisibleVersion" style="font-size:12px;color:#a9bad0">Phoenix 18 · isolated test</div></div><button type="button" onclick="ssHideMore()" style="min-height:40px;padding:6px 12px;border-radius:10px;background:#26384f;color:#fff">CLOSE</button></div><div id="ssUpdateStatus" style="margin-top:16px;padding:13px;border-radius:12px;background:#103d29;color:#dff8e3;font-size:12px;font-weight:850">Checking for updates…</div><button id="ssUpdateBtn" type="button" class="hidden" onclick="ssApplyUpdate()" style="width:100%;margin-top:10px;padding:13px;border-radius:12px;background:#69df83;color:#071a33;font-weight:950">UPDATE AVAILABLE — TAP TO UPDATE</button></div></div>
 <script>
 let gps=null,huntPostcode="",huntAddressQuery="",target=null,watchId=null,postcodeTimer=null,editingRecordId=null;
 let ssFindGeneration=0;
@@ -3021,8 +2050,6 @@ window.addEventListener('pageshow',()=>{
 // V1.0.5g: resolver is intentionally not fired from generic input/change events.
 // Explicit FIND DESTINATION is the only front-page resolver action.
 </script>
-
-
 <script>
 /* SituSnap × Breadcrumbs V8 — verification learning engine.
    Prototype store is local-only. Schema is deliberately ready for later shared sync. */
@@ -3212,8 +2239,6 @@ localStorage.setItem=function(key,value){
   }
 })();
 </script>
-
-
 <script>
 /* V9 — cross-device sync boundary.
    Safe prototype: no production sync URL or credentials are embedded.
@@ -3327,8 +2352,6 @@ window.SituSnapSyncTest={
   deviceId:()=>ssDeviceId()
 };
 </script>
-
-
 <script>
 /* V10 — dead-zone durability + idempotent sync. */
 const SS_JOURNAL_KEY='situSnapDurableJournalV1';
@@ -3415,8 +2438,6 @@ window.SituSnapResilienceTest={
   })
 };
 </script>
-
-
 <script>
 /* V11 — engineering crash-test harness. Run with SituSnapCrashTest.run(). */
 window.SituSnapCrashTest={
@@ -3491,8 +2512,6 @@ window.SituSnapCrashTest={
  }
 };
 </script>
-
-
 <script>
 /* V12 shared-store adapter.
    IMPORTANT: endpoint remains intentionally disabled in this candidate.
@@ -3508,8 +2527,6 @@ window.SituSnapSharedStore={
   status(){return {configured:!!SS_SYNC_CONFIG.endpoint,endpoint:SS_SYNC_CONFIG.endpoint}}
 };
 </script>
-
-
 <script>
 /* V13 — offline app-shell boot + colleague-facing connectivity state. */
 (function(){
@@ -3536,11 +2553,9 @@ function ssUpdateVaultStatus(){
 window.addEventListener("pageshow",()=>{try{ssUpdateVaultStatus();render()}catch(e){}});
 setTimeout(()=>{try{ssUpdateVaultStatus()}catch(e){}},100);
 </script>
-
 <script>
 window.addEventListener("load",()=>{if(navigator.onLine){ssVaultRestore().then(()=>ssVaultFlush())}});
 </script>
-
 <script>
 /* V1.0.5q VERIFIED-PATH TRACE — diagnostic only */
 (function(){
@@ -3626,347 +2641,23 @@ window.addEventListener("load",()=>{if(navigator.onLine){ssVaultRestore().then((
 })();
 </script>
 
-<script id="phoenix-33-isolation-adapter">
+
+
+
+
+
+
+
+
+<script id="phoenix-fresh-shell">
 (function(){
-  function clean(){
-    var nav=document.querySelector("nav.bottom");
-    if(nav){
-      nav.style.display="grid";
-      nav.style.gridTemplateColumns="repeat(3,minmax(0,1fr))";
-      nav.style.width="100%";
-    }
-    document.querySelectorAll("#ssUpdateBadge,#ssUpdatePanel,#ssUpdateModal,.update-badge,.update-available")
-      .forEach(function(el){ el.style.display="none"; });
-  }
-  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",clean);
-  else clean();
-  setTimeout(clean,250);
-})();
-</script>
-
-
-<script id="phoenix-33-update-quarantine-adapter">
-(function(){
-  function quarantineUpdateControls(){
-    var more=document.querySelector("#ssMorePanel,#morePanel,#menuPanel");
-    if(!more) return;
-    Array.from(more.querySelectorAll("button,a,[role=button]")).forEach(function(el){
-      var t=(el.textContent||"").replace(/\s+/g," ").trim().toLowerCase();
-      if(t==="update" || t==="update now" || t.indexOf("check for update")!==-1 ||
-         t.indexOf("install update")!==-1 || t.indexOf("app update")!==-1){
-        el.style.display="none";
-        el.setAttribute("aria-hidden","true");
-        el.tabIndex=-1;
-      }
-    });
-    more.querySelectorAll("#ssUpdateBadge,#ssUpdatePanel,#ssUpdateModal,.update-badge,.update-available")
-      .forEach(function(el){el.style.display="none";});
-  }
-  function boot(){
-    quarantineUpdateControls();
-    new MutationObserver(quarantineUpdateControls)
-      .observe(document.body,{childList:true,subtree:true});
-  }
-  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",boot);
-  else boot();
-})();
-</script>
-
-
-<script id="phoenix-33-first-page-cleanup-adapter">
-(function(){
-  function cleanFindInstructions(){
-    var card=document.getElementById("reminderCard");
-    if(!card) return;
-
-    Array.from(card.children).forEach(function(el){
-      if(el.id==="recordDetails") return;
-      var t=(el.textContent||"").replace(/\s+/g," ").trim().toLowerCase();
-      var isInstruction =
-        t.indexOf("identify the property")!==-1 ||
-        t.indexOf("record how you found it")!==-1 ||
-        t.indexOf("take useful photos")!==-1 ||
-        t.indexOf("add anything important")!==-1 ||
-        t.indexOf("more below")!==-1 ||
-        t.indexOf("swipe up")!==-1;
-      if(isInstruction && el.tagName!=="DIV" || isInstruction && !el.classList.contains("section-head")){
-        el.style.display="none";
-      }
-    });
-  }
-  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",cleanFindInstructions);
-  else cleanFindInstructions();
-  setTimeout(cleanFindInstructions,200);
-})();
-</script>
-
-
-<script id="phoenix-33-orphan-prompt-kill">
-(function(){
-  function removeOrphanPrompt(){
-    Array.from(document.querySelectorAll("body *")).forEach(function(el){
-      if(el.children.length>3) return;
-      var t=(el.textContent||"").replace(/\s+/g," ").trim().toUpperCase();
-      if(t==="MORE BELOW — SWIPE UP" || t==="MORE BELOW - SWIPE UP"){
-        el.style.display="none";
-      }
-    });
-  }
-  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",removeOrphanPrompt);
-  else removeOrphanPrompt();
-  setTimeout(removeOrphanPrompt,200);
-})();
-</script>
-
-
-<script id="phoenix-33-handover-bridge">
-(function(){
-  function syncTypedAddressToHandover(){
-    var pc=document.getElementById('huntPostcode');
-    var no=document.getElementById('doorNumber');
-    var addr=document.getElementById('manualAddress');
-    var values={
-      postcode:pc?pc.value.trim():'',
-      number:no?no.value.trim():'',
-      address:addr?addr.value.trim():''
-    };
-    /* Fill only compatible empty handover fields; never invent a verified pin. */
-    var candidates=[
-      ['postcode',['handoverPostcode','recordPostcode','notFoundPostcode']],
-      ['number',['handoverNumber','recordNumber','notFoundNumber']],
-      ['address',['handoverAddress','recordAddress','notFoundAddress','propertyName']]
-    ];
-    candidates.forEach(function(row){
-      var value=values[row[0]];
-      if(!value) return;
-      row[1].forEach(function(id){
-        var el=document.getElementById(id);
-        if(el && !el.value) el.value=value;
-      });
-    });
-  }
-  function enableSingleHandoverDoor(){
-    var d=document.getElementById('recordDetails');
-    if(!d) return;
-    var summary=d.querySelector(':scope > summary');
-    if(summary){
-      summary.removeAttribute('aria-disabled');
-      summary.classList.remove('disabled');
-      summary.style.pointerEvents='auto';
-      summary.addEventListener('click',syncTypedAddressToHandover,true);
-    }
-  }
-  document.addEventListener('DOMContentLoaded',enableSingleHandoverDoor);
-})();
-</script>
-
-
-
-<style id="phoenix-33-more-authority">
-#ssPhoenixMore{
- position:fixed;inset:0;z-index:2147483000;background:#061823;
- padding:18px 16px 100px;overflow:auto;color:#fff;display:none;
-}
-#ssPhoenixMore.open{display:block}
-#ssPhoenixMore .top{
- display:flex;align-items:center;justify-content:space-between;
- min-height:52px;margin:0 0 14px;
-}
-#ssPhoenixMore h2{margin:0;font-size:28px;line-height:1}
-#ssPhoenixMoreClose{
- min-height:42px;padding:7px 12px;border-radius:10px;
- font-size:15px;font-weight:900;
-}
-#ssPhoenixHowTo{
- margin:0;padding:0;border:1px solid rgba(255,255,255,.15);
- border-radius:14px;background:#0b2b38;overflow:hidden;
-}
-#ssPhoenixHowTo summary{
- min-height:54px;padding:14px 16px;cursor:pointer;
- font-size:18px;font-weight:900;list-style:none;
- display:flex;align-items:center;justify-content:space-between;
-}
-#ssPhoenixHowTo summary::-webkit-details-marker{display:none}
-#ssPhoenixHowTo summary .plus{font-size:28px;line-height:1}
-#ssPhoenixHowTo[open] summary .plus{transform:rotate(45deg)}
-#ssPhoenixHowTo .help{padding:0 16px 8px}
-#ssPhoenixHowTo .row{
- padding:11px 0;border-top:1px solid rgba(255,255,255,.10);
- line-height:1.28;font-size:15px;
-}
-#ssPhoenixHowTo .row b{font-size:16px}
-</style>
-<script id="phoenix-33-more-authority-script">
-(function(){
- function buildPhoenixMore(){
-   if(document.getElementById('ssPhoenixMore')) return;
-   var p=document.createElement('section');
-   p.id='ssPhoenixMore';
-   p.setAttribute('aria-hidden','true');
-   p.innerHTML=
-    '<div class="top"><h2>More</h2><button id="ssPhoenixMoreClose" type="button">CLOSE</button></div>'+
-    '<details id="ssPhoenixHowTo">'+
-      '<summary>How to use SituSnap <span class="plus">＋</span></summary>'+
-      '<div class="help">'+
-       '<div class="row">🏠 <b>Identify the property</b><br>Enter the postcode and property details, then check the destination.</div>'+
-       '<div class="row">🧭 <b>Record how you found it</b><br>Add the approach, track or access information another colleague will need.</div>'+
-       '<div class="row">📸 <b>Take useful photos</b><br>Capture evidence that will make the next visit easier.</div>'+
-       '<div class="row">⚠️ <b>Add anything important</b><br>Record hazards or useful handover information.</div>'+
-      '</div>'+
-    '</details>';
-   document.body.appendChild(p);
-   document.getElementById('ssPhoenixMoreClose').onclick=function(){
-      document.getElementById('ssPhoenixHowTo').removeAttribute('open');
-      p.classList.remove('open'); p.setAttribute('aria-hidden','true');
-   };
+ function boot(){
+  var k=document.querySelector('.ss-home-kicker'); if(k)k.textContent='FIND IT. SNAP IT. UPDATE IT.';
+  var s=document.querySelector('#recordDetails>summary'); if(s)s.textContent='Handover notes';
+  var n=document.querySelector('nav.bottom,.bottom'); if(n)n.style.gridTemplateColumns='repeat(3,minmax(0,1fr))';
  }
- document.addEventListener('DOMContentLoaded',function(){
-   buildPhoenixMore();
-   document.addEventListener('click',function(e){
-     var b=e.target.closest && e.target.closest('#ssMoreNavBtn');
-     if(!b) return;
-     e.preventDefault(); e.stopImmediatePropagation();
-     var p=document.getElementById('ssPhoenixMore');
-     document.getElementById('ssPhoenixHowTo').removeAttribute('open');
-     p.classList.add('open'); p.setAttribute('aria-hidden','false');
-   },true);
- });
-})();
-</script>
-
-
-<script id="phoenix-33-found-notes-gate">
-(function(){
- function hasNotes(){
-   var n=document.getElementById('notes');
-   return !!(n && n.value.trim());
- }
- function reinforce(){
-   var n=document.getElementById('notes');
-   if(!n) return;
-   n.required=true;
-   n.setAttribute('aria-required','true');
-   n.placeholder='Required — access road, landmark, entrance, gate, hazard or anything useful for the next visit';
- }
- document.addEventListener('DOMContentLoaded',reinforce);
- document.addEventListener('toggle',function(e){
-   if(e.target&&e.target.id==='recordDetails'&&e.target.open) reinforce();
- },true);
-
- /* Capture PIN VERIFIED attempts only when notes are empty.
-    Existing photo/GPS/other gates continue to run normally when notes exist. */
- document.addEventListener('click',function(e){
-   var b=e.target.closest && e.target.closest('#detailsFoundBtn');
-   if(!b || hasNotes()) return;
-   e.preventDefault();
-   e.stopImmediatePropagation();
-   var n=document.getElementById('notes');
-   if(n){
-     n.setCustomValidity('Add a handover note before PIN VERIFIED.');
-     n.reportValidity();
-     n.focus();
-     setTimeout(function(){n.setCustomValidity('')},1500);
-   }
- },true);
-})();
-</script>
-
-
-<style id="phoenix-35-locked-design">
-/* P35 — restore the locked field design. Presentation only. */
-
-/* Compact approved header: working screen gets the space. */
-header{
-  height:58px!important;
-  min-height:58px!important;
-  padding:0 14px!important;
-}
-header .brand{gap:8px!important}
-header .brand-mark{width:34px!important;height:34px!important}
-header .brand-mark svg{width:34px!important;height:34px!important}
-header .brand-name{font-size:18px!important;line-height:1!important}
-header .tag{display:none!important}
-header .menu{width:38px!important;height:38px!important;font-size:20px!important}
-main{padding-top:10px!important}
-
-/* Locked field tagline. */
-.ss-home-kicker{
-  font-size:15px!important;
-  letter-spacing:1.5px!important;
-  margin:2px 2px 7px!important;
-}
-
-/* Handover: one calm operational control, not a second hero. */
-#reminderCard.card{
-  padding:5px!important;
-  margin:6px 0!important;
-  background:transparent!important;
-  border:0!important;
-  box-shadow:none!important;
-}
-#reminderCard>.section-head{display:none!important}
-#recordDetails{margin:0!important}
-#recordDetails>summary{
-  min-height:44px!important;
-  padding:8px 12px!important;
-  border:1px solid rgba(111,139,160,.32)!important;
-  border-radius:12px!important;
-  background:#082433!important;
-  color:#f7fbff!important;
-  font-size:14px!important;
-  font-weight:900!important;
-}
-
-/* Verified list stays high; records become scan-friendly. */
-#recordsCard.card{
-  padding:12px!important;
-  margin-top:6px!important;
-}
-#recordsCard .section-head{margin-bottom:7px!important}
-#recordsCard .section-head h2{font-size:20px!important}
-#recordsCard .record{
-  padding:10px 12px!important;
-  margin-top:7px!important;
-  border-radius:13px!important;
-}
-#recordsCard .record h3{font-size:15px!important;margin-bottom:4px!important}
-#recordsCard .meta{font-size:10px!important;line-height:1.3!important;margin-top:4px!important}
-#recordsCard .pills{gap:5px!important}
-#recordsCard button{min-height:42px!important}
-
-/* Locked three-button nav. */
-#ssReminderNavBtn{display:none!important}
-nav.bottom,.bottom{
-  grid-template-columns:repeat(3,minmax(0,1fr))!important;
-}
-</style>
-
-<script id="phoenix-35-locked-design-script">
-(function(){
- function p35(){
-   /* Exact locked copy. */
-   var k=document.querySelector('.ss-home-kicker');
-   if(k) k.textContent='FIND IT. SNAP IT. UPDATE IT.';
-
-   /* Handover is the single field route. */
-   var s=document.querySelector('#recordDetails > summary');
-   if(s) s.textContent='Handover notes';
-
-   /* Remove Reminder from primary navigation without touching its stored data. */
-   var r=document.getElementById('ssReminderNavBtn');
-   if(r){
-     r.style.setProperty('display','none','important');
-     r.setAttribute('aria-hidden','true');
-     r.tabIndex=-1;
-   }
-   var b=document.querySelector('nav.bottom,.bottom');
-   if(b)b.style.setProperty('grid-template-columns','repeat(3,minmax(0,1fr))','important');
- }
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',p35);
- else p35();
- window.addEventListener('load',p35);
- setTimeout(p35,250);
- setTimeout(p35,1000);
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+ window.addEventListener('load',boot);
 })();
 </script>
 </body></html>
