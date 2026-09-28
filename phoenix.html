@@ -683,7 +683,7 @@ input,select,textarea,.street-picker-trigger,.street-picker-menu,.street-picker-
 
 <style id="phoenix-26-reminder-exorcism">
 /* No Reminder control survives in colleague-facing More UI. */
-#ssPhoenixMore details:not(#ssPhoenixHowTo){display:none!important}
+#ssPhoenixMore details:not(#ssPhoenixHowTo):not(#ssPhoenixUpdates):not(#ssPhoenixShare){display:none!important}
 #ssPhoenixMore #ssPhoenixHowTo{display:block!important}
 </style>
 
@@ -706,13 +706,6 @@ body{padding-bottom:102px!important}
   nav.bottom{bottom:max(34px,env(safe-area-inset-bottom))!important}
   main{padding-bottom:calc(112px + env(safe-area-inset-bottom))!important}
 }
-</style>
-
-
-<style id="foundation4-more-cards-visibility">
-/* FOUNDATION 4: explicitly allow the approved More cards hidden by the old Reminder exorcism. */
-#ssPhoenixMore #ssPhoenixUpdates,
-#ssPhoenixMore #ssPhoenixShare{display:block!important}
 </style>
 </head>
 <body>
@@ -3449,6 +3442,9 @@ window.addEventListener("load",()=>{if(navigator.onLine){ssVaultRestore().then((
 #ssPhoenixMore .share-btn{display:block;width:100%;min-height:48px;margin-top:12px;padding:12px;border:0;border-radius:11px;background:#31df68;color:#061823;font-weight:950;text-align:center;text-decoration:none}
 #ssPhoenixMore .version-line{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:10px 0;border-top:1px solid rgba(255,255,255,.10)}
 #ssPhoenixMore .version-line:first-child{border-top:0}
+#ssPhoenixMore .update-dot{display:none;width:11px;height:11px;margin-left:auto;margin-right:15px;border-radius:50%;background:#31df68;box-shadow:0 0 0 3px rgba(49,223,104,.15)}
+#ssPhoenixMore .update-dot.available{display:inline-block}
+#ssPhoenixMore #ssUpdateAction[hidden]{display:none!important}
 </style>
 <script id="phoenix-26-more-authority-script">
 (function(){
@@ -3469,11 +3465,11 @@ window.addEventListener("load",()=>{if(navigator.onLine){ssVaultRestore().then((
       '</div>'+
     '</details>'+
     '<details class="more-card" id="ssPhoenixUpdates">'+
-      '<summary>Updates <span class="plus">＋</span></summary>'+
+      '<summary>Updates <span class="update-dot" id="ssUpdateDot" aria-label="Update available"></span><span class="plus">＋</span></summary>'+
       '<div class="more-inside">'+
         '<div class="version-line"><span>Installed version</span><b>SituSnap 1.1.0</b></div>'+
-        '<div class="version-line"><span>Approved release</span><b>SituSnap 1.1.0</b></div>'+
-        '<a class="share-btn" href="https://github.com/cryptod1/SituSnap/releases/download/V1.1.0/SituSnap-1.1.0.apk" target="_blank" rel="noopener">OPEN APPROVED DOWNLOAD</a>'+
+        '<div class="version-line"><span>Update status</span><b id="ssUpdateStatus">Checking…</b></div>'+
+        '<button class="share-btn" id="ssUpdateAction" type="button" hidden>DOWNLOAD UPDATE</button>'+
       '</div>'+
     '</details>'+
     '<details class="more-card" id="ssPhoenixShare">'+
@@ -3486,6 +3482,43 @@ window.addEventListener("load",()=>{if(navigator.onLine){ssVaultRestore().then((
       '</div>'+
     '</details>';
    document.body.appendChild(p);
+   // Read-only release check. Only a newer, published APK is eligible.
+   // No remote HTML loading or automatic app replacement.
+   var updateButton=p.querySelector('#ssUpdateAction');
+   var updateDot=p.querySelector('#ssUpdateDot');
+   var updateStatus=p.querySelector('#ssUpdateStatus');
+   var installed=[1,1,0];
+   var approvedApk=null;
+   function checkApprovedUpdate(){
+     fetch('https://api.github.com/repos/cryptod1/SituSnap/releases/latest',
+       {headers:{'Accept':'application/vnd.github+json'},cache:'no-store'})
+     .then(function(response){if(!response.ok)throw Error('release check failed');return response.json()})
+     .then(function(release){
+       var match=/^[vV]?(\d+)\.(\d+)\.(\d+)$/.exec(release.tag_name||'');
+       if(!match || release.draft || release.prerelease)throw Error('no approved version');
+       var latest=match.slice(1).map(Number);
+       var newer=false;
+       for(var i=0;i<3;i++){
+         if(latest[i]>installed[i]){newer=true;break}
+         if(latest[i]<installed[i])break;
+       }
+       var asset=(release.assets||[]).find(function(a){return /^SituSnap-[0-9]+\.[0-9]+\.[0-9]+\.apk$/.test(a.name||'') && /^https:\/\/github\.com\/cryptod1\/SituSnap\/releases\/download\//.test(a.browser_download_url||'')});
+       if(newer && asset){
+         approvedApk=asset.browser_download_url;
+         updateStatus.textContent='SituSnap '+latest.join('.')+' available';
+         updateDot.classList.add('available');
+         updateButton.hidden=false;
+       }else{
+         updateStatus.textContent='Up to date';
+       }
+     }).catch(function(){updateStatus.textContent='Unable to check (try online)'});
+   }
+   updateButton.addEventListener('click',function(){
+     if(!approvedApk)return;
+     // Android must still approve installation; browser/WebView handles the download.
+     window.open(approvedApk,'_blank','noopener');
+   });
+   checkApprovedUpdate();
    document.getElementById('ssPhoenixMoreClose').onclick=function(){
       p.querySelectorAll('details').forEach(function(d){d.removeAttribute('open')});
       p.classList.remove('open'); p.setAttribute('aria-hidden','true');
