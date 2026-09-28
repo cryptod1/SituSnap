@@ -1622,7 +1622,7 @@ function googleMapsNow(){
   document.getElementById("huntPc").textContent=chosenLabel ? (chosenLabel+" · "+p) : p;
   document.getElementById("huntPanel").classList.remove("hidden");
   startLiveHunt();
-  window.open("https://www.google.com/maps/dir/?api=1&destination="+encodeURIComponent(huntAddressQuery)+"&travelmode=driving","_blank");
+  window.location.href="https://www.google.com/maps/dir/?api=1&destination="+encodeURIComponent(huntAddressQuery)+"&travelmode=driving";
   // Breadcrumbs is deliberately independent and is triggered by postcode/name entry, not by this button.
 }
 async function openBreadcrumbsRoute(){
@@ -2141,7 +2141,7 @@ function persistFoundRecord(){
   const notes=document.getElementById("notes").value.trim();
   const record={id:previous?.id||Date.now(),pinVerified:true,postcode,address,street,type:document.getElementById("type").value,observedBy:document.getElementById("observedBy").value,updateStatus:document.getElementById("updateStatus").value,result:document.getElementById("result").value,entrance,approach,accessInfo,visibility:"My Team",localSource:(document.getElementById("localSource")?.value||"Not applicable"),notes,
     lastMile:{vehicleApproach:approach||null,entrance:entrance||null,hazard:accessInfo||null,handoverNote:notes||null,source:"SituSnap field handover",fieldConfirmed:true},
-    gps:gps||previous?.gps||null,target:target||previous?.target||null,photoUrl:previous?.photoUrl||"",photoPublicId:previous?.photoPublicId||"",verifiedAt:new Date().toISOString(),createdAt:previous?.createdAt||new Date().toISOString()};
+    gps:previous?.gps||gps||null,target:previous?.target||target||null,photoUrl:previous?.photoUrl||"",photoPublicId:previous?.photoPublicId||"",verifiedAt:new Date().toISOString(),createdAt:previous?.createdAt||new Date().toISOString()};
   if(existingIndex>=0)rs.splice(existingIndex,1);
   rs.unshift(record);
   try{
@@ -3995,35 +3995,39 @@ label[for="accessDirections"], #accessDirections{
 })();
 </script>
 
-<script id="phoenix-174-submission-exit-guard">
+<script id="phoenix-175-submission-protection">
 (function(){
-  function active(){
-    var d=document.getElementById('recordDetails');
-    if(!d || !d.open) return false;
-    var ids=['postcode','address','notes','accessDirections'];
-    if(ids.some(function(id){var e=document.getElementById(id);return e&&String(e.value||'').trim();})) return true;
-    return ['photoCamera','photo1','photo2'].some(function(id){var e=document.getElementById(id);return e&&e.files&&e.files.length;});
-  }
-  function ask(){
-    return !active() || confirm('Are you sure you wish to close this submission?\n\nChoose Cancel to stay on this submission.');
-  }
-  window.ssConfirmCloseSubmission=ask;
-
-  document.addEventListener('click',function(e){
-    var d=document.getElementById('recordDetails');
-    if(!d || !d.open) return;
-    var summary=e.target.closest&&e.target.closest('#recordDetails > summary');
-    if(summary && !ask()){
-      e.preventDefault();
-      e.stopImmediatePropagation();
-    }
-  },true);
-
-  window.addEventListener('beforeunload',function(e){
-    if(!active()) return;
-    e.preventDefault();
-    e.returnValue='';
-  });
+ var KEY='situSnapActiveHandoverDraftV1';
+ var ids=['postcode','address','street','type','observedBy','updateStatus','result','accessDirections','localSource','notes'];
+ function rd(){return document.getElementById('recordDetails')}
+ function hasData(){return ids.some(function(id){var e=document.getElementById(id);return e&&String(e.value||'').trim()})}
+ function save(){
+   if(!hasData()){localStorage.removeItem(KEY);return}
+   var data={savedAt:new Date().toISOString(),values:{}};
+   ids.forEach(function(id){var e=document.getElementById(id);if(e)data.values[id]=e.value});
+   localStorage.setItem(KEY,JSON.stringify(data));
+ }
+ function restore(){
+   var raw=localStorage.getItem(KEY);if(!raw)return;
+   try{
+     var data=JSON.parse(raw),changed=false;
+     ids.forEach(function(id){var e=document.getElementById(id),v=data&&data.values&&data.values[id];if(e&&v!==undefined&&!String(e.value||'').trim()){e.value=v;changed=true}});
+     if(changed){var d=rd();if(d)d.open=true;if(typeof updateFoundButton==='function')updateFoundButton()}
+   }catch(e){}
+ }
+ function active(){var d=rd();return !!(d&&d.open&&hasData())}
+ function ask(){return !active()||confirm('Are you sure you wish to close this submission?\n\nChoose Cancel to stay on this submission.')}
+ window.ssConfirmCloseSubmission=ask;
+ document.addEventListener('input',function(e){if(e.target&&e.target.closest&&e.target.closest('#recordDetails'))save()},true);
+ document.addEventListener('change',function(e){if(e.target&&e.target.closest&&e.target.closest('#recordDetails'))save()},true);
+ document.addEventListener('click',function(e){
+   var d=rd();if(!d||!d.open)return;
+   var summary=e.target.closest&&e.target.closest('#recordDetails > summary');
+   if(summary&&!ask()){e.preventDefault();e.stopImmediatePropagation()}
+ },true);
+ window.addEventListener('pagehide',save);
+ window.addEventListener('beforeunload',function(e){save();if(!active())return;e.preventDefault();e.returnValue=''});
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',restore);else restore();
 })();
 </script>
 
