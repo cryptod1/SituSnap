@@ -3432,6 +3432,16 @@ window.addEventListener("load",()=>{if(navigator.onLine){ssVaultRestore().then((
  line-height:1.28;font-size:15px;
 }
 #ssPhoenixHowTo .row b{font-size:16px}
+#ssPhoenixMore .more-card{margin-top:12px;border:1px solid rgba(255,255,255,.15);border-radius:14px;background:#0b2b38;overflow:hidden}
+#ssPhoenixMore .more-card summary{min-height:54px;padding:14px 16px;cursor:pointer;font-size:18px;font-weight:900;list-style:none;display:flex;align-items:center;justify-content:space-between}
+#ssPhoenixMore .more-card summary::-webkit-details-marker{display:none}
+#ssPhoenixMore .more-card summary .plus{font-size:28px;line-height:1}
+#ssPhoenixMore .more-card[open] summary .plus{transform:rotate(45deg)}
+#ssPhoenixMore .more-inside{padding:0 16px 16px;font-size:14px;line-height:1.45;color:#dff8e3}
+#ssPhoenixMore .share-qr{display:block;width:min(78vw,320px);height:auto;margin:12px auto;background:#fff;padding:10px;border-radius:14px}
+#ssPhoenixMore .share-btn{display:block;width:100%;min-height:48px;margin-top:12px;padding:12px;border:0;border-radius:11px;background:#31df68;color:#061823;font-weight:950;text-align:center;text-decoration:none}
+#ssPhoenixMore .version-line{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:10px 0;border-top:1px solid rgba(255,255,255,.10)}
+#ssPhoenixMore .version-line:first-child{border-top:0}
 </style>
 <script id="phoenix-26-more-authority-script">
 (function(){
@@ -3450,10 +3460,27 @@ window.addEventListener("load",()=>{if(navigator.onLine){ssVaultRestore().then((
        '<div class="row">📸 <b>Take useful photos</b><br>Capture evidence that will make the next visit easier.</div>'+
        '<div class="row">⚠️ <b>Add anything important</b><br>Record hazards or useful handover information.</div>'+
       '</div>'+
+    '</details>'+
+    '<details class="more-card" id="ssPhoenixUpdates">'+
+      '<summary>Updates <span class="plus">＋</span></summary>'+
+      '<div class="more-inside">'+
+        '<div class="version-line"><span>Installed version</span><b>SituSnap 1.1.0</b></div>'+
+        '<div class="version-line"><span>Approved release</span><b>SituSnap 1.1.0</b></div>'+
+        '<a class="share-btn" href="https://github.com/cryptod1/SituSnap/releases/download/V1.1.0/SituSnap-1.1.0.apk" target="_blank" rel="noopener">OPEN APPROVED DOWNLOAD</a>'+
+      '</div>'+
+    '</details>'+
+    '<details class="more-card" id="ssPhoenixShare">'+
+      '<summary>Share SituSnap <span class="plus">＋</span></summary>'+
+      '<div class="more-inside" style="text-align:center">'+
+        '<div style="font-weight:900;font-size:17px;color:#fff">Scan to install SituSnap</div>'+
+        '<div style="margin-top:4px">Android · SituSnap 1.1.0</div>'+
+        '<img class="share-qr" alt="QR code to download SituSnap 1.1.0" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAbgAAAG4AQAAAAAfsc8eAAAD7ElEQVR4nO1cy27cQAwjC///L7MHidI4DXpI0q5nVsYisJ0hbEHQi9KYwpeOX1+DDW5wgxvcMbgLAONUoAAKFBFnIAABABH3c+U28p2Ou4DSEAQCoPUIIDVGxb9q5TbynY67AKTuQk2hQoUKCYigQKsyV24j3/vhBEFMNS6aS8X9+PMG9x3ctZxTYWkEIYYrDU0qAuAL33Nwnx+hP9XfylFCaWJqjQ6I33ze4P4BjiS55KGCnHyGNdoEvXIz+Q7GXbjFtTQ/dbIZHpSKZObbzxvcz+LY1R2ygIg76Udbb4SI8qe7yPcmOMWPhBT+EoKkMEWBoFT14evec3AfDkbS4thnA7P/THMj0qfKGc0u8p2OuwDzZUupRxfrqnuludDpLvKdjus80wVDZSk2ulSt14Qed5HvdFzwn8FXU2g766qdCEZG9rNjf8/BsagVyikm0szK2MomWQnqLvKdjrP9QWl8rtQj21SxMGl4qd9t5Dsd160iK0j+ASjXmjVhxsSJf4/BXUjzS38JIIiyMD+2xwSAqd+fiCNkz6g12klUlxaMSMjXvefg/jwy/oWaxEw0c5iCYvFm6UazM7iNfKfjin9RZimqet6lu8uIpXrfR753wFHM/gKAbt9K5VAjNwWbodlJvpNxrNZCHM133q67Hzj856Nw2X9njUhE8eDxwew+xBBTkDSvec/B/QXX84ORYGaXiIvrjIGYKi/2ku9gXM4vqTg05zBART0nqJGjTv75JJxHruuG42H135cYWAv2ke90XOclvqQbtRkKe3LQ4xPDnz0HV8xmase8WftMoOc/afe6jXyn4xYDs3KqZocnlhwMu8TfRr53wMXIUnUiYlCJgrQw12RFxck/n4OL+Zfo88Fjuz0EqjW/4dIK3EW+03G5/8hEZ29V4TJ6xuKzS5e7yPcWOCrZTqb37JQ02vISm2jTxL/n4HL/ZuiuvGeqKwJe5SzroP0u8p2Oq1kzdoKpRZMAbqO7nhXdRb63wEX5kJ1Z+gqg1DkovTVw8pcH4Tq/1K0OVOc0TdKol+0i3+m4IsRqRqLTF5bjtPq62N9FvtNx66y1xwPNwfTe267iPSqzi3zvgCv1xY4xwF0IsgfOSJCc/OVhOOrDOb0Dovi0nG4qzzrzuw/C3b6/VPWD0OUg0L0IFkWzi3yn49bvL7laDxqGN0rUU6H+s4t8p+Nu31+q74V4bh5FbC9d+tm/+VAcU0m5G0mC6L3wuTnQ67aU70TcdbsSI/ilIRZv5lmmIGVe8Z6D+/y4f3+JnnvJjQ/NgtKudOY/H4Vb9r9rKeZZrEtao4kzN5Z2ke903Fr//Y/nDW5wgxvcKbjfp4QUngMz6PwAAAAASUVORK5CYII=">'+
+        '<div style="font-size:12px;color:#a9bad0">Open your phone camera and scan this code.</div>'+
+      '</div>'+
     '</details>';
    document.body.appendChild(p);
    document.getElementById('ssPhoenixMoreClose').onclick=function(){
-      document.getElementById('ssPhoenixHowTo').removeAttribute('open');
+      p.querySelectorAll('details').forEach(function(d){d.removeAttribute('open')});
       p.classList.remove('open'); p.setAttribute('aria-hidden','true');
    };
  }
@@ -3464,7 +3491,7 @@ window.addEventListener("load",()=>{if(navigator.onLine){ssVaultRestore().then((
      if(!b) return;
      e.preventDefault(); e.stopImmediatePropagation();
      var p=document.getElementById('ssPhoenixMore');
-     document.getElementById('ssPhoenixHowTo').removeAttribute('open');
+     p.querySelectorAll('details').forEach(function(d){d.removeAttribute('open')});
      p.classList.add('open'); p.setAttribute('aria-hidden','false');
    },true);
  });
