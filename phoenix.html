@@ -865,6 +865,7 @@ window.addEventListener("DOMContentLoaded",()=>{
   ssCheckForUpdate();
 });
 const SS_VERIFIED_ARCHIVE="situSnapVerifiedArchiveV1";
+const SS_REMOVED_VERIFIED="situSnapRemovedVerifiedV1";
 const SS_VAULT_ENDPOINT="https://holy-frost-eda0.stopjunkmail35.workers.dev/api/situ-vault";
 const SS_VAULT_QUEUE="situSnapVaultQueueV1";
 const SS_CLOUDINARY_CLOUD="wizvgv9a";
@@ -948,8 +949,9 @@ async function ssVaultRestore(){
   try{
     const r=await fetch(SS_VAULT_ENDPOINT,{headers:{"accept":"application/json"}});const data=await r.json();
     if(!r.ok||data?.ok!==true||!Array.isArray(data.records))throw new Error(data?.message||"Vault restore failed");
-    const cloud=data.records.map(ssVaultRecordToLocal).filter(Boolean);if(!cloud.length)return {ok:true,count:0};
-    const local=ssReadArray("situSnapRecords");const byId=new Map(local.map(x=>[String(x?.id),x]));
+    const removed=new Set(ssReadArray(SS_REMOVED_VERIFIED).map(String));
+    const cloud=data.records.map(ssVaultRecordToLocal).filter(Boolean).filter(rec=>!removed.has(String(rec.id)));if(!cloud.length)return {ok:true,count:0};
+    const local=ssReadArray("situSnapRecords").filter(rec=>!removed.has(String(rec?.id)));const byId=new Map(local.map(x=>[String(x?.id),x]));
     for(const rec of cloud){if(!byId.has(String(rec.id)))byId.set(String(rec.id),rec)}
     const merged=[...byId.values()];localStorage.setItem("situSnapRecords",JSON.stringify(merged));
     for(const rec of cloud)ssArchiveVerified(rec);
@@ -2348,6 +2350,54 @@ function useSituSnap(id){
     : (r.address?`${r.address}${r.street?", "+r.street:""}, ${r.postcode}`:r.postcode);
   window.location.href="https://www.google.com/maps/dir/?api=1&destination="+encodeURIComponent(dest)+"&travelmode=driving";
 }
+async function ssDeleteCachedPhoto(id){
+  try{
+    const db=await ssPhotoDb();
+    await new Promise((resolve,reject)=>{
+      const tx=db.transaction("photos","readwrite");
+      tx.objectStore("photos").delete(String(id));
+      tx.oncomplete=resolve;
+      tx.onerror=()=>reject(tx.error);
+    });
+    db.close();
+  }catch(e){console.warn("Verified photo cache removal deferred",e)}
+}
+async function ssRemoveVerifiedLocation(id){
+  const sid=String(id);
+  const record=getRecords().find(r=>String(r?.id)===sid);
+  if(!record)return;
+  const label=String(record.address||"this verified location");
+  if(!confirm(`Remove ${label} from verified locations?\n\nThis removes the saved pin, handover details and offline photo from this phone.`))return;
+
+  const removed=ssReadArray(SS_REMOVED_VERIFIED).map(String).filter(x=>x!==sid);
+  removed.unshift(sid);
+  localStorage.setItem(SS_REMOVED_VERIFIED,JSON.stringify(removed.slice(0,1000)));
+
+  localStorage.setItem("situSnapRecords",JSON.stringify(ssReadArray("situSnapRecords").filter(r=>String(r?.id)!==sid)));
+  localStorage.setItem(SS_VERIFIED_ARCHIVE,JSON.stringify(ssVerifiedArchive().filter(r=>String(r?.id)!==sid)));
+  localStorage.setItem(SS_VAULT_QUEUE,JSON.stringify(ssVaultQueueRead().filter(r=>String(r?.recordId)!==sid)));
+
+  const pins=ssSafeJSON(SS_LEARNING_KEY,[]).filter(pin=>{
+    if(String(pin?.pinId||"")===sid)return false;
+    const samePc=ssCanonPostcode(pin?.postcode)===ssCanonPostcode(record.postcode);
+    const sameName=ssCanonName(pin?.propertyName)===ssCanonName(record.address);
+    return !(samePc&&sameName);
+  });
+  ssPutJSON(SS_LEARNING_KEY,pins);
+
+  const queue=ssSafeJSON(SS_SYNC_QUEUE,[]).filter(item=>{
+    const payload=item?.payload||{};
+    if(String(payload?.recordId||payload?.id||payload?.pinId||"")===sid)return false;
+    const samePc=ssCanonPostcode(payload?.postcode)===ssCanonPostcode(record.postcode);
+    const sameName=ssCanonName(payload?.propertyName||payload?.property||payload?.address)===ssCanonName(record.address);
+    return !(samePc&&sameName);
+  });
+  ssPutJSON(SS_SYNC_QUEUE,queue);
+
+  await ssDeleteCachedPhoto(sid);
+  render();
+  ssRenderVerifiedFirst(document.getElementById("huntPostcode")?.value||"");
+}
 function render(){
   // Verified locations is the phone's learned-pin memory, not a search-result panel.
   // Always show every locally verified record; postcode filtering belongs in the Find workflow.
@@ -2361,7 +2411,8 @@ function render(){
       `${r.entrance?`<div class="meta"><b>Entrance:</b> ${esc(r.entrance)}</div>`:""}${r.approach?`<div class="meta"><b>Approach:</b> ${esc(r.approach)}</div>`:""}${r.accessInfo?`<div class="meta"><b>Access:</b> ${esc(r.accessInfo)}</div>`:""}`+
       `<div class="meta">${esc(r.notes||"No additional handover notes.")}</div><div class="meta">📍 ${gpsLabel} · ${esc(r.observedBy||"MGroup")}${stamp?" · "+esc(stamp):""}</div>`+
       `${r.photoUrl?`<div id="photoReady_${esc(String(r.id))}" class="small-note" style="margin-top:8px;text-align:center">📷 Checking offline photo…</div><button type="button" onclick='event.stopPropagation();ssViewVerifiedPhoto(${JSON.stringify(String(r.id))})' style="margin-top:7px;width:100%;padding:11px;border-radius:10px;border:0;font-weight:900;background:#26384f;color:#fff">📷 VIEW VERIFIED PHOTO</button>`:""}`+
-      `<button type="button" onclick='event.stopPropagation();useSituSnap(${JSON.stringify(String(r.id))})' style="margin-top:10px;width:100%;padding:11px;border-radius:10px;border:0;font-weight:900;background:#145a35;color:#fff">ROUTE TO VERIFIED PIN →</button></article>`;
+      `<button type="button" onclick='event.stopPropagation();useSituSnap(${JSON.stringify(String(r.id))})' style="margin-top:10px;width:100%;padding:11px;border-radius:10px;border:0;font-weight:900;background:#145a35;color:#fff">ROUTE TO VERIFIED PIN →</button>`+
+      `<button type="button" onclick='event.stopPropagation();ssRemoveVerifiedLocation(${JSON.stringify(String(r.id))})' style="margin-top:12px;width:100%;padding:8px;border-radius:9px;border:1px solid #b9c2c9;background:#fff;color:#59636b;font-size:12px;font-weight:800">REMOVE VERIFIED LOCATION</button></article>`;
   }).join(""):`<div class="empty">No verified locations saved on this phone yet.</div>`;
   for(const r of f.filter(x=>x.photoUrl)){
     ssPhotoReadyOffline(r.id).then(ok=>{
