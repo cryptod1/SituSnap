@@ -745,11 +745,11 @@ body{padding-bottom:102px!important}
     <div id="ssFindResultTitle" style="font-size:18px;font-weight:1000;margin-top:3px">Checking…</div>
     <div id="ssFindResultText" style="font-size:12px;font-weight:750;line-height:1.4;margin-top:4px"></div>
     <button id="ssNavigateBtn" type="button" class="hidden" onclick="ssNavigateFound()" style="width:100%;min-height:50px;margin-top:11px;border-radius:11px;background:#145a35;color:#fff;font-weight:1000">NAVIGATE TO PIN</button>
+    <button id="googleMapsBtn" type="button" onclick="googleMapsNow()" disabled style="width:100%;min-height:48px;margin-top:9px;border:0;border-radius:11px;background:#52606d;color:#fff;font-weight:950">GOOGLE MAPS — UNVERIFIED</button>
   </div>
 
   <!-- Existing engine controls stay in the DOM because current resolver code updates them. -->
   <div class="ss-engine-hidden" aria-hidden="true">
-    <button id="googleMapsBtn" type="button" onclick="googleMapsNow()" disabled>GOOGLE MAPS — UNVERIFIED</button>
     <div id="bcMainWrap"><button id="bcMainBtn" type="button" onclick="openBreadcrumbsRoute()" disabled>BREADCRUMBS</button></div>
     <div id="bcQuickStatus">Enter property name</div>
   </div>
@@ -2128,7 +2128,11 @@ function persistFoundRecord(){
   const mainPhoto=!!(document.getElementById("photoCamera")?.files?.length||document.getElementById("photo1")?.files?.length);
   if(editingRecordId===null && !mainPhoto){alert("Please add the property / entrance photo before verifying the pin.");return false}
   const rs=getRecords();
-  const existingIndex=editingRecordId===null?-1:rs.findIndex(r=>r.id===editingRecordId);
+  const norm=v=>String(v||"").trim().toUpperCase().replace(/\s+/g," ");
+  let existingIndex=editingRecordId===null?-1:rs.findIndex(r=>r.id===editingRecordId);
+  if(existingIndex<0){
+    existingIndex=rs.findIndex(r=>r&&r.pinVerified===true&&norm(r.postcode)===norm(postcode)&&norm(r.address)===norm(address));
+  }
   const previous=existingIndex>=0?rs[existingIndex]:null;
   const accessDirections=(document.getElementById("accessDirections")?.value||"").trim();
   const entrance="";
@@ -2137,7 +2141,7 @@ function persistFoundRecord(){
   const notes=document.getElementById("notes").value.trim();
   const record={id:previous?.id||Date.now(),pinVerified:true,postcode,address,street,type:document.getElementById("type").value,observedBy:document.getElementById("observedBy").value,updateStatus:document.getElementById("updateStatus").value,result:document.getElementById("result").value,entrance,approach,accessInfo,visibility:"My Team",localSource:(document.getElementById("localSource")?.value||"Not applicable"),notes,
     lastMile:{vehicleApproach:approach||null,entrance:entrance||null,hazard:accessInfo||null,handoverNote:notes||null,source:"SituSnap field handover",fieldConfirmed:true},
-    gps:gps||previous?.gps||null,target:target||previous?.target||null,verifiedAt:new Date().toISOString(),createdAt:previous?.createdAt||new Date().toISOString()};
+    gps:gps||previous?.gps||null,target:target||previous?.target||null,photoUrl:previous?.photoUrl||"",photoPublicId:previous?.photoPublicId||"",verifiedAt:new Date().toISOString(),createdAt:previous?.createdAt||new Date().toISOString()};
   if(existingIndex>=0)rs.splice(existingIndex,1);
   rs.unshift(record);
   try{
@@ -3990,4 +3994,37 @@ label[for="accessDirections"], #accessDirections{
  setTimeout(p35,1000);
 })();
 </script>
+
+<script id="phoenix-174-submission-exit-guard">
+(function(){
+  function active(){
+    var d=document.getElementById('recordDetails');
+    if(!d || !d.open) return false;
+    var ids=['postcode','address','notes','accessDirections'];
+    if(ids.some(function(id){var e=document.getElementById(id);return e&&String(e.value||'').trim();})) return true;
+    return ['photoCamera','photo1','photo2'].some(function(id){var e=document.getElementById(id);return e&&e.files&&e.files.length;});
+  }
+  function ask(){
+    return !active() || confirm('Are you sure you wish to close this submission?\n\nChoose Cancel to stay on this submission.');
+  }
+  window.ssConfirmCloseSubmission=ask;
+
+  document.addEventListener('click',function(e){
+    var d=document.getElementById('recordDetails');
+    if(!d || !d.open) return;
+    var summary=e.target.closest&&e.target.closest('#recordDetails > summary');
+    if(summary && !ask()){
+      e.preventDefault();
+      e.stopImmediatePropagation();
+    }
+  },true);
+
+  window.addEventListener('beforeunload',function(e){
+    if(!active()) return;
+    e.preventDefault();
+    e.returnValue='';
+  });
+})();
+</script>
+
 </body></html>
