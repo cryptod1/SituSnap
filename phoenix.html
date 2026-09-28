@@ -2366,12 +2366,46 @@ async function ssDeleteCachedPhoto(id){
     db.close();
   }catch(e){console.warn("Verified photo cache removal deferred",e)}
 }
+
+function ssConfirmRemoveVerified(label){
+  return new Promise(resolve=>{
+    const old=document.getElementById("ssRemoveVerifiedConfirm");
+    if(old)old.remove();
+    const overlay=document.createElement("div");
+    overlay.id="ssRemoveVerifiedConfirm";
+    overlay.setAttribute("role","dialog");
+    overlay.setAttribute("aria-modal","true");
+    overlay.style.cssText="position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;padding:22px";
+    const panel=document.createElement("div");
+    panel.style.cssText="width:min(430px,100%);background:#082433;color:#f7fbff;border:1px solid rgba(111,139,160,.45);border-radius:18px;padding:20px;box-shadow:0 22px 60px rgba(0,0,0,.55)";
+    panel.innerHTML=
+      '<div style="font-size:21px;font-weight:950;margin-bottom:10px">Remove verified location?</div>'+
+      '<div data-ss-remove-label style="font-size:14px;line-height:1.5;color:#d5deea;margin-bottom:8px"></div>'+
+      '<div style="font-size:12px;line-height:1.45;color:#aebdca;margin-bottom:18px">This removes the saved pin, handover details and offline photo from this phone.</div>'+
+      '<button type="button" data-ss-remove-confirm style="width:100%;min-height:52px;border-radius:11px;background:#8b2f2f;color:#fff;font-weight:950;margin-bottom:9px">YES — REMOVE VERIFIED LOCATION</button>'+
+      '<button type="button" data-ss-remove-cancel style="width:100%;min-height:52px;border-radius:11px;background:#26384f;color:#fff;font-weight:950">CANCEL — KEEP LOCATION</button>';
+    panel.querySelector("[data-ss-remove-label]").textContent=String(label||"This verified location");
+    overlay.appendChild(panel);
+    document.body.appendChild(overlay);
+    let finished=false;
+    function finish(answer){
+      if(finished)return;
+      finished=true;
+      overlay.remove();
+      resolve(answer);
+    }
+    panel.querySelector("[data-ss-remove-confirm]").addEventListener("click",()=>finish(true));
+    panel.querySelector("[data-ss-remove-cancel]").addEventListener("click",()=>finish(false));
+    overlay.addEventListener("click",e=>{if(e.target===overlay)finish(false)});
+  });
+}
 async function ssRemoveVerifiedLocation(id){
   const sid=String(id);
   const record=getRecords().find(r=>String(r?.id)===sid);
   if(!record)return;
   const label=String(record.address||"this verified location");
-  if(!confirm(`Remove ${label} from verified locations?\n\nThis removes the saved pin, handover details and offline photo from this phone.`))return;
+  const confirmed=await ssConfirmRemoveVerified(label);
+  if(!confirmed)return;
 
   const removed=ssReadArray(SS_REMOVED_VERIFIED).map(String).filter(x=>x!==sid);
   removed.unshift(sid);
