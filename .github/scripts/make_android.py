@@ -28,7 +28,7 @@ android {
         applicationId 'com.situsnap.app'
         minSdk 26
         targetSdk 35
-        versionCode 15
+        versionCode 16
         versionName '1.1.0'
     }
 
@@ -52,8 +52,10 @@ android {
 
 put("app/src/main/res/values/styles.xml", """<resources>
 <style name="AppTheme" parent="android:style/Theme.Material.Light.NoActionBar">
+<item name="android:windowLightStatusBar">false</item>
 <item name="android:statusBarColor">#07192b</item>
 <item name="android:navigationBarColor">#07192b</item>
+<item name="android:windowBackground">#07192b</item>
 </style>
 <style name="SplashTheme" parent="android:style/Theme.Material.Light.NoActionBar">
 <item name="android:windowLightStatusBar">false</item>
@@ -178,6 +180,7 @@ public class MainActivity extends Activity {
         }, 1002);
 
         webView = new WebView(this);
+        webView.setBackgroundColor(android.graphics.Color.rgb(7, 25, 43));
         setContentView(webView);
 
         WebSettings s = webView.getSettings();
