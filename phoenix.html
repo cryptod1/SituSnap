@@ -748,6 +748,12 @@ body{padding-bottom:102px!important}
     <button id="googleMapsBtn" type="button" onclick="googleMapsNow()" disabled style="width:100%;min-height:48px;margin-top:9px;border:0;border-radius:11px;background:#52606d;color:#fff;font-weight:950">GOOGLE MAPS — UNVERIFIED</button>
   </div>
 
+  <div id="bcPostcodeChoicePanel" class="hidden" style="margin-top:10px;padding:13px;border-radius:13px;background:#082433;border:1px solid #31566a;color:#fff">
+    <div style="font-size:10px;font-weight:950;letter-spacing:.7px;color:#69df83">BREADCRUMBS</div>
+    <div style="font-size:17px;font-weight:1000;margin-top:3px">SELECT DESTINATION</div>
+    <div id="bcPostcodeChoiceList" style="margin-top:9px;display:grid;gap:7px"></div>
+  </div>
+
   <!-- Existing engine controls stay in the DOM because current resolver code updates them. -->
   <div class="ss-engine-hidden" aria-hidden="true">
     <div id="bcMainWrap"><button id="bcMainBtn" type="button" onclick="openBreadcrumbsRoute()" disabled>BREADCRUMBS</button></div>
@@ -1674,11 +1680,75 @@ function ssNavigateFound(){
   }
 }
 
+function ssHidePostcodeChoices(){
+  const panel=document.getElementById('bcPostcodeChoicePanel');
+  const list=document.getElementById('bcPostcodeChoiceList');
+  if(panel)panel.classList.add('hidden');
+  if(list)list.innerHTML='';
+}
+
+function ssApplyPostcodeChoice(address){
+  const firstLine=String(address||'').split(',')[0].trim();
+  if(!firstLine)return;
+  const numberMatch=firstLine.match(/^([0-9]+[A-Za-z]?(?:\/[0-9]+[A-Za-z]?)?)\s+(.+)$/);
+  const door=document.getElementById('doorNumber');
+  const property=document.getElementById('manualAddress');
+  if(numberMatch){
+    if(door)door.value=numberMatch[1];
+    if(property)property.value=numberMatch[2];
+  }else{
+    if(door)door.value='';
+    if(property)property.value=firstLine;
+  }
+  syncManualAddress();
+  ssHidePostcodeChoices();
+  ssFindDestination();
+}
+
+function ssRenderPostcodeChoices(choices){
+  const panel=document.getElementById('bcPostcodeChoicePanel');
+  const list=document.getElementById('bcPostcodeChoiceList');
+  if(!panel||!list)return;
+  list.innerHTML='';
+  for(const choice of choices){
+    const address=String(choice?.address||'').trim();
+    if(!address)continue;
+    const btn=document.createElement('button');
+    btn.type='button';
+    btn.textContent=address;
+    btn.style.cssText='width:100%;text-align:left;padding:12px;border:1px solid #31566a;border-radius:10px;background:#0b3042;color:#fff;font-weight:850;line-height:1.25';
+    btn.addEventListener('click',()=>ssApplyPostcodeChoice(address));
+    list.appendChild(btn);
+  }
+  panel.classList.toggle('hidden',!list.children.length);
+}
+
+async function ssFindPostcodeChoices(postcode){
+  const controller=new AbortController();
+  const timeout=setTimeout(()=>controller.abort(),7000);
+  try{
+    const r=await fetch(BREADCRUMBS_RESOLVER_URL,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({property:'',doorNumber:'',postcode}),
+      signal:controller.signal
+    });
+    const d=await r.json().catch(()=>null);
+    if(r.ok && d?.mode==='postcode-address-choices' && Array.isArray(d.choices)){
+      return d.choices;
+    }
+    return [];
+  }finally{
+    clearTimeout(timeout);
+  }
+}
+
 async function ssFindDestination(){
   const myFindGeneration=++ssFindGeneration;
   window.__ssLocalVerifiedLocked=false;
   try{document.activeElement?.blur()}catch(_){}
   ssPendingNavigation=null;
+  ssHidePostcodeChoices();
 
   const pc=(document.getElementById("huntPostcode")?.value||"").trim().toUpperCase();
   const property=bcPropertyInput();
@@ -1744,6 +1814,23 @@ async function ssFindDestination(){
       ssShowFindResult('✓ PIN VERIFIED',`${label}${pc?' · '+pc:''}`,true,'SITUSNAP VERIFIED');
       return;
     }
+  }
+
+  // A postcode on its own asks Breadcrumbs for authoritative address choices.
+  // No returned choice is treated as verified until the colleague selects it and
+  // the existing exact property -> UPRN -> OS OpenUPRN verification succeeds.
+  if(!property && pc && isCompleteUkPostcode(pc)){
+    try{
+      const choices=await ssFindPostcodeChoices(pc);
+      if(myFindGeneration!==ssFindGeneration)return;
+      if(choices.length){
+        ssShowFindResult('SELECT DESTINATION',
+          choices.length+' possible destination'+(choices.length===1?'':'s')+' found for '+pc+'.',
+          false,'BREADCRUMBS');
+        ssRenderPostcodeChoices(choices);
+        return;
+      }
+    }catch(_){}
   }
 
   // Only a miss from the Verified tab's own source is allowed to reach Breadcrumbs.
