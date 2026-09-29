@@ -2703,7 +2703,7 @@ function bcQueueResolve(property,postcode){
   // Give normal human typing a moment to settle; the postcode warm-up has already started.
   bcTimer=setTimeout(()=>{ if(queuedSeq===bcRequestSeq) bcResolve(property,postcode,queuedSeq); },700);
 }
-async function bcResolve(property,postcode,requestSeq){
+async function bcResolve(property,postcode,requestSeq,explicitFind=false){
   const __bcGenerationAtStart=ssFindGeneration;
   if(window.__ssLocalVerifiedLocked) return null;
 
@@ -2711,10 +2711,10 @@ async function bcResolve(property,postcode,requestSeq){
   postcode=String(postcode||'').trim().toUpperCase();
   if(!property||!postcode)return;
   const mySeq=Number.isFinite(requestSeq)?requestSeq:++bcRequestSeq;
-  if(mySeq!==bcRequestSeq)return;
+  if(!explicitFind && mySeq!==bcRequestSeq)return;
   const remembered=bcFindVerified(property,postcode);
   if(remembered){
-    if(mySeq!==bcRequestSeq)return;
+    if(!explicitFind && mySeq!==bcRequestSeq)return;
     if(window.__ssLocalVerifiedLocked || __bcGenerationAtStart!==ssFindGeneration) return null;
     bcResolution={verified:true,fieldVerified:true,address:remembered.address,latitude:Number(remembered.gps?.latitude ?? remembered.latitude),longitude:Number(remembered.gps?.longitude ?? remembered.longitude),source:'SituSnap verified memory',property,postcode};
     try{localStorage.setItem(BC_HUNT_CACHE,JSON.stringify(bcResolution))}catch(_){}
@@ -2734,7 +2734,7 @@ async function bcResolve(property,postcode,requestSeq){
     const r=await fetch(BREADCRUMBS_RESOLVER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({property:resolverProperty,postcode,doorNumber}),signal:controller.signal});
     clearTimeout(timeout);
     const d=await r.json().catch(()=>null);
-    if(mySeq!==bcRequestSeq)return;
+    if(!explicitFind && mySeq!==bcRequestSeq)return;
     const candidateList=Array.isArray(d?.candidates)?d.candidates:(Array.isArray(d?.matches)?d.matches:(Array.isArray(d?.results)?d.results:[]));
     const unresolvedAmbiguity=!!(d&&(d.ambiguous===true || d.status==='ambiguous' || (candidateList.length>1 && d.verified!==true)));
     if(unresolvedAmbiguity){
@@ -2775,7 +2775,7 @@ async function bcResolve(property,postcode,requestSeq){
       bcUI('NOT VERIFIED','No exact authoritative pin was returned for this address. Record it on site if found.',false,false,'red');
     }
   }catch(_){
-    if(mySeq!==bcRequestSeq)return;
+    if(!explicitFind && mySeq!==bcRequestSeq)return;
     if(window.__ssLocalVerifiedLocked || __bcGenerationAtStart!==ssFindGeneration) return null;
     bcResolution={verified:false,unavailable:true,property,postcode};
     if(window.__ssLocalVerifiedLocked || __bcGenerationAtStart!==ssFindGeneration) return null;
