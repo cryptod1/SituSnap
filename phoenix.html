@@ -1687,9 +1687,12 @@ function ssHidePostcodeChoices(){
   if(list)list.innerHTML='';
 }
 
-function ssApplyPostcodeChoice(address){
-  const firstLine=String(address||'').split(',')[0].trim();
+async function ssApplyPostcodeChoice(choice){
+  const address=String(choice?.address||'').trim();
+  const selectedUprn=String(choice?.uprn||'').trim();
+  const firstLine=address.split(',')[0].trim();
   if(!firstLine)return;
+
   const numberMatch=firstLine.match(/^([0-9]+[A-Za-z]?(?:\/[0-9]+[A-Za-z]?)?)\s+(.+)$/);
   const door=document.getElementById('doorNumber');
   const property=document.getElementById('manualAddress');
@@ -1702,7 +1705,36 @@ function ssApplyPostcodeChoice(address){
   }
   syncManualAddress();
   ssHidePostcodeChoices();
-  ssFindDestination();
+
+  // A selected authoritative postcode choice gets one direct production
+  // verification pass. Discovery itself never verifies a pin.
+  const pc=(document.getElementById('huntPostcode')?.value||'').trim().toUpperCase();
+  const selectedProperty=bcPropertyInput();
+  const myFindGeneration=++ssFindGeneration;
+  window.__ssLocalVerifiedLocked=false;
+  ssPendingNavigation=null;
+  ssShowFindResult('Checking destination…',[selectedProperty,pc].filter(Boolean).join(' · '),false,'BREADCRUMBS');
+
+  const result=await bcResolve(selectedProperty,pc,undefined,true);
+  if(myFindGeneration!==ssFindGeneration)return;
+
+  const returnedUprn=String(result?.uprn||'').trim();
+  const uprnMatches=!selectedUprn || (returnedUprn && returnedUprn===selectedUprn);
+  if(result?.verified===true && uprnMatches &&
+     Number.isFinite(Number(result.latitude)) && Number.isFinite(Number(result.longitude))){
+    ssPendingNavigation={
+      latitude:Number(result.latitude),
+      longitude:Number(result.longitude),
+      query:result.address||address||[selectedProperty,pc].join(', ')
+    };
+    ssShowFindResult('✓ DESTINATION VERIFIED',
+      result.address||address||[selectedProperty,pc].join(' · '),true,'BREADCRUMBS');
+    return;
+  }
+
+  ssShowFindResult('DESTINATION NOT VERIFIED',
+    'No confirmed pin is available yet. Use Record Without Sat Nav when you reach the property.',
+    false,'SITUSNAP');
 }
 
 function ssRenderPostcodeChoices(choices){
@@ -1717,7 +1749,7 @@ function ssRenderPostcodeChoices(choices){
     btn.type='button';
     btn.textContent=address;
     btn.style.cssText='width:100%;text-align:left;padding:12px;border:1px solid #31566a;border-radius:10px;background:#0b3042;color:#fff;font-weight:850;line-height:1.25';
-    btn.addEventListener('click',()=>ssApplyPostcodeChoice(address));
+    btn.addEventListener('click',()=>ssApplyPostcodeChoice(choice));
     list.appendChild(btn);
   }
   panel.classList.toggle('hidden',!list.children.length);
