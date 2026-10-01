@@ -714,8 +714,17 @@ nav.bottom{bottom:0!important;height:calc(64px + env(safe-area-inset-bottom,0px)
 main{padding-bottom:calc(82px + env(safe-area-inset-bottom,0px))!important}
 body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))!important}
 </style>
+
+<style id="situsnap-approved-site-splash">
+#ssApprovedSiteSplash{position:fixed;inset:0;z-index:2147483647;background:#031923;display:flex;align-items:center;justify-content:center;opacity:1;visibility:visible;transition:opacity .32s ease,visibility .32s ease}
+#ssApprovedSiteSplash.ss-splash-away{opacity:0;visibility:hidden;pointer-events:none}
+#ssApprovedSiteSplash img{width:100%;height:100%;object-fit:cover;object-position:center;display:block}
+@media (prefers-reduced-motion:reduce){#ssApprovedSiteSplash{transition:none}}
+</style>
 </head>
 <body>
+<div id="ssApprovedSiteSplash" aria-hidden="true"><img src="/situsnap-approved-splash.png" alt="" fetchpriority="high"></div>
+
 <div id="ssBuildStamp" data-build="SituSnap-1.1.1" style="display:none">SituSnap-1.1.1</div>
 <div id="offlineBanner" class="offline-banner hidden" role="status" aria-live="polite">No signal — continue offline.</div><div id="celebration" aria-hidden="true"><div class="celebrate-content"><div class="celebrate-title">PIN VERIFIED!</div><div class="celebrate-sub">SituSnap location confirmed</div></div></div><header><div class="brand"><div><div class="brand-name"><span style="color:#fff">Situ</span><span style="color:#69df83">Snap</span></div><div class="tag">Find it. Snap it. Update it.</div></div></div><div class="menu">☰</div></header>
 <main><div id="breadcrumbsBridge" class="card hidden" style="border:2px solid #69df83;margin-top:12px"><div class="eyebrow">BREADCRUMBS</div><h2 id="bridgeTitle" style="margin:5px 0">Continue</h2><div class="meta" id="bridgeText"></div></div>
@@ -4182,6 +4191,21 @@ label[for="accessDirections"], #accessDirections{
     e.preventDefault();
     e.returnValue='';
   });
+})();
+</script>
+
+<script id="situsnap-approved-site-splash-script">
+(function(){
+  var splash=document.getElementById('ssApprovedSiteSplash');
+  if(!splash) return;
+  var gone=false;
+  function dismiss(){
+    if(gone) return; gone=true;
+    splash.classList.add('ss-splash-away');
+    window.setTimeout(function(){ if(splash&&splash.parentNode) splash.parentNode.removeChild(splash); },380);
+  }
+  window.setTimeout(dismiss,2000);
+  window.addEventListener('pageshow',function(e){ if(e.persisted) dismiss(); },{once:true});
 })();
 </script>
 </body></html>
