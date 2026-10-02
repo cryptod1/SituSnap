@@ -9,18 +9,14 @@ jobs:
   build:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
-
       - name: Create Android project
         run: python3 .github/scripts/make_android.py
-
       - name: Restore permanent signing key
         env:
           KEYSTORE_BASE64: ${{ secrets.SITUSNAP_KEYSTORE_BASE64 }}
@@ -28,13 +24,11 @@ jobs:
           set -e
           test -n "$KEYSTORE_BASE64"
           echo "$KEYSTORE_BASE64" | base64 --decode > situsnap-release.jks
-          echo "✅ Keystore restored"
+          echo ✅ Keystore restored
           echo "Keystore size: $(wc -c < situsnap-release.jks) bytes"
-
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
-
       - name: Build permanently signed APK
         env:
           SITUSNAP_STORE_PASSWORD: ${{ secrets.SITUSNAP_KEYSTORE_PASSWORD }}
@@ -43,7 +37,6 @@ jobs:
         run: |
           set -e
           gradle assembleRelease
-
       - name: Locate Android build tools
         run: |
           set -e
@@ -51,7 +44,6 @@ jobs:
           echo "BUILD_TOOLS=$BUILD_TOOLS" >> "$GITHUB_ENV"
           test -x "$BUILD_TOOLS/apksigner"
           test -x "$BUILD_TOOLS/aapt"
-
       - name: Verify APK signature
         run: |
           set -e
@@ -59,7 +51,6 @@ jobs:
           test -f "$APK"
           "$BUILD_TOOLS/apksigner" verify --verbose --print-certs "$APK"
           echo "🔥 SIGNED APK VERIFIED"
-
       - name: Final SituSnap package gate
         run: |
           set -e
@@ -73,7 +64,6 @@ jobs:
           echo "🔥 SDK VERIFIED"
           echo "🔥 SPLASH LAUNCHER VERIFIED"
           echo "🔥 SITUSNAP APK PASSED ALL BUILD GATES"
-
       - uses: actions/upload-artifact@v4
         with:
           name: SituSnap-Android-V1
@@ -89,12 +79,14 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-      - uses: android-actions/setup-android@v3
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
-      - name: Install Android build target
-        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+      - name: Accept only Android platform and build-tools licenses and install packages
+        shell: bash
+        run: |
+          set -eu
+          yes | sdkmanager --install "platforms;android-35" "build-tools;35.0.0"
       - name: Unpack mirror source
         run: unzip -q situsnap-android-mirror-source.zip -d .
       - name: Build mirror APK
@@ -102,7 +94,8 @@ jobs:
         run: gradle --no-daemon assembleDebug
       - name: Verify mirror package ID
         run: |
-          BUILD_TOOLS=$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -1)
+          set -euo pipefail
+          BUILD_TOOLS=$ANDROID_HOME/build-tools/35.0.0
           "$BUILD_TOOLS/aapt" dump badging android-mirror/app/build/outputs/apk/debug/app-debug.apk | grep -q "package: name='uk.co.situsnap.mirror'"
       - uses: actions/upload-artifact@v4
         with:
