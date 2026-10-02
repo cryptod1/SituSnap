@@ -1,0 +1,32 @@
+name: Build SituSnap mirror APK
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  debug-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Unpack Android mirror source
+        run: unzip -q situsnap-android-mirror-source.zip -d .
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+      - name: Install Android build target
+        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+      - name: Build isolated mirror APK
+        working-directory: android-mirror
+        run: gradle --no-daemon assembleDebug
+      - uses: actions/upload-artifact@v4
+        with:
+          name: situsnap-mirror-debug-apk
+          path: android-mirror/app/build/outputs/apk/debug/app-debug.apk
