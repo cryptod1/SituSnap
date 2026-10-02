@@ -818,7 +818,8 @@ body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))!important}
 <input id="photo1" type="file" accept="image/*" style="display:none">
 <div id="primaryPhotoStatus" class="small-note" style="margin-top:7px">No photo selected yet.</div></div>
 <div class="full"><details class="details" style="margin-top:4px"><summary>＋ Add more photos</summary><div class="inside"><input id="photo2" type="file" accept="image/*" capture="environment" multiple><div class="small-note" style="margin-top:7px">Optional — add approach, gate, landmark or access photos if useful.</div></div></details></div>
-<div class="full"><button class="save" id="detailsFoundBtn" onclick="confirmFoundFromDetails()" disabled style="opacity:.45;filter:saturate(.45);cursor:not-allowed">✓ PIN VERIFIED</button><div class="small-note" id="foundGpsNote" style="margin-top:8px;text-align:center">Confirm when physically at the property.</div><div id="localSaveStatus" class="small-note" style="margin-top:7px;text-align:center;font-weight:900;color:#9ee9ad"></div></div>
+<div class="full"><button class="save" id="detailsFoundBtn" onclick="confirmFoundFromDetails()" disabled style="opacity:.45;filter:saturate(.45);cursor:not-allowed">✓ PIN VERIFIED</button><div class="small-note" id="foundGpsNote" style="margin-top:8px;text-align:center">Confirm when physically at the property.</div><div id="localSaveStatus" class="small-note" style="margin-top:7px;text-align:center;font-weight:900;color:#9ee9ad"></div>
+<button id="ssVaultSignInBtn" type="button" onclick="ssVaultSignIn()" style="display:none;width:100%;margin-top:7px;padding:10px;border:0;border-radius:10px;background:#69df83;color:#071a33;font-weight:900">SIGN IN TO SYNC</button></div>
 <div class="full"><details class="details" style="margin-top:4px"><summary>Couldn’t locate the property?</summary><div class="inside"><button type="button" onclick="saveNotFound()" style="width:100%;padding:13px 8px;border-radius:12px;border:0;background:#145a35;color:#fff;font-weight:950">NOT FOUND</button><div class="small-note" style="margin-top:7px">Save the attempt for handover without creating a verified pin.</div></div></details></div></div></div></details>
 <div style="height:8px"></div>
 <details class="details" id="reminderIdentify"><summary>🏠 Identify the property</summary><div class="inside">Record the number/name, building, entrance, gate or another clear identifier.</div></details>
@@ -885,8 +886,9 @@ window.addEventListener("DOMContentLoaded",()=>{
   ssCheckForUpdate();
 });
 const SS_VERIFIED_ARCHIVE="situSnapVerifiedArchiveV1";
-const SS_REMOVED_VERIFIED="situSnapRemovedVerifiedV1";
-const SS_VAULT_ENDPOINT="https://holy-frost-eda0.stopjunkmail35.workers.dev/api/situ-vault";
+const SS_REMOVED_VERIFIED="situSnapRemovedVerifiedV1";const SS_VAULT_API_ORIGIN="https://api.situsnap.app";
+const SS_VAULT_ENDPOINT=SS_VAULT_API_ORIGIN+"/api/situ-vault";
+const SS_VAULT_SIGNIN_URL=SS_VAULT_API_ORIGIN+"/trial-sign-in";
 const SS_VAULT_QUEUE="situSnapVaultQueueV1";
 const SS_CLOUDINARY_CLOUD="wizvgv9a";
 const SS_CLOUDINARY_PRESET="situsnap_verified";
@@ -919,8 +921,9 @@ function ssPersistPhotoReference(record){
   const i=rows.findIndex(r=>String(r?.id)===String(record.id));
   if(i>=0){rows[i]={...rows[i],photoUrl:record.photoUrl,photoPublicId:record.photoPublicId||""};localStorage.setItem("situSnapRecords",JSON.stringify(rows))}
   ssArchiveVerified({...record,pinVerified:true});
-}
-function ssVaultStatus(text){const el=document.getElementById("localSaveStatus");if(el)el.textContent=text}
+}function ssVaultStatus(text,showSignIn=false){const el=document.getElementById("localSaveStatus");if(el)el.textContent=text;const button=document.getElementById("ssVaultSignInBtn");if(button)button.style.display=showSignIn?"block":"none"}
+function ssVaultSignIn(){try{sessionStorage.setItem("ssVaultRetryAfterSignIn","1")}catch(_){}window.location.href=SS_VAULT_SIGNIN_URL}
+window.addEventListener("pageshow",()=>{try{if(sessionStorage.getItem("ssVaultRetryAfterSignIn")==="1"){sessionStorage.removeItem("ssVaultRetryAfterSignIn");if(navigator.onLine){ssVaultRestore();ssVaultFlush()}}}catch(_){}});
 function ssVaultPayload(record){
   const lat=Number(record?.gps?.latitude ?? record?.gps?.lat ?? record?.latitude);
   const lon=Number(record?.gps?.longitude ?? record?.gps?.lon ?? record?.longitude);
@@ -933,7 +936,7 @@ function ssVaultQueuePut(record){
   try{localStorage.setItem(SS_VAULT_QUEUE,JSON.stringify(q.slice(0,50)))}catch(_){}
 }
 async function ssVaultPostPayload(payload){
-  const r=await fetch(SS_VAULT_ENDPOINT,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(payload)});
+  const r=await fetch(SS_VAULT_ENDPOINT,{method:"POST",credentials:"include",headers:{"content-type":"application/json"},body:JSON.stringify(payload)});
   const data=await r.json().catch(()=>({}));
   if(!r.ok||data?.ok!==true||data?.cloudSaved!==true)throw new Error(data?.message||("Vault HTTP "+r.status));
   return data;
@@ -948,7 +951,7 @@ async function ssVaultSaveRecord(record){
     const q=ssVaultQueueRead().filter(x=>String(x.recordId)!==payload.recordId);
     localStorage.setItem(SS_VAULT_QUEUE,JSON.stringify(q));
     ssVaultStatus("✓ PIN SECURED · Cloud ✓ · Offline copy ✓");return true;
-  }catch(err){console.warn("SituSnap vault save deferred",err);ssVaultStatus("✓ PIN SAVED ON PHONE · Cloud pending");return false}
+  }catch(err){console.warn("SituSnap vault save deferred",err);ssVaultStatus("✓ PIN SAVED ON PHONE · Cloud pending. Sign in to sync.",true);return false}
 }
 async function ssVaultFlush(){
   if(!navigator.onLine)return false;
@@ -967,7 +970,7 @@ function ssVaultRecordToLocal(v){
 async function ssVaultRestore(){
   if(!navigator.onLine)return {ok:false,reason:"offline"};
   try{
-    const r=await fetch(SS_VAULT_ENDPOINT,{headers:{"accept":"application/json"}});const data=await r.json();
+    const r=await fetch(SS_VAULT_ENDPOINT,{credentials:"include",headers:{"accept":"application/json"}});const data=await r.json();
     if(!r.ok||data?.ok!==true||!Array.isArray(data.records))throw new Error(data?.message||"Vault restore failed");
     const removed=new Set(ssReadArray(SS_REMOVED_VERIFIED).map(String));
     const cloud=data.records.map(ssVaultRecordToLocal).filter(Boolean).filter(rec=>!removed.has(String(rec.id)));if(!cloud.length)return {ok:true,count:0};
