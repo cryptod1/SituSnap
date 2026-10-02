@@ -85,8 +85,8 @@ jobs:
       - name: Accept only Android platform and build-tools licenses and install packages
         shell: bash
         run: |
-          set -eu
-          yes | sdkmanager --install "platforms;android-35" "build-tools;35.0.0"
+          set -euo pipefail
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "platforms;android-35" "build-tools;35.0.0"
       - name: Unpack mirror source
         run: unzip -q situsnap-android-mirror-source.zip -d .
       - name: Build mirror APK
