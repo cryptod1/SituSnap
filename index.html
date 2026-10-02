@@ -885,8 +885,9 @@ window.addEventListener("DOMContentLoaded",()=>{
   const v=document.getElementById("ssPage2Version");if(v)v.textContent=`SituSnap ${SS_APP_VERSION}`;
   ssCheckForUpdate();
 });
-const SS_VERIFIED_ARCHIVE="situSnapVerifiedArchiveV1";
-const SS_REMOVED_VERIFIED="situSnapRemovedVerifiedV1";const SS_VAULT_API_ORIGIN="https://api.situsnap.app";
+const SS_VERIFIED_ARCHIVE="situSnapVerifiedArchiveV1";const SS_REMOVED_VERIFIED="situSnapRemovedVerifiedV1";
+// Replace with the assigned isolated Cloudflare Access staging hostname before trial setup.
+const SS_VAULT_API_ORIGIN="https://replace-with-staging-host.invalid";
 const SS_VAULT_ENDPOINT=SS_VAULT_API_ORIGIN+"/api/situ-vault";
 const SS_VAULT_SIGNIN_URL=SS_VAULT_API_ORIGIN+"/trial-sign-in";
 const SS_VAULT_QUEUE="situSnapVaultQueueV1";
