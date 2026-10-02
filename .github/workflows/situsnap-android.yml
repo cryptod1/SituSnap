@@ -86,6 +86,7 @@ jobs:
         shell: bash
         run: |
           set -eu
+          set +o pipefail
           yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "platforms;android-35" "build-tools;35.0.0"
       - name: Unpack mirror source
         run: unzip -q situsnap-android-mirror-source.zip -d .
