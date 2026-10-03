@@ -1,0 +1,50 @@
+name: Trial SituSnap API 36 AAB
+
+on:
+  workflow_dispatch:
+
+jobs:
+  api36-aab:
+    if: github.event_name == 'workflow_dispatch' && github.ref != 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.11.1'
+      - name: Accept Android 16 SDK license and install build tools
+        shell: bash
+        run: |
+          set -eu
+          set +o pipefail
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "platforms;android-36" "build-tools;36.0.0"
+      - name: Generate SituSnap Android project
+        run: python3 .github/scripts/make_android.py
+      - name: Set API 36 and compatible Android Gradle Plugin
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          root = Path("build.gradle")
+          app = Path("app/build.gradle")
+          root_source = root.read_text()
+          app_source = app.read_text()
+          if "version '8.7.3'" not in root_source:
+              raise SystemExit("Expected Android Gradle Plugin 8.7.3 declaration was not found")
+          if "compileSdk 35" not in app_source or "targetSdk 35" not in app_source:
+              raise SystemExit("Expected generated API 35 SDK settings were not found")
+          root.write_text(root_source.replace("version '8.7.3'", "version '8.10.1'", 1))
+          app.write_text(app_source.replace("compileSdk 35", "compileSdk 36", 1).replace("targetSdk 35", "targetSdk 36", 1))
+          PY
+      - name: Build debug Android App Bundle
+        run: gradle --no-daemon bundleDebug
+      - name: Verify AAB exists
+        run: test -s app/build/outputs/bundle/debug/app-debug.aab
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SituSnap-API36-debug-AAB
+          path: app/build/outputs/bundle/debug/app-debug.aab
+          if-no-files-found: error
