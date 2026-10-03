@@ -101,10 +101,10 @@ jobs:
           source = source.replace("geolocationEnabled = true", "setGeolocationEnabled(true)")
           marker = "    defaultConfig {"
           addition = "    compileOptions {\n        sourceCompatibility = JavaVersion.VERSION_17\n        targetCompatibility = JavaVersion.VERSION_17\n    }\n\n    kotlinOptions {\n        jvmTarget = \"17\"\n    }\n\n"
-          if "jvmTarget = \"17\"" not in source:
+          if "sourceCompatibility = JavaVersion.VERSION_17" not in source:
               if marker not in source:
                   raise SystemExit("Could not find defaultConfig block to align compiler targets")
-              path.write_text(source.replace(marker, addition + marker, 1))
+            source = source.replace(marker, addition + marker, 1)
           path.write_text(source)
           PY
 
