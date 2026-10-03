@@ -98,7 +98,11 @@ jobs:
           from pathlib import Path
           path = Path("app/build.gradle.kts")
           source = path.read_text()
-          source = source.replace("geolocationEnabled = true", "setGeolocationEnabled(true)")
+          main_path = Path("app/src/main/java/uk/co/situsnap/mirror/MainActivity.kt")
+          main_source = main_path.read_text()
+          if "geolocationEnabled = true" not in main_source:
+              raise SystemExit("Could not find geolocation setting to update")
+          main_path.write_text(main_source.replace("geolocationEnabled = true", "setGeolocationEnabled(true)", 1))
           marker = "    defaultConfig {"
           addition = "    compileOptions {\n        sourceCompatibility = JavaVersion.VERSION_17\n        targetCompatibility = JavaVersion.VERSION_17\n    }\n\n    kotlinOptions {\n        jvmTarget = \"17\"\n    }\n\n"
           if "sourceCompatibility = JavaVersion.VERSION_17" not in source:
