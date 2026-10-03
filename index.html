@@ -893,28 +893,68 @@ const SS_VAULT_SIGNIN_URL=SS_VAULT_API_ORIGIN+"/trial-sign-in";
 const SS_VAULT_QUEUE="situSnapVaultQueueV1";
 const SS_CLOUDINARY_CLOUD="wizvgv9a";
 const SS_CLOUDINARY_PRESET="situsnap_verified";
+const SS_PHOTO_MAX_EDGE=1920;
+const SS_PHOTO_JPEG_QUALITY=0.84;
+async function ssCompactPhotoBlob(input){
+  if(!(input instanceof Blob)||!/^image\//i.test(input.type||""))return input;
+  let source=null,objectUrl="";
+  try{
+    if(typeof createImageBitmap==="function")source=await createImageBitmap(input);
+    else{
+      objectUrl=URL.createObjectURL(input);
+      source=await new Promise((resolve,reject)=>{
+        const image=new Image();
+        image.onload=()=>resolve(image);
+        image.onerror=()=>reject(new Error("photo_decode_failed"));
+        image.src=objectUrl;
+      });
+    }
+    const width=Number(source.width||source.naturalWidth),height=Number(source.height||source.naturalHeight);
+    if(!width||!height)return input;
+    const scale=Math.min(1,SS_PHOTO_MAX_EDGE/Math.max(width,height));
+    if(scale===1&&input.size<=350*1024&&/^image\/(jpeg|webp)$/i.test(input.type))return input;
+    const canvas=document.createElement("canvas");
+    canvas.width=Math.max(1,Math.round(width*scale));
+    canvas.height=Math.max(1,Math.round(height*scale));
+    const ctx=canvas.getContext("2d",{alpha:false});
+    if(!ctx)return input;
+    ctx.fillStyle="#fff";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.drawImage(source,0,0,canvas.width,canvas.height);
+    const compact=await new Promise(resolve=>canvas.toBlob(resolve,"image/jpeg",SS_PHOTO_JPEG_QUALITY));
+    canvas.width=0;canvas.height=0;
+    return compact&&compact.size<input.size?compact:input;
+  }catch(error){
+    console.warn("SituSnap photo compaction skipped; keeping original",error);
+    return input;
+  }finally{
+    if(source&&typeof source.close==="function")source.close();
+    if(objectUrl)URL.revokeObjectURL(objectUrl);
+  }
+}
 async function ssUploadVerifiedPhoto(record){
   if(!navigator.onLine)return {ok:false,reason:"offline"};
   const file=document.getElementById("photoCamera")?.files?.[0]||document.getElementById("photo1")?.files?.[0]||null;
   if(!file)return {ok:false,reason:"no_file"};
+  const compactFile=await ssCompactPhotoBlob(file);
   const fd=new FormData();
-  fd.append("file",file);
+  const uploadName=(String(file.name||"situsnap-photo").replace(/\.[^.]+$/,"")||"situsnap-photo")+".jpg";
+  fd.append("file",compactFile,uploadName);
   fd.append("upload_preset",SS_CLOUDINARY_PRESET);
   fd.append("tags","situsnap_verified");
-  fd.append("context",`record_id=${String(record?.id||"")}|postcode=${String(record?.postcode||"")}`);
   const r=await fetch(`https://api.cloudinary.com/v1_1/${SS_CLOUDINARY_CLOUD}/image/upload`,{method:"POST",body:fd});
   const d=await r.json().catch(()=>({}));
   if(!r.ok||!d?.secure_url)throw new Error(d?.error?.message||("Photo upload HTTP "+r.status));
   record.photoUrl=String(d.secure_url);
   record.photoPublicId=String(d.public_id||"");
-  try{await ssCachePhotoBlob(record.id,file)}catch(e){console.warn("Fresh verified photo cache failed",e)}
+  try{await ssCachePhotoBlob(record.id,compactFile)}catch(e){console.warn("Fresh verified photo cache failed",e)}
   return {ok:true,url:record.photoUrl,publicId:record.photoPublicId};
 }
 const SS_PHOTO_DB="SituSnapOfflinePhotosV1";
 function ssPhotoDb(){return new Promise((resolve,reject)=>{const q=indexedDB.open(SS_PHOTO_DB,1);q.onupgradeneeded=()=>{const db=q.result;if(!db.objectStoreNames.contains("photos"))db.createObjectStore("photos")};q.onsuccess=()=>resolve(q.result);q.onerror=()=>reject(q.error)})}
 async function ssCachePhotoBlob(id,blob){if(!id||!blob)return false;const db=await ssPhotoDb();return new Promise((resolve,reject)=>{const tx=db.transaction("photos","readwrite");tx.objectStore("photos").put(blob,String(id));tx.oncomplete=()=>{db.close();resolve(true)};tx.onerror=()=>{db.close();reject(tx.error)}})}
 async function ssGetCachedPhoto(id){const db=await ssPhotoDb();return new Promise((resolve,reject)=>{const tx=db.transaction("photos","readonly"),q=tx.objectStore("photos").get(String(id));q.onsuccess=()=>{db.close();resolve(q.result||null)};q.onerror=()=>{db.close();reject(q.error)}})}
-async function ssCacheRemotePhoto(record){if(!record?.id||!record?.photoUrl||!navigator.onLine)return false;try{if(await ssGetCachedPhoto(record.id))return true;const r=await fetch(record.photoUrl,{mode:"cors",cache:"force-cache"});if(!r.ok)throw new Error("photo_http_"+r.status);return await ssCachePhotoBlob(record.id,await r.blob())}catch(e){console.warn("SituSnap photo cache deferred",e);return false}}
+async function ssCacheRemotePhoto(record){if(!record?.id||!record?.photoUrl||!navigator.onLine)return false;try{if(await ssGetCachedPhoto(record.id))return true;const r=await fetch(record.photoUrl,{mode:"cors",cache:"force-cache"});if(!r.ok)throw new Error("photo_http_"+r.status);return await ssCachePhotoBlob(record.id,await ssCompactPhotoBlob(await r.blob()))}catch(e){console.warn("SituSnap photo cache deferred",e);return false}}
 async function ssPrepareOfflinePhotos(){if(!navigator.onLine)return;for(const r of getRecords().filter(r=>isVerifiedSituSnap(r)&&r.photoUrl))await ssCacheRemotePhoto(r)}
 function ssPersistPhotoReference(record){
   if(!record?.id||!record?.photoUrl)return;
