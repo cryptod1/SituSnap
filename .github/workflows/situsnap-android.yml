@@ -104,7 +104,7 @@ jobs:
           if "sourceCompatibility = JavaVersion.VERSION_17" not in source:
               if marker not in source:
                   raise SystemExit("Could not find defaultConfig block to align compiler targets")
-            source = source.replace(marker, addition + marker, 1)
+              source = source.replace(marker, addition + marker, 1)
           path.write_text(source)
           PY
 
