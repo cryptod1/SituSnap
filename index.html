@@ -4208,4 +4208,33 @@ label[for="accessDirections"], #accessDirections{
   window.addEventListener('pageshow',function(e){ if(e.persisted) dismiss(); },{once:true});
 })();
 </script>
+<script id="situsnap-trial-photo-limit">
+(function(){
+  const MESSAGE="Trial limit: up to 2 photos per upload. We’ll lift this limit after the trial.";
+  const camera=document.getElementById("photoCamera");
+  const gallery=document.getElementById("photo1");
+  const extra=document.getElementById("photo2");
+  const status=document.getElementById("primaryPhotoStatus");
+  if(!camera||!gallery||!extra)return;
+  function sync(changed){
+    if(changed===camera&&camera.files.length)gallery.value="";
+    if(changed===gallery&&gallery.files.length)camera.value="";
+    const primary=(camera.files.length||gallery.files.length)?1:0;
+    if(extra.files.length>1||primary+extra.files.length>2){extra.value="";alert(MESSAGE);}
+    const count=primary+extra.files.length;
+    if(status)status.textContent=count?count+" of 2 photos selected.":"No photo added yet.";
+  }
+  camera.addEventListener("change",()=>sync(camera));
+  gallery.addEventListener("change",()=>sync(gallery));
+  extra.addEventListener("change",()=>sync(extra));
+  const note=extra.parentElement.querySelector(".small-note");
+  if(note)note.textContent="Optional · 1 extra photo (2 total max).";
+  const original=persistFoundRecord;
+  persistFoundRecord=function(){
+    const count=((camera.files.length||gallery.files.length)?1:0)+extra.files.length;
+    if(count>2){alert(MESSAGE);return false;}
+    return original.apply(this,arguments);
+  };
+})();
+</script>
 </body></html>
