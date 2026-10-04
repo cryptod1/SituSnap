@@ -59,6 +59,33 @@
 #targetBox{display:none !important}
 #postcodeChoices{display:none!important}.postcode-choices{margin-top:8px;padding:9px 10px;border-radius:12px;background:rgba(255,255,255,.96);border:1px solid rgba(105,223,131,.45)}
 .postcode-choices label{display:block;font-size:9px;font-weight:900;letter-spacing:.5px;color:#31506b;margin-bottom:5px}
+
+<script id="ss-front-verified-scope">
+(function(){
+ const root=document.getElementById("records"),pcInput=document.getElementById("huntPostcode");
+ if(!root||!pcInput)return;
+ const numberInput=document.getElementById("doorNumber"),nameInput=document.getElementById("manualAddress");
+ const normPc=v=>String(v||"").replace(/[^a-z0-9]/gi,"").toUpperCase();
+ const normText=v=>String(v||"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
+ const includesTerms=(text,query)=>!query||query.split(" ").every(term=>text.split(" ").includes(term));
+ function applyScope(){
+  const pc=normPc(pcInput.value),number=normText(numberInput?.value),name=normText(nameInput?.value);
+  let shown=0;
+  root.querySelectorAll(".record").forEach(card=>{
+   const cardPc=normPc(card.querySelector(".pills .pill")?.textContent),title=normText(card.querySelector("h3")?.textContent);
+   const match=!!pc&&cardPc===pc&&includesTerms(title,number)&&includesTerms(title,name);
+   card.hidden=!match;card.style.display=match?"":"none";if(match)shown++;
+  });
+  let note=document.getElementById("ssPostcodeScopeNote");
+  if(!note){note=document.createElement("p");note.id="ssPostcodeScopeNote";note.className="small-note";root.insertBefore(note,root.firstChild)}
+  note.textContent=!pc?"Enter a postcode to view verified locations saved on this phone.":number||name?(shown?"Saved verified location matches this destination.":"No saved verified location matches this destination."):shown+" verified location"+(shown===1?"":"s")+" saved for this postcode.";
+ }
+ const draw=window.render;
+ if(typeof draw==="function"){window.render=function(){const result=draw.apply(this,arguments);applyScope();return result};try{render=window.render}catch(_){}}
+ [pcInput,numberInput,nameInput].filter(Boolean).forEach(input=>input.addEventListener("input",applyScope));
+ applyScope();
+})();
+</script>
 .postcode-choices select{width:100%;min-height:40px;border-radius:9px;border:1px solid #cbd5e1;padding:8px 10px;font-weight:750;color:#10253d;background:#fff}
 #manualAddress{min-height:52px!important;background:#fff!important;color:#111827!important;-webkit-text-fill-color:#111827!important;caret-color:#145a35!important;font-size:16px!important;pointer-events:auto!important;user-select:text!important;-webkit-user-select:text!important}
 
@@ -4333,3 +4360,30 @@ const originalFinish=window.finishFound;if(typeof originalFinish==="function")wi
 })();
 </script>
 
+
+<script id="ss-front-verified-scope">
+(function(){
+ const root=document.getElementById("records"),pcInput=document.getElementById("huntPostcode");
+ if(!root||!pcInput)return;
+ const numberInput=document.getElementById("doorNumber"),nameInput=document.getElementById("manualAddress");
+ const normPc=v=>String(v||"").replace(/[^a-z0-9]/gi,"").toUpperCase();
+ const normText=v=>String(v||"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
+ const includesTerms=(text,query)=>!query||query.split(" ").every(term=>text.split(" ").includes(term));
+ function applyScope(){
+  const pc=normPc(pcInput.value),number=normText(numberInput?.value),name=normText(nameInput?.value);
+  let shown=0;
+  root.querySelectorAll(".record").forEach(card=>{
+   const cardPc=normPc(card.querySelector(".pills .pill")?.textContent),title=normText(card.querySelector("h3")?.textContent);
+   const match=!!pc&&cardPc===pc&&includesTerms(title,number)&&includesTerms(title,name);
+   card.hidden=!match;card.style.display=match?"":"none";if(match)shown++;
+  });
+  let note=document.getElementById("ssPostcodeScopeNote");
+  if(!note){note=document.createElement("p");note.id="ssPostcodeScopeNote";note.className="small-note";root.insertBefore(note,root.firstChild)}
+  note.textContent=!pc?"Enter a postcode to view verified locations saved on this phone.":number||name?(shown?"Saved verified location matches this destination.":"No saved verified location matches this destination."):shown+" verified location"+(shown===1?"":"s")+" saved for this postcode.";
+ }
+ const draw=window.render;
+ if(typeof draw==="function"){window.render=function(){const result=draw.apply(this,arguments);applyScope();return result};try{render=window.render}catch(_){}}
+ [pcInput,numberInput,nameInput].filter(Boolean).forEach(input=>input.addEventListener("input",applyScope));
+ applyScope();
+})();
+</script>
