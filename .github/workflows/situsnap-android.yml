@@ -19,8 +19,10 @@ jobs:
       - name: Create Android project
         run: python3 .github/scripts/make_android.py
 
-      - name: Use the same front page as situsnap.app
-        run: cp index.html app/src/main/assets/phoenix.html
+      - name: Use the same front page and approved logo as situsnap.app
+        run: |
+          cp index.html app/src/main/assets/phoenix.html
+          cp situsnap-brand-mark.png app/src/main/assets/situsnap-brand-mark.png
 
       - name: Restore permanent signing key
         env:
