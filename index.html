@@ -61,6 +61,43 @@
 .postcode-choices label{display:block;font-size:9px;font-weight:900;letter-spacing:.5px;color:#31506b;margin-bottom:5px}
 .postcode-choices select{width:100%;min-height:40px;border-radius:9px;border:1px solid #cbd5e1;padding:8px 10px;font-weight:750;color:#10253d;background:#fff}
 #manualAddress{min-height:52px!important;background:#fff!important;color:#111827!important;-webkit-text-fill-color:#111827!important;caret-color:#145a35!important;font-size:16px!important;pointer-events:auto!important;user-select:text!important;-webkit-user-select:text!important}
+
+<script>
+/* Verified removal guard: carry removals across the primary, archive, learned and vault stores. */
+(function(){
+  const key="situSnapRemovedVerifiedV1";
+  const read=k=>{try{const x=JSON.parse(localStorage.getItem(k)||"[]");return Array.isArray(x)?x:[]}catch(_){return []}};
+  const token=r=>{const pc=String(r?.postcode||"").toUpperCase().replace(/\s+/g,"").trim();const name=String(r?.address||r?.property||r?.propertyName||"").toUpperCase().replace(/[^A-Z0-9]+/g," ").trim();return pc&&name?"place:"+pc+"|"+name:""};
+  const id=r=>String(r?.id??r?.recordId??r?.pinId??"");
+  const removed=(r,ids)=>ids.includes(id(r))||(token(r)&&ids.includes(token(r)));
+  function migrate(){
+    const ids=read(key).map(String),rows=[...read("situSnapRecords"),...read("situSnapVerifiedArchiveV1"),...read("situSnapVerifiedPinsV1")];
+    for(const r of rows){const rid=id(r),place=token({postcode:r?.postcode,address:r?.address||r?.propertyName||r?.property});if(rid&&ids.includes(rid)&&place&&!ids.includes(place))ids.unshift(place)}
+    if(ids.length!==read(key).length||ids.some((v,i)=>v!==String(read(key)[i])))localStorage.setItem(key,JSON.stringify(ids.slice(0,2000)));
+    return ids;
+  }
+  function purge(){
+    const ids=migrate();if(!ids.length)return;
+    localStorage.setItem("situSnapRecords",JSON.stringify(read("situSnapRecords").filter(r=>!removed(r,ids))));
+    localStorage.setItem("situSnapVerifiedArchiveV1",JSON.stringify(read("situSnapVerifiedArchiveV1").filter(r=>!removed(r,ids))));
+    localStorage.setItem("situSnapVerifiedPinsV1",JSON.stringify(read("situSnapVerifiedPinsV1").filter(r=>!removed({id:r?.pinId,postcode:r?.postcode,address:r?.propertyName},ids))));
+    localStorage.setItem("situSnapVaultQueueV1",JSON.stringify(read("situSnapVaultQueueV1").filter(r=>!removed({id:r?.recordId,postcode:r?.postcode,address:r?.property},ids))));
+  }
+  const baseRender=window.render;
+  if(typeof baseRender==="function"){window.render=function(){purge();return baseRender.apply(this,arguments)};try{render=window.render}catch(_){}}
+  const baseRemove=window.ssRemoveVerifiedLocation;
+  if(typeof baseRemove==="function")window.ssRemoveVerifiedLocation=async function(recordId){
+    const rec=getRecords().find(r=>String(r?.id)===String(recordId));
+    const result=await baseRemove.apply(this,arguments);
+    const ids=read(key).map(String);
+    if(rec&&ids.includes(String(recordId))){const place=token(rec);if(place&&!ids.includes(place))ids.unshift(place);localStorage.setItem(key,JSON.stringify(ids.slice(0,2000)));purge();if(typeof window.render==="function")window.render()}
+    return result;
+  };
+  const baseRestore=window.ssVaultRestore;
+  if(typeof baseRestore==="function")window.ssVaultRestore=async function(){purge();const result=await baseRestore.apply(this,arguments);purge();if(typeof window.render==="function")window.render();return result};
+  purge();
+})();
+</script>
 #manualAddress:focus{outline:3px solid rgba(105,223,131,.22)!important}
 .property-split{display:grid;grid-template-columns:minmax(105px,24%) minmax(0,1fr);gap:10px;align-items:start}.property-split>div{min-width:0;display:flex;flex-direction:column}.property-split .property-label{display:block;min-height:36px;box-sizing:border-box;padding:0 4px 7px;font-size:10px;font-weight:950;color:#43566f;letter-spacing:.25px;line-height:14px;white-space:normal;overflow:visible}.property-split input,.property-split #doorNumber,.property-split #manualAddress{box-sizing:border-box;width:100%!important;min-width:0;height:52px!important;min-height:52px!important;padding:11px 12px!important;background:#fff!important;color:#111827!important;-webkit-text-fill-color:#111827!important;border:1px solid #cbd5e1!important;border-radius:10px!important;font-size:16px!important}.property-split #doorNumber{padding-left:12px!important}@media(max-width:360px){.property-split{grid-template-columns:92px minmax(0,1fr);gap:8px}.property-split .property-label{font-size:9px;letter-spacing:0}}
 
@@ -4279,3 +4316,20 @@ addBoundaryChoice();document.addEventListener("DOMContentLoaded",addBoundaryChoi
 const originalFinish=window.finishFound;if(typeof originalFinish==="function")window.finishFound=function(){const note=document.getElementById("foundGpsNote"),block=m=>{if(note)note.textContent=m;alert(m);return false},fix=typeof gps!=="undefined"&&gps?gps:null,captured=Date.parse(fix?.capturedAt||"");if(!fix||!Number.isFinite(captured)||Date.now()-captured>60000||Date.now()<captured-30000)return block("Location check failed. Turn on phone Location and try again at the site.");if(!Number.isFinite(Number(fix.accuracy))||Number(fix.accuracy)>50)return block("GPS is too weak to verify this pin. Wait for accuracy of 50 m or better, then retry.");const point=exactSitePoint();if(!point)return block("Check Destination and select the actual property or site location before adding photos.");const landmark=document.getElementById("ssVisitBoundary")?.value==="landmark",limit=landmark?1609.344:250,dist=distanceM({lat:Number(fix.latitude),lon:Number(fix.longitude)},point);if(!Number.isFinite(dist)||dist>limit)return block("You are outside this pin's visit boundary. Photos and the pin were not saved. Return to the site or choose the nearby-landmark option.");const type=document.getElementById("type");if(type)type.value=landmark?"Landmark / access point":"Property / building";return originalFinish.apply(this,arguments)};
 })();
 </script></body></html>
+<script>
+/* Keep a removed verified place suppressed in every on-phone recovery store. */
+(function(){
+ const key="situSnapRemovedVerifiedV1";
+ const read=k=>{try{const x=JSON.parse(localStorage.getItem(k)||"[]");return Array.isArray(x)?x:[]}catch(_){return []}};
+ const place=r=>{const pc=String(r?.postcode||"").toUpperCase().replace(/\s+/g,"").trim(),n=String(r?.address||r?.property||r?.propertyName||"").toUpperCase().replace(/[^A-Z0-9]+/g," ").trim();return pc&&n?"place:"+pc+"|"+n:""};
+ const rid=r=>String(r?.id??r?.recordId??r?.pinId??"");
+ const hidden=(r,ids)=>ids.includes(rid(r))||(place(r)&&ids.includes(place(r)));
+ function tombstones(){const ids=read(key).map(String),all=[...read("situSnapRecords"),...read("situSnapVerifiedArchiveV1"),...read("situSnapVerifiedPinsV1")];for(const r of all){if(ids.includes(rid(r))&&place(r)&&!ids.includes(place(r)))ids.unshift(place(r))}if(ids.length!==read(key).length)localStorage.setItem(key,JSON.stringify(ids.slice(0,2000)));return ids}
+ function purge(){const ids=tombstones();if(!ids.length)return;localStorage.setItem("situSnapRecords",JSON.stringify(read("situSnapRecords").filter(r=>!hidden(r,ids))));localStorage.setItem("situSnapVerifiedArchiveV1",JSON.stringify(read("situSnapVerifiedArchiveV1").filter(r=>!hidden(r,ids))));localStorage.setItem("situSnapVerifiedPinsV1",JSON.stringify(read("situSnapVerifiedPinsV1").filter(r=>!hidden({id:r?.pinId,postcode:r?.postcode,address:r?.propertyName},ids))));localStorage.setItem("situSnapVaultQueueV1",JSON.stringify(read("situSnapVaultQueueV1").filter(r=>!hidden({id:r?.recordId,postcode:r?.postcode,address:r?.property},ids))))}
+ const draw=window.render;if(typeof draw==="function"){window.render=function(){purge();return draw.apply(this,arguments)};try{render=window.render}catch(_){}}
+ const remove=window.ssRemoveVerifiedLocation;if(typeof remove==="function")window.ssRemoveVerifiedLocation=async function(id){const rec=getRecords().find(r=>String(r?.id)===String(id));const result=await remove.apply(this,arguments);const ids=read(key).map(String);if(rec&&ids.includes(String(id))){const p=place(rec);if(p&&!ids.includes(p))ids.unshift(p);localStorage.setItem(key,JSON.stringify(ids.slice(0,2000)));purge();if(window.render)window.render()}return result};
+ const restore=window.ssVaultRestore;if(typeof restore==="function")window.ssVaultRestore=async function(){purge();const result=await restore.apply(this,arguments);purge();if(window.render)window.render();return result};
+ purge();
+})();
+</script>
+
