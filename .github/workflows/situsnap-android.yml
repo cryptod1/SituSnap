@@ -72,9 +72,38 @@ jobs:
           echo "$BADGING" | grep -q "sdkVersion:'26'"
           echo "$BADGING" | grep -q "targetSdkVersion:'35'"
           echo "$BADGING" | grep -q "launchable-activity: name='com.situsnap.app.SplashActivity'"
+          python3 - <<'PY'
+          import hashlib
+          import os
+          import sys
+          import zipfile
+          from pathlib import Path
+
+          source = Path("index.html").read_bytes()
+          staged = Path("app/src/main/assets/phoenix.html").read_bytes()
+          apk = Path("app/build/outputs/apk/release/app-release.apk")
+          expected = hashlib.sha256(source).hexdigest()
+          if staged != source:
+              sys.exit("FAIL: staged app HTML differs from the website index.html")
+          with zipfile.ZipFile(apk) as archive:
+              try:
+                  packaged = archive.read("assets/phoenix.html")
+              except KeyError:
+                  sys.exit("FAIL: APK is missing assets/phoenix.html")
+          if packaged != source:
+              sys.exit("FAIL: APK HTML differs from website index.html")
+          commit = os.environ.get("GITHUB_SHA", "unknown")
+          print(f"Website and APK HTML SHA-256: {expected}")
+          print(f"Source commit: {commit}")
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as summary:
+              summary.write("## SituSnap release consistency\n\n")
+              summary.write(f"- Source commit: {commit}\n")
+              summary.write(f"- Website and APK HTML SHA-256: {expected}\n")
+          PY
           echo "🔥 PACKAGE ID VERIFIED"
           echo "🔥 SDK VERIFIED"
           echo "🔥 SPLASH LAUNCHER VERIFIED"
+          echo "🔥 WEBSITE AND APK HTML MATCH"
           echo "🔥 SITUSNAP APK PASSED ALL BUILD GATES"
 
       - uses: actions/upload-artifact@v4
