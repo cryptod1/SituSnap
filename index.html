@@ -816,7 +816,7 @@ body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))!important}
 </div>
 <input id="photoCamera" type="file" accept="image/*" capture="environment" style="display:none">
 <input id="photo1" type="file" accept="image/*" style="display:none">
-<div id="primaryPhotoStatus" class="small-note" style="margin-top:7px">No photo selected yet.</div></div>
+<div class="full"><details class="details" style="margin-top:4px"><summary>＋ Add more photos</summary><div class="inside"><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button type="button" onclick="document.getElementById('photo2Camera').click()" style="padding:11px 7px;border-radius:10px;background:#145a35;color:#fff;font-size:11px">📷 TAKE PHOTO</button><button type="button" onclick="document.getElementById('photo2').click()" style="padding:11px 7px;border-radius:10px;background:#26384f;color:#fff;font-size:11px">▣ CHOOSE FILES</button></div><input id="photo2Camera" type="file" accept="image/*" capture="environment" style="display:none"><input id="photo2" type="file" accept="image/*" multiple style="display:none"><div id="extraPhotoStatus" class="small-note" style="margin-top:7px">No extra photo selected.</div><div class="small-note" style="margin-top:5px">Optional · 1 extra photo · 2 photos total max.</div></div></details></div>
 <div class="full"><details class="details" style="margin-top:4px"><summary>＋ Add more photos</summary><div class="inside"><input id="photo2" type="file" accept="image/*" capture="environment" multiple><div class="small-note" style="margin-top:7px">Optional — add approach, gate, landmark or access photos if useful.</div></div></details></div>
 <div class="full"><button class="save" id="detailsFoundBtn" onclick="confirmFoundFromDetails()" disabled style="opacity:.45;filter:saturate(.45);cursor:not-allowed">✓ PIN VERIFIED</button><div class="small-note" id="foundGpsNote" style="margin-top:8px;text-align:center">Confirm when physically at the property.</div><div id="localSaveStatus" class="small-note" style="margin-top:7px;text-align:center;font-weight:900;color:#9ee9ad"></div></div>
 <div class="full"><details class="details" style="margin-top:4px"><summary>Couldn’t locate the property?</summary><div class="inside"><button type="button" onclick="saveNotFound()" style="width:100%;padding:13px 8px;border-radius:12px;border:0;background:#145a35;color:#fff;font-weight:950">NOT FOUND</button><div class="small-note" style="margin-top:7px">Save the attempt for handover without creating a verified pin.</div></div></details></div></div></div></details>
@@ -4235,6 +4235,27 @@ label[for="accessDirections"], #accessDirections{
     if(count>2){alert(MESSAGE);return false;}
     return original.apply(this,arguments);
   };
+})();
+</script>
+<script id="situsnap-extra-photo-camera">
+(function(){
+  const message="Trial limit: up to 2 photos per upload. We’ll lift this limit after the trial.";
+  const camera=document.getElementById("photo2Camera");
+  const extra=document.getElementById("photo2");
+  const mainCamera=document.getElementById("photoCamera");
+  const mainFile=document.getElementById("photo1");
+  const status=document.getElementById("extraPhotoStatus");
+  if(!camera||!extra||!mainCamera||!mainFile)return;
+  function enforce(changed){
+    const extraCount=camera.files.length+extra.files.length;
+    const mainCount=(mainCamera.files.length||mainFile.files.length)?1:0;
+    if(extraCount>1||mainCount+extraCount>2){changed.value="";alert(message);}
+    const file=camera.files[0]||extra.files[0];
+    if(status)status.textContent=file?"✓ Extra photo ready: "+file.name:"No extra photo selected.";
+  }
+  [camera,extra,mainCamera,mainFile].forEach(input=>input.addEventListener("change",()=>enforce(input)));
+  const photoDetails=[...document.querySelectorAll("#recordDetails details")].filter(d=>(d.querySelector(":scope > summary")?.textContent||"").trim().includes("Add more photos"));
+  photoDetails.slice(1).forEach(d=>d.remove());
 })();
 </script>
 </body></html>
