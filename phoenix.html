@@ -803,7 +803,7 @@ body{padding-bottom:102px!important}
 <input id="photoCamera" type="file" accept="image/*" capture="environment" style="display:none">
 <input id="photo1" type="file" accept="image/*" style="display:none">
 <div id="primaryPhotoStatus" class="small-note" style="margin-top:7px">No photo selected yet.</div></div>
-<div class="full"><details class="details" style="margin-top:4px"><summary>＋ Add more photos</summary><div class="inside"><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button type="button" onclick="document.getElementById('photo2Camera').click()" style="padding:11px 7px;border-radius:10px;background:#145a35;color:#fff;font-size:11px">📷 TAKE PHOTO</button><button type="button" onclick="document.getElementById('photo2').click()" style="padding:11px 7px;border-radius:10px;background:#26384f;color:#fff;font-size:11px">▣ CHOOSE FILES</button></div><input id="photo2Camera" type="file" accept="image/*" capture="environment" style="display:none"><input id="photo2" type="file" accept="image/*" style="display:none"><div id="extraPhotoStatus" class="small-note" style="margin-top:7px">No extra photo selected.</div><div class="small-note" style="margin-top:5px">Optional · 1 extra photo · 2 photos total max.</div></div></details></div>
+<div class="full"><details class="details" style="margin-top:4px"><summary>＋ Add more photos</summary><div class="inside"><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button type="button" onclick="ssOpenExtraPhoto('photo2Camera')" style="padding:11px 7px;border-radius:10px;background:#145a35;color:#fff;font-size:11px">📷 TAKE PHOTO</button><button type="button" onclick="ssOpenExtraPhoto('photo2')" style="padding:11px 7px;border-radius:10px;background:#26384f;color:#fff;font-size:11px">▣ CHOOSE FILES</button></div><input id="photo2Camera" type="file" accept="image/*" capture="environment" style="display:none"><input id="photo2" type="file" accept="image/*" style="display:none"><div id="extraPhotoStatus" class="small-note" style="margin-top:7px">No extra photo selected.</div><div class="small-note" style="margin-top:5px">Optional · 1 extra photo · 2 photos total max.</div></div></details></div>
 <div class="full"><button class="save" id="detailsFoundBtn" onclick="confirmFoundFromDetails()" disabled style="opacity:.45;filter:saturate(.45);cursor:not-allowed">✓ PIN VERIFIED</button><div class="small-note" id="foundGpsNote" style="margin-top:8px;text-align:center">Confirm when physically at the property.</div><div id="localSaveStatus" class="small-note" style="margin-top:7px;text-align:center;font-weight:900;color:#9ee9ad"></div></div>
 <div class="full"><details class="details" style="margin-top:4px"><summary>Couldn’t locate the property?</summary><div class="inside"><button type="button" onclick="saveNotFound()" style="width:100%;padding:13px 8px;border-radius:12px;border:0;background:#145a35;color:#fff;font-weight:950">NOT FOUND</button><div class="small-note" style="margin-top:7px">Save the attempt for handover without creating a verified pin.</div></div></details></div></div></div></details>
 <div style="height:8px"></div>
@@ -872,6 +872,7 @@ window.addEventListener("DOMContentLoaded",()=>{
 });
 const SS_VERIFIED_ARCHIVE="situSnapVerifiedArchiveV1";
 const SS_REMOVED_VERIFIED="situSnapRemovedVerifiedV1";
+const SS_REMOVED_VERIFIED_PLACES="situSnapRemovedVerifiedPlacesV1";
 const SS_VAULT_ENDPOINT="https://holy-frost-eda0.stopjunkmail35.workers.dev/api/situ-vault";
 const SS_VAULT_QUEUE="situSnapVaultQueueV1";
 const SS_CLOUDINARY_CLOUD="wizvgv9a";
@@ -956,8 +957,10 @@ async function ssVaultRestore(){
     const r=await fetch(SS_VAULT_ENDPOINT,{headers:{"accept":"application/json"}});const data=await r.json();
     if(!r.ok||data?.ok!==true||!Array.isArray(data.records))throw new Error(data?.message||"Vault restore failed");
     const removed=new Set(ssReadArray(SS_REMOVED_VERIFIED).map(String));
-    const cloud=data.records.map(ssVaultRecordToLocal).filter(Boolean).filter(rec=>!removed.has(String(rec.id)));if(!cloud.length)return {ok:true,count:0};
-    const local=ssReadArray("situSnapRecords").filter(rec=>!removed.has(String(rec?.id)));const byId=new Map(local.map(x=>[String(x?.id),x]));
+    const removedPlaces=new Set(ssReadArray(SS_REMOVED_VERIFIED_PLACES).map(String));
+    const isRemoved=rec=>removed.has(String(rec?.id))||removedPlaces.has(ssRemovedVerifiedPlaceKey(rec));
+    const cloud=data.records.map(ssVaultRecordToLocal).filter(Boolean).filter(rec=>!isRemoved(rec));if(!cloud.length)return {ok:true,count:0};
+    const local=ssReadArray("situSnapRecords").filter(rec=>!isRemoved(rec));const byId=new Map(local.map(x=>[String(x?.id),x]));
     for(const rec of cloud){if(!byId.has(String(rec.id)))byId.set(String(rec.id),rec)}
     const merged=[...byId.values()];localStorage.setItem("situSnapRecords",JSON.stringify(merged));
     for(const rec of cloud)ssArchiveVerified(rec);
@@ -969,6 +972,17 @@ async function ssVaultRestore(){
 }
 function ssReadArray(key){try{const v=JSON.parse(localStorage.getItem(key)||"[]");return Array.isArray(v)?v:[]}catch(_){return []}}
 function ssVerifiedArchive(){return ssReadArray(SS_VERIFIED_ARCHIVE)}
+function ssRemovedVerifiedPlaceKey(record){
+  const postcode=String(record?.postcode||"").toUpperCase().replace(/\s+/g,"");
+  const address=String(record?.address||record?.propertyName||"").toUpperCase().replace(/[^A-Z0-9]/g,"");
+  return postcode&&address?postcode+"|"+address:"";
+}
+function ssClearRemovedVerified(record){
+  const id=String(record?.id||"");
+  const key=ssRemovedVerifiedPlaceKey(record);
+  localStorage.setItem(SS_REMOVED_VERIFIED,JSON.stringify(ssReadArray(SS_REMOVED_VERIFIED).map(String).filter(x=>x!==id)));
+  if(key)localStorage.setItem(SS_REMOVED_VERIFIED_PLACES,JSON.stringify(ssReadArray(SS_REMOVED_VERIFIED_PLACES).map(String).filter(x=>x!==key)));
+}
 function ssArchiveVerified(record){
   if(!record||record.pinVerified!==true||!record.gps)return false;
   const lat=Number(record.gps.latitude),lon=Number(record.gps.longitude);
@@ -1002,8 +1016,11 @@ const getRecords=()=>{
   const primary=ssReadArray("situSnapRecords");
   const archive=ssVerifiedArchive();
   const learned=ssLearnedAsRecords();
+  const removedIds=new Set(ssReadArray(SS_REMOVED_VERIFIED).map(String));
+  const removedPlaces=new Set(ssReadArray(SS_REMOVED_VERIFIED_PLACES).map(String));
   const seenIds=new Set(), seenPlaces=new Set(), merged=[];
   for(const r of [...primary,...archive,...learned]){
+    if(removedIds.has(String(r?.id??""))||removedPlaces.has(ssRemovedVerifiedPlaceKey(r)))continue;
     const id=String(r?.id??"");
     const place=(String(r?.postcode||"").toUpperCase().replace(/\s+/g,"")+"|"+String(r?.address||"").toUpperCase().replace(/[^A-Z0-9]/g,""));
     if((id&&seenIds.has(id))||(place!=="|"&&seenPlaces.has(place)))continue;
@@ -2262,6 +2279,7 @@ function persistFoundRecord(){
     lastMile:{vehicleApproach:approach||null,entrance:entrance||null,hazard:accessInfo||null,handoverNote:notes||null,source:"SituSnap field handover",fieldConfirmed:true},
     gps:gps||previous?.gps||null,target:target||previous?.target||null,photoUrl:previous?.photoUrl||"",photoPublicId:previous?.photoPublicId||"",verifiedAt:new Date().toISOString(),createdAt:previous?.createdAt||new Date().toISOString()};
   if(existingIndex>=0)rs.splice(existingIndex,1);
+  ssClearRemovedVerified(record);
   rs.unshift(record);
   try{
     localStorage.setItem("situSnapRecords",JSON.stringify(rs));
@@ -2529,6 +2547,12 @@ async function ssRemoveVerifiedLocation(id){
   const removed=ssReadArray(SS_REMOVED_VERIFIED).map(String).filter(x=>x!==sid);
   removed.unshift(sid);
   localStorage.setItem(SS_REMOVED_VERIFIED,JSON.stringify(removed.slice(0,1000)));
+  const placeKey=ssRemovedVerifiedPlaceKey(record);
+  if(placeKey){
+    const removedPlaces=ssReadArray(SS_REMOVED_VERIFIED_PLACES).map(String).filter(x=>x!==placeKey);
+    removedPlaces.unshift(placeKey);
+    localStorage.setItem(SS_REMOVED_VERIFIED_PLACES,JSON.stringify(removedPlaces.slice(0,1000)));
+  }
 
   localStorage.setItem("situSnapRecords",JSON.stringify(ssReadArray("situSnapRecords").filter(r=>String(r?.id)!==sid)));
   localStorage.setItem(SS_VERIFIED_ARCHIVE,JSON.stringify(ssVerifiedArchive().filter(r=>String(r?.id)!==sid)));
@@ -4194,6 +4218,13 @@ label[for="accessDirections"], #accessDirections{
     var chooser=document.getElementById('photo2');
     var status=document.getElementById('extraPhotoStatus');
     if(!camera || !chooser || !status) return;
+    window.ssOpenExtraPhoto=function(id){
+      var primary=document.getElementById('photoCamera'), primaryFile=document.getElementById('photo1');
+      var hasPrimary=!!((primary&&primary.files&&primary.files.length)||(primaryFile&&primaryFile.files&&primaryFile.files.length));
+      var hasExtra=!!((camera.files&&camera.files.length)||(chooser.files&&chooser.files.length));
+      if(hasPrimary && hasExtra){ window.alert('Trial limit reached: a maximum of 2 photos can be added.'); return; }
+      var input=document.getElementById(id); if(input) input.click();
+    };
     function update(input, other){
       if(input.files && input.files.length){
         other.value='';
