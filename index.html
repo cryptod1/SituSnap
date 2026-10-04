@@ -60,6 +60,7 @@
 #postcodeChoices{display:none!important}.postcode-choices{margin-top:8px;padding:9px 10px;border-radius:12px;background:rgba(255,255,255,.96);border:1px solid rgba(105,223,131,.45)}
 .postcode-choices label{display:block;font-size:9px;font-weight:900;letter-spacing:.5px;color:#31506b;margin-bottom:5px}
 
+
 <script id="ss-front-verified-scope">
 (function(){
  const root=document.getElementById("records"),pcInput=document.getElementById("huntPostcode");
@@ -4387,3 +4388,13 @@ const originalFinish=window.finishFound;if(typeof originalFinish==="function")wi
  applyScope();
 })();
 </script>
+<style id="phoenix-button-keylines">
+/* Fine accent outlines sharpen existing controls without changing layout or fills. */
+button:not(.nav):not(.link){border:1px solid rgba(49,223,104,.48)!important}
+button:disabled{border-color:rgba(174,189,202,.42)!important}
+button[data-ss-remove-confirm]{border-color:rgba(255,145,145,.68)!important}
+button[data-ss-remove-cancel]{border-color:rgba(174,189,202,.48)!important}
+.nav{border:1px solid rgba(111,139,160,.25)!important}
+.nav.active{border-color:rgba(49,223,104,.7)!important}
+.ss-demo-map{border:1px solid rgba(49,223,104,.48)!important}
+</style>
