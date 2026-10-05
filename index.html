@@ -3723,7 +3723,7 @@ window.addEventListener("load",()=>{if(navigator.onLine){ssVaultRestore().then((
    var updateButton=p.querySelector('#ssUpdateAction');
    var updateDot=p.querySelector('#ssUpdateDot');
    var updateStatus=p.querySelector('#ssUpdateStatus');
-   var installed=[1,1,0];
+   var installed=((document.getElementById('ssBuildStamp')?.getAttribute('data-build')||'SituSnap-1.1.1').match(/[0-9]+\.[0-9]+\.[0-9]+/)||['1.1.1'])[0].split('.').map(Number);
    var approvedApk=null;
    function checkApprovedUpdate(){
      fetch('https://api.github.com/repos/cryptod1/SituSnap/releases/latest',
