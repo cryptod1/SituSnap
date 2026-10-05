@@ -3689,7 +3689,9 @@ window.addEventListener("load",()=>{if(navigator.onLine){ssVaultRestore().then((
 #ssPhoenixMore .version-line{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:10px 0;border-top:1px solid rgba(255,255,255,.10)}
 #ssPhoenixMore .version-line:first-child{border-top:0}
 #ssPhoenixMore .update-dot{display:none;width:11px;height:11px;margin-left:auto;margin-right:15px;border-radius:50%;background:#31df68;box-shadow:0 0 0 3px rgba(49,223,104,.15)}
-#ssPhoenixMore .update-dot.available{display:inline-block}
+@keyframes ssUpdateDotPulse{0%,100%{opacity:.58;transform:scale(.88);box-shadow:0 0 0 3px rgba(49,223,104,.12)}50%{opacity:1;transform:scale(1.08);box-shadow:0 0 0 7px rgba(49,223,104,.2),0 0 11px rgba(49,223,104,.45)}}
+#ssPhoenixMore .update-dot.available{display:inline-block;animation:ssUpdateDotPulse 2.8s ease-in-out infinite;transform-origin:center}
+@media(prefers-reduced-motion:reduce){#ssPhoenixMore .update-dot.available{animation:none}}
 #ssPhoenixMore #ssUpdateAction[hidden]{display:none!important}
 </style>
 <script id="phoenix-26-more-authority-script">
