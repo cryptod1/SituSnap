@@ -21,10 +21,13 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - uses: android-actions/setup-android@v3
-
-      - name: Install Android 16 SDK
-        run: sdkmanager "platforms;android-36" "build-tools;36.0.0"
+      - name: Check runner Android 16 SDK
+        run: |
+          set -euo pipefail
+          echo "Android SDK: $ANDROID_HOME"
+          test -d "$ANDROID_HOME/platforms/android-36"
+          test -x "$ANDROID_HOME/build-tools/36.0.0/aapt"
+          test -x "$ANDROID_HOME/build-tools/36.0.0/apksigner"
 
       - name: Generate Android wrapper and stage independent app source
         run: |
