@@ -15,13 +15,17 @@ Preparation only. This must not replace or reconstruct the protected SituSnap FO
 - Trial admission/authorisation must be checked before accepting an upload.
 - Retrieval should use the Worker/API (or short-lived signed access), never a permanently public object URL.
 
-## Public website and app separation
+## Public website, app separation, and cutover
+- Preserve the current APK and HTML as a frozen reference while building a replacement in a separate branch/project. Do not delete the existing files or alter the protected baseline during replacement work.
 - The preferred end state is a public informational website with privacy/support pages and a prominent app download link; no photo upload, record access, or private evidence on the public website.
 - Build and test the secure SituSnap app/APK path first. Move the app UI into a dedicated bundled app source (or a native UI) before converting the website's `index.html` into a brochure/download page.
 - Current repository evidence: the APK workflow copies public `index.html` into the APK as `phoenix.html` and checks that both copies match. Therefore, do not replace or remove the public app page until the APK has its own independent app source and the replacement APK has passed field tests.
 - The HTML bundled inside an APK remains inspectable and modifiable; the Worker must enforce the same authentication, upload, storage, and content rules for app requests.
 - Remove the direct unsigned Cloudinary upload path before any production photos are handled; send app uploads only through the authenticated Worker.
-- Keep the app useful and stable for Play review. As of 31 August 2026, new Google Play apps and updates must target Android 16 (API 36) or higher.
+- At cutover, remove the old APK download link and disable the old upload endpoint. Installed copies cannot be remotely erased, so the old API/backend must reject retired clients. Keep the old source and release archived for rollback/reference.
+- If the current site stays publicly reachable during the build, its old upload route remains an exposure until disabled; a frozen copy should not accept genuine uploads.
+- Keep the app useful and stable for Play review. As of 31 August 2026, new Google Play apps and updates must target Android 16 (API 36) or higher. New Play submissions use an Android App Bundle (AAB).
+- If the Play Store version should update existing installs, verify the package name and signing-certificate path before release; Google requires the package name and signing continuity for app updates.
 
 ## Client, identity, and bot controls
 - Treat HTML and APK code as public/untrusted. Do not put secrets or security decisions only in either client.
