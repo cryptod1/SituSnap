@@ -41,10 +41,10 @@ jobs:
           changed_target = 0
           for path in list(Path("app").rglob("*.gradle")) + list(Path("app").rglob("*.gradle.kts")):
               content = path.read_text()
-              updated, count = re.subn(r"(\\bcompileSdk(?:Version)?\\s*(?:=\\s*)?)35\\b", r"\\g<1>36", content)
+              updated, count = re.subn(r"(\bcompileSdk(?:Version)?\s*(?:=\s*)?)35\b", r"\g<1>36", content)
               changed_compile += count
               content = updated
-              updated, count = re.subn(r"(\\btargetSdk(?:Version)?\\s*(?:=\\s*)?)35\\b", r"\\g<1>36", content)
+              updated, count = re.subn(r"(\btargetSdk(?:Version)?\s*(?:=\s*)?)35\b", r"\g<1>36", content)
               changed_target += count
               if updated != path.read_text():
                   path.write_text(updated)
@@ -74,10 +74,9 @@ jobs:
         run: gradle assembleRelease bundleRelease
 
       - name: Verify package, SDK level, signing and separate app source
-        env:
-          BUILD_TOOLS: ${{ env.ANDROID_HOME }}/build-tools/36.0.0
         run: |
           set -euo pipefail
+          BUILD_TOOLS="$ANDROID_HOME/build-tools/36.0.0"
           APK=app/build/outputs/apk/release/app-release.apk
           AAB=app/build/outputs/bundle/release/app-release.aab
           test -f "$APK"
