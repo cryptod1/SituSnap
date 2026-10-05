@@ -1,0 +1,35 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "situsnap-trial-api-staging",
+  "main": "src/index.js",
+  "compatibility_date": "2026-10-01",
+  "workers_dev": false,
+  "vars": {
+    "CF_ACCESS_TEAM_DOMAIN": "REPLACE_WITH_YOUR_CLOUDFLARE_ACCESS_TEAM.cloudflareaccess.com",
+    "CF_ACCESS_AUD": "REPLACE_WITH_STAGING_ACCESS_AUDIENCE_TAG",
+    "ALLOWED_ORIGIN": "https://REPLACE_WITH_STAGING_APP_HOST",
+    "SITUSNAP_COMPANY_ID": "situsnap-trial"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "situsnap-trial-staging",
+      "database_id": "REPLACE_WITH_STAGING_D1_DATABASE_UUID",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "r2_buckets": [
+    { "binding": "PHOTOS", "bucket_name": "situsnap-trial-photos-staging" }
+  ],
+  "services": [
+    { "binding": "MODERATOR", "service": "REPLACE_WITH_SCREENING_WORKER" }
+  ],
+  "ratelimits": [
+    {
+      "name": "RATE_LIMITER",
+      "namespace_id": "78201413",
+      "simple": { "limit": 60, "period": 60 }
+    }
+  ],
+  "triggers": { "crons": ["*/15 * * * *"] }
+}
