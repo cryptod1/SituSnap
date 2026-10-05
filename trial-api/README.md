@@ -13,6 +13,7 @@ This is a separate, not-yet-deployed Worker for the replacement Play Store app. 
 - Authenticated limits are enforced in D1 (6 upload attempts and 6 deletes per minute; 60 reads per minute) and the Cloudflare rate-limit binding adds a per-colleague burst layer. Cloudflare's binding is approximate; the D1 byte ledger, not rate limiting, enforces storage capacity.
 - Photo reads go through an authenticated Worker route and are `private, no-store`. Permanent delete removes the R2 object before deleting metadata; D1 only releases used bytes after confirmed R2 deletion. Failed metadata cleanup safely leaves quota charged so deletion can be retried.
 - An hourly reservation cleanup removes abandoned pending uploads. It deletes any corresponding R2 object before releasing the D1 reservation.
+- Worker logs record screening rejections, screening outages, and throttling with a pseudonymous actor hash; they do not contain the image, raw email, or record identifier.
 
 ## Routes
 

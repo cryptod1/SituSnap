@@ -72,6 +72,20 @@ class QuotaAccountingTests(unittest.TestCase):
                 (photo_id, record_id, slot, content_type, byte_size, object_key, state, uploaded_by, uploaded_at, reservation_expires_at)
                 VALUES ('p1','r2',1,'image/jpeg',1,'trial/p1','reserved','user-hash',1,100)""")
 
+    def test_authenticated_rate_window_rejects_attempt_seven_and_resets_next_minute(self):
+        sql = """INSERT INTO rate_windows (window_key, window_start, request_count)
+            VALUES (?1, ?2, 1)
+            ON CONFLICT(window_key) DO UPDATE SET
+              request_count = CASE WHEN rate_windows.window_start = excluded.window_start
+                THEN rate_windows.request_count + 1 ELSE 1 END,
+              window_start = excluded.window_start
+            WHERE rate_windows.window_start <> excluded.window_start OR rate_windows.request_count < ?3"""
+        results = [self.db.execute(sql, ("actor:upload", 60, 6)).rowcount for _ in range(7)]
+        self.assertEqual(results, [1, 1, 1, 1, 1, 1, 0])
+        self.assertEqual(self.db.execute("SELECT request_count FROM rate_windows WHERE window_key='actor:upload'").fetchone()[0], 6)
+        self.assertEqual(self.db.execute(sql, ("actor:upload", 120, 6)).rowcount, 1)
+        self.assertEqual(self.db.execute("SELECT request_count,window_start FROM rate_windows WHERE window_key='actor:upload'").fetchone(), (1, 120))
+
 
 if __name__ == "__main__":
     unittest.main()

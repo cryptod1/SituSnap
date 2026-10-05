@@ -94,7 +94,7 @@ async function authenticate(request, env) {
     if (!email || !config.emails.includes(email)) return { ok: false, status: 403, error: "This colleague is not enrolled for the SituSnap trial." };
     return { ok: true, email, company: config.company };
   } catch (error) {
-    if (error?.message === "ACCESS_KEYS_UNAVAILABLE" || error?.message === "ACCESS_KEYS_INVALID" || error?.name === "TimeoutError") {
+    if (error?.message === "ACCESS_KEYS_UNAVAILABLE" || error?.message === "ACCESS_KEYS_INVALID" || error?.name === "TimeoutError" || error?.name === "TypeError") {
       return { ok: false, status: 503, error: "Trial sign-in could not be checked." };
     }
     return { ok: false, status: 401, error: "Cloudflare Access sign-in is invalid or expired." };
@@ -211,8 +211,14 @@ async function uploadPhoto(request, env, auth, recordId, url) {
   } catch (error) {
     try { await env.PHOTOS.delete(objectKey); } catch { /* retained reservation blocks quota until repair */ }
     try { await env.DB.prepare("DELETE FROM photos WHERE photo_id = ?1 AND state = 'reserved'").bind(photoId).run(); } catch { /* cleanup task retries */ }
-    if (error?.message === "IMAGE_REJECTED") return json(request, env, { error: "This image cannot be stored. Please contact the trial manager if you believe this is a mistake." }, 422);
-    if (error?.message === "MODERATION_NOT_CONFIGURED" || error?.message === "MODERATION_UNAVAILABLE") return json(request, env, { error: "Photo screening is temporarily unavailable; no photo was retained." }, 503);
+    if (error?.message === "IMAGE_REJECTED") {
+      console.info("situsnap_trial_event", { event: "photo_rejected", actor: uploadedBy, reason: "explicit_content" });
+      return json(request, env, { error: "This image cannot be stored. Please contact the trial manager if you believe this is a mistake." }, 422);
+    }
+    if (error?.message === "MODERATION_NOT_CONFIGURED" || error?.message === "MODERATION_UNAVAILABLE") {
+      console.info("situsnap_trial_event", { event: "photo_screening_unavailable", actor: uploadedBy });
+      return json(request, env, { error: "Photo screening is temporarily unavailable; no photo was retained." }, 503);
+    }
     throw error;
   }
   return json(request, env, { photoId, recordId, slot, contentType: detectedType, byteSize: bytes.length }, 201);
@@ -258,7 +264,10 @@ async function handle(request, env) {
     let allowed;
     try { allowed = await enforceRateLimit(env, auth, "upload"); }
     catch { return json(request, env, { error: "Trial abuse controls are unavailable." }, 503); }
-    if (!allowed) return json(request, env, { error: "Upload rate limit reached. Try again shortly." }, 429);
+    if (!allowed) {
+      console.info("situsnap_trial_event", { event: "rate_limited", action: "upload", actor: await digestHex(`${auth.company}:${auth.email}`) });
+      return json(request, env, { error: "Upload rate limit reached. Try again shortly." }, 429);
+    }
     return uploadPhoto(request, env, auth, decodeURIComponent(recordPhoto[1]), url);
   }
   if (recordPhoto && request.method === "GET") {
@@ -297,7 +306,10 @@ async function handle(request, env) {
     let allowed;
     try { allowed = await enforceRateLimit(env, auth, "delete"); }
     catch { return json(request, env, { error: "Trial abuse controls are unavailable." }, 503); }
-    if (!allowed) return json(request, env, { error: "Delete rate limit reached. Try again shortly." }, 429);
+    if (!allowed) {
+      console.info("situsnap_trial_event", { event: "rate_limited", action: "delete", actor: await digestHex(`${auth.company}:${auth.email}`) });
+      return json(request, env, { error: "Delete rate limit reached. Try again shortly." }, 429);
+    }
     const photoId = decodeURIComponent(photoResource[1]);
     const photo = await env.DB.prepare(`SELECT p.photo_id, p.object_key, p.state, p.uploaded_by
       FROM photos p JOIN trial_records r ON r.record_id = p.record_id
