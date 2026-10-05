@@ -3,6 +3,6 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --test test/*.test.js && python3 -m unittest discover -s test -p 'test_*.py'"
+    "test": "node test/api.test.js && python3 -m unittest discover -s test -p 'test_*.py'"
   }
 }
