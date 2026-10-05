@@ -2638,7 +2638,9 @@ function render(){
   // Verified locations is the phone's learned-pin memory, not a search-result panel.
   // Always show every locally verified record; postcode filtering belongs in the Find workflow.
   const f=getRecords().filter(r=>isVerifiedSituSnap(r));
-  document.getElementById("records").innerHTML=f.length?f.map(r=>{
+  const recordsRoot=document.getElementById("records");
+  const demoMarkup=document.getElementById("ssDemoPins")?.outerHTML||"";
+  recordsRoot.innerHTML=demoMarkup+(f.length?f.map(r=>{
     const accuracy=r.gps?.accuracy?` ±${Math.round(r.gps.accuracy)}m`:"";
     const when=r.verifiedAt||r.createdAt;
     const stamp=when?new Date(when).toLocaleString():"";
@@ -2649,7 +2651,7 @@ function render(){
       `${r.photoUrl?`<div id="photoReady_${esc(String(r.id))}" class="small-note" style="margin-top:8px;text-align:center">📷 Checking offline photo…</div><button type="button" onclick='event.stopPropagation();ssViewVerifiedPhoto(${JSON.stringify(String(r.id))})' style="margin-top:7px;width:100%;padding:11px;border-radius:10px;border:0;font-weight:900;background:#26384f;color:#fff">📷 VIEW VERIFIED PHOTO</button>`:""}`+
       `<button type="button" onclick='event.stopPropagation();useSituSnap(${JSON.stringify(String(r.id))})' style="margin-top:10px;width:100%;padding:11px;border-radius:10px;border:0;font-weight:900;background:#145a35;color:#fff">ROUTE TO VERIFIED PIN →</button>`+
       `<button type="button" onclick='event.stopPropagation();ssRemoveVerifiedLocation(${JSON.stringify(String(r.id))})' style="margin-top:12px;width:100%;padding:8px;border-radius:9px;border:1px solid #b9c2c9;background:#fff;color:#59636b;font-size:12px;font-weight:800">REMOVE VERIFIED LOCATION</button></article>`;
-  }).join(""):`<div class="empty">No verified locations saved on this phone yet.</div>`;
+  }).join(""):`<div class="empty">No verified locations saved on this phone yet.</div>`);
   for(const r of f.filter(x=>x.photoUrl)){
     ssPhotoReadyOffline(r.id).then(ok=>{
       const el=document.getElementById("photoReady_"+String(r.id));
