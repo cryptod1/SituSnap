@@ -807,7 +807,7 @@ body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))!important}
 <div class="ss-home-kicker">Find it. Snap it. Update it.</div>
 
 <div class="ss-find-card">
-  <div class="ss-field ss-postcode-control" style="margin-top:0"><label class="ss-postcode-label">POSTCODE</label><div class="ss-postcode-split" role="group" aria-label="Postcode"><input id="postcodeOutward" aria-label="Postcode area, for example CF72" placeholder="CF72" autocomplete="off" autocapitalize="characters" spellcheck="false" inputmode="text" maxlength="8"><span aria-hidden="true" class="ss-postcode-space"></span><input id="postcodeInward" aria-label="Last three postcode characters, for example 8FF" placeholder="8FF" autocomplete="off" autocapitalize="characters" spellcheck="false" inputmode="text" maxlength="8"></div><div class="small-note ss-postcode-hint">Enter an area such as CF72, then the last three characters. The area stays filled for repeat searches; you can also paste a full postcode.</div><input type="hidden" id="huntPostcode" aria-hidden="true" tabindex="-1" oninput="queuePostcodeLookup();syncRecordPostcode();bcQueueFromSimpleInputs()"></div>
+  <div class="ss-field ss-postcode-control" style="margin-top:0"><label class="ss-postcode-label">POSTCODE</label><div class="ss-postcode-split" role="group" aria-label="Postcode"><input id="postcodeOutward" aria-label="Postcode area" placeholder="" autocomplete="off" autocapitalize="characters" spellcheck="false" inputmode="text" maxlength="8"><span aria-hidden="true" class="ss-postcode-space"></span><input id="postcodeInward" aria-label="Last three postcode characters" placeholder="" autocomplete="off" autocapitalize="characters" spellcheck="false" inputmode="text" maxlength="8"></div><div class="small-note ss-postcode-hint">Enter the postcode area, then the last three characters. You can paste a full postcode.</div><input type="hidden" id="huntPostcode" aria-hidden="true" tabindex="-1" oninput="queuePostcodeLookup();syncRecordPostcode();bcQueueFromSimpleInputs()"></div>
 
   <div id="verifiedFirstPanel" class="hidden" style="padding:10px;background:#eef8f1;border:1px solid #b9dfc4">
     <div style="font-weight:950;color:#145a35;margin-bottom:6px">✓ PREVIOUSLY VERIFIED</div>
@@ -4431,21 +4431,15 @@ button[data-ss-remove-cancel]{border-color:rgba(174,189,202,.48)!important}
 (function(){
  const outward=document.getElementById("postcodeOutward"),inward=document.getElementById("postcodeInward"),full=document.getElementById("huntPostcode");
  if(!outward||!inward||!full)return;
- const areaKey="situSnapPostcodeAreaV1";
  const clean=v=>String(v||"").toUpperCase().replace(/[^A-Z0-9]/g,"");
  const fullPattern=/^[A-Z]{1,2}[0-9][A-Z0-9]?[0-9][A-Z]{2}$/;
- const inwardPattern=/^[0-9][A-Z]{2}$/;
- function area(){
-  try{return clean(localStorage.getItem(areaKey))}catch(_){return ""}
- }
+ let lastArea="";
  function format(){
-  let a=clean(outward.value).slice(0,4),b=clean(inward.value).slice(-3);
-  if(!a&&inwardPattern.test(b)){a=area();if(a)outward.value=a}
-  if(a){try{localStorage.setItem(areaKey,a)}catch(_){}}
-  else{try{localStorage.removeItem(areaKey)}catch(_){}}
+  const a=clean(outward.value).slice(0,4),b=clean(inward.value).slice(0,3);
   outward.value=a;
   inward.value=b;
-  full.value=a?(b?a+" "+b:a):b;
+  full.value=a?(b?a+" "+b:a):"";
+  lastArea=a;
   if(typeof huntPostcode!=="undefined")huntPostcode=full.value;
  }
  function publish(){format();full.dispatchEvent(new Event("input",{bubbles:true}))}
@@ -4454,9 +4448,6 @@ button[data-ss-remove-cancel]{border-color:rgba(174,189,202,.48)!important}
   if(fullPattern.test(raw)){
    outward.value=raw.slice(0,-3);
    inward.value=raw.slice(-3);
-  }else if(inwardPattern.test(raw)){
-   outward.value=area();
-   inward.value=raw;
   }else if(raw.length<=4){
    outward.value=raw;
    inward.value="";
@@ -4471,35 +4462,40 @@ button[data-ss-remove-cancel]{border-color:rgba(174,189,202,.48)!important}
  function handleOutward(){
   const raw=clean(outward.value);
   if(fullPattern.test(raw)){setVisible(raw);publish();return}
-  if(inwardPattern.test(raw)){
-   const saved=area();
-   outward.value=saved;
-   inward.value=raw;
-   publish();
-   return;
+  if(raw.length>4){
+   outward.value=raw.slice(0,4);
+   inward.value=raw.slice(4,7);
+  }else{
+   outward.value=raw;
+   if(raw!==lastArea)inward.value="";
   }
-  outward.value=raw.slice(0,4);
-  if(outward.value.length===4){try{localStorage.setItem(areaKey,outward.value)}catch(_){};inward.focus()}
   publish();
+  if(outward.value.length===4)inward.focus();
  }
  function handleInward(){
   const raw=clean(inward.value);
   if(fullPattern.test(raw)){setVisible(raw);publish();return}
-  if(raw.length>3&&inwardPattern.test(raw.slice(-3))){
-   const saved=clean(outward.value)||area();
-   if(saved)outward.value=saved;
-   inward.value=raw.slice(-3);
-   publish();
-   return;
-  }
-  inward.value=raw.slice(-3);
+  inward.value=raw.slice(0,3);
   publish();
  }
  outward.addEventListener("input",handleOutward);
  inward.addEventListener("input",handleInward);
- [outward,inward].forEach(el=>el.addEventListener("keydown",e=>{if(e.key===" "){e.preventDefault();(el===outward?inward:outward).focus()}}));
- setVisible(full.value);
- if(!outward.value){const saved=area();if(saved)outward.value=saved}
+ outward.addEventListener("keydown",e=>{if(e.key===" "){e.preventDefault();inward.focus()}});
+ inward.addEventListener("keydown",e=>{
+  if(e.key===" "){e.preventDefault();outward.focus();return}
+  if(e.key==="Backspace"&&!clean(inward.value)&&clean(outward.value)){
+   e.preventDefault();
+   outward.value=clean(outward.value).slice(0,-1);
+   publish();
+   outward.focus();
+  }
+ });
+ try{localStorage.removeItem("situSnapPostcodeAreaV1")}catch(_){}
+ // Start with clean inputs; no saved area or browser-restored postcode is suggested.
+ outward.value="";
+ inward.value="";
+ full.value="";
+ lastArea="";
  publish();
 })();
 </script>
