@@ -1,6 +1,9 @@
 name: Build SituSnap Play test bundle
 
 on:
+  push:
+    branches:
+      - product/playstore-clean-site
   workflow_dispatch:
 
 permissions:
@@ -39,6 +42,8 @@ jobs:
 
           changed_compile = 0
           changed_target = 0
+          changed_version_code = 0
+          changed_version_name = 0
           for path in list(Path("app").rglob("*.gradle")) + list(Path("app").rglob("*.gradle.kts")):
               content = path.read_text()
               updated, count = re.subn(r"(\bcompileSdk(?:Version)?\s*(?:=\s*)?)35\b", r"\g<1>36", content)
@@ -46,11 +51,15 @@ jobs:
               content = updated
               updated, count = re.subn(r"(\btargetSdk(?:Version)?\s*(?:=\s*)?)35\b", r"\g<1>36", content)
               changed_target += count
+              updated, count = re.subn(r"(\bversionCode\s+)17\b", r"\g<1>18", updated)
+              changed_version_code += count
+              updated, count = re.subn(r"(\bversionName\s+)[\"'][^\"']+[\"']", r'\g<1>"1.2.0"', updated)
+              changed_version_name += count
               if updated != path.read_text():
                   path.write_text(updated)
-          if not changed_compile or not changed_target:
-              raise SystemExit(f"Could not set Android API 36 (compile={changed_compile}, target={changed_target})")
-          print(f"Updated compileSdk occurrences: {changed_compile}; targetSdk occurrences: {changed_target}")
+          if not changed_compile or not changed_target or not changed_version_code or not changed_version_name:
+              raise SystemExit(f"Build metadata missing (compile={changed_compile}, target={changed_target}, versionCode={changed_version_code}, versionName={changed_version_name})")
+          print(f"API 36 set; versionCode=18/versionName=1.2.0")
           PY
 
       - name: Restore existing SituSnap release key
