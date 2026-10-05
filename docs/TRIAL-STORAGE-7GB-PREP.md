@@ -26,6 +26,8 @@ Preparation only. This must not replace or reconstruct the protected SituSnap FO
 - If the current site stays publicly reachable during the build, its old upload route remains an exposure until disabled; a frozen copy should not accept genuine uploads.
 - Keep the app useful and stable for Play review. As of 31 August 2026, new Google Play apps and updates must target Android 16 (API 36) or higher. New Play submissions use an Android App Bundle (AAB).
 - If the Play Store version should update existing installs, verify the package name and signing-certificate path before release; Google requires the package name and signing continuity for app updates.
+- If Play review is delayed, the website may host the tested, signed release APK as a temporary fallback. Before release, decide the Play app-signing key path and verify that direct APK installs can later update from Play; do not assume the website APK signing key and Play delivery key will match automatically.
+- A website-hosted APK requires users to install it manually and manage updates until the Play Store release is available. Offer only the approved, signed build and publish its version and checksum.
 
 ## Client, identity, and bot controls
 - Treat HTML and APK code as public/untrusted. Do not put secrets or security decisions only in either client.
