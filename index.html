@@ -4547,3 +4547,13 @@ main{padding-bottom:calc(140px + env(safe-area-inset-bottom,0px))!important}body
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',polish,{once:true});else polish();
 })();
 </script>
+<script id="ss-aplus-heading-lock">
+(function(){
+ function sync(){
+  const kicker=document.querySelector(".ss-home-kicker");if(kicker&&kicker.textContent.trim()!=="Find an asset or property")kicker.textContent="Find an asset or property";
+  const summary=document.querySelector("#recordDetails>summary");if(summary&&summary.textContent.trim()!=="FIELD LOCATION REPORT"){summary.textContent="FIELD LOCATION REPORT";summary.setAttribute("aria-label","Field location report")}
+ }
+ function start(){sync();[150,600,1600,3200].forEach(ms=>setTimeout(sync,ms));new MutationObserver(sync).observe(document.body,{subtree:true,childList:true,characterData:true})}
+ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",start,{once:true});else start();
+})();
+</script>
