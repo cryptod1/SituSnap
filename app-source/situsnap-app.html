@@ -2260,7 +2260,7 @@ function ssSetFieldReportUi(field){
   if(postcode?.parentElement)postcode.parentElement.style.display=field?"none":"";
   if(postcodeLabel)postcodeLabel.textContent=field?"Postcode (optional)":"Postcode given";
   if(addressLabel)addressLabel.textContent=field?"Finding / landmark (optional)":"First line of address";
-  if(address)address.placeholder=field?"e.g. Damaged roadside drainage asset":"";
+  if(address)address.placeholder=field?"Asset to report":"";
   if(notesLabel)notesLabel.textContent=field?"Handover notes (required)":"Handover notes";
   if(notes)notes.placeholder=field?"Describe the issue and how the next person can find or safely reach it.":"Anything useful for the next visit";
   if(title)title.textContent=field?"FIELD LOCATION REPORT":"HANDOVER NOTES";
