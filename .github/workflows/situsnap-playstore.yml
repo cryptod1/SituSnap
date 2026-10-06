@@ -34,6 +34,23 @@ jobs:
           set -euo pipefail
           test -s app-source/situsnap-app.html
           python3 .github/scripts/make_android.py
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path("app/src/main/java/com/situsnap/app/MainActivity.java")
+          source = path.read_text()
+          base = '"https://cryptod1.github.io/SituSnap/",\n                phoenix'
+          replacement = '"https://situsnap.app/",\n                phoenix'
+          if source.count(base) != 1:
+              raise SystemExit("Expected exactly one generated WebView base origin")
+          source = source.replace(base, replacement, 1)
+          old_allow = 'if (url.startsWith("https://cryptod1.github.io/SituSnap/")'
+          new_allow = 'if (url.startsWith("https://cryptod1.github.io/SituSnap/")\n                    || url.startsWith("https://situsnap.app/")'
+          if source.count(old_allow) != 1:
+              raise SystemExit("Expected exactly one generated internal navigation allowlist")
+          source = source.replace(old_allow, new_allow, 1)
+          path.write_text(source)
+          print("APK WebView base origin set to https://situsnap.app for Breadcrumbs CORS")
+          PY
           cp app-source/situsnap-app.html app/src/main/assets/phoenix.html
           cp situsnap-brand-mark.png app/src/main/assets/situsnap-brand-mark.png
 
