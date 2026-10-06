@@ -797,7 +797,23 @@ body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))!important}
 .ss-postcode-space{height:2px;border-radius:2px;background:rgba(169,186,208,.55)}
 .ss-postcode-hint{margin-top:6px!important;line-height:1.35!important;font-size:10px!important;color:#a9bad0!important}
 </style>
-<style id="situsnap-prelaunch-safety">.situsnap-prelaunch-safety{margin:12px auto;padding:14px 16px;max-width:1100px;border:1px solid #d9a441;border-left:5px solid #d9a441;border-radius:12px;background:#fff8e8;color:#33280f;font:500 15px/1.5 system-ui,sans-serif}.situsnap-prelaunch-safety strong{display:block;margin-bottom:3px}</style></head>
+<style id="situsnap-prelaunch-safety">.situsnap-prelaunch-safety{margin:12px auto;padding:14px 16px;max-width:1100px;border:1px solid #d9a441;border-left:5px solid #d9a441;border-radius:12px;background:#fff8e8;color:#33280f;font:500 15px/1.5 system-ui,sans-serif}.situsnap-prelaunch-safety strong{display:block;margin-bottom:3px}</style><style id="ss-compact-polish">
+/* Compact, crisp mobile controls; keep the approved page structure and colors. */
+.ss-home-shell{border-radius:18px;padding:16px 13px 14px;box-shadow:0 10px 26px rgba(0,0,0,.28)}
+.ss-home-shell:before{opacity:.55}
+.ss-find-card{border-radius:14px;padding:11px;box-shadow:0 7px 18px rgba(0,0,0,.18)}
+.ss-postcode-label{margin-bottom:5px!important;font-weight:850!important;font-size:10px!important;letter-spacing:.07em}
+.ss-postcode-split{grid-template-columns:minmax(0,1fr) 10px minmax(0,.9fr);gap:5px}
+.ss-postcode-split input{height:46px!important;min-height:46px!important;padding:7px 10px!important;border-radius:9px!important;font-size:16px!important;font-weight:750!important;letter-spacing:.02em}
+.ss-find-card input{min-height:46px!important;padding:10px 11px!important;border-radius:9px!important;font-size:15px!important}
+.ss-field{margin-top:9px}
+.ss-field-label{font-weight:850}
+.ss-address-row{grid-template-columns:minmax(60px,22%) minmax(0,1fr);gap:8px}
+.ss-find-primary{min-height:46px;margin-top:10px;border-radius:10px;font-size:13px;font-weight:900;letter-spacing:.25px;box-shadow:0 5px 12px rgba(28,141,75,.18)}
+.ss-find-primary:active{transform:translateY(1px)}
+button[onclick="startFieldReport()"]{min-height:40px!important;margin-top:6px!important;padding:8px 10px!important;border-radius:9px!important;font-size:12px!important;font-weight:850!important;line-height:1.2!important;box-shadow:none!important}
+</style>
+</head>
 <body><aside class="situsnap-prelaunch-safety" role="status"><strong>Pre-release pilot build</strong>Company cloud sync is disabled while private access controls are being prepared. Records remain on this device. Do not use this build for live company evidence.</aside>
 <div id="ssApprovedSiteSplash" aria-hidden="true"><img src="/situsnap-approved-splash.png" alt="" fetchpriority="high"></div>
 
