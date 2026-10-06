@@ -71,15 +71,15 @@ jobs:
               content = updated
               updated, count = re.subn(r"(\btargetSdk(?:Version)?\s*(?:=\s*)?)35\b", r"\g<1>36", content)
               changed_target += count
-              updated, count = re.subn(r"(\bversionCode\s+)17\b", r"\g<1>23", updated)
+              updated, count = re.subn(r"(\bversionCode\s+)17\b", r"\g<1>24", updated)
               changed_version_code += count
-              updated, count = re.subn(r"(\bversionName\s+)[\"'][^\"']+[\"']", r'\g<1>"1.2.5"', updated)
+              updated, count = re.subn(r"(\bversionName\s+)[\"'][^\"']+[\"']", r'\g<1>"1.2.6"', updated)
               changed_version_name += count
               if updated != path.read_text():
                   path.write_text(updated)
           if not changed_compile or not changed_target or not changed_version_code or not changed_version_name:
               raise SystemExit(f"Build metadata missing (compile={changed_compile}, target={changed_target}, versionCode={changed_version_code}, versionName={changed_version_name})")
-          print(f"API 36 set; versionCode=23/versionName=1.2.5")
+          print(f"API 36 set; versionCode=24/versionName=1.2.6")
           PY
 
       - name: Restore existing SituSnap release key
