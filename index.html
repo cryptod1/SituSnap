@@ -4501,3 +4501,49 @@ button[data-ss-remove-cancel]{border-color:rgba(174,189,202,.48)!important}
  publish();
 })();
 </script>
+<!-- SituSnap A+ approved field report polish -->
+<style id="ss-aplus-report-polish">
+.ss-home-shell{border:1px solid transparent!important;background-image:linear-gradient(145deg,#0b2a38,#082433) padding-box,linear-gradient(135deg,#8b9aa7,#59a88c) border-box!important}
+.ss-home-kicker{font-size:clamp(16px,4.3vw,18px)!important;letter-spacing:.55px!important;font-weight:950!important}
+.ss-postcode-split{position:relative!important;grid-template-columns:minmax(0,1fr) minmax(0,.78fr)!important;gap:0!important;border:1px solid transparent!important;border-radius:14px!important;overflow:hidden!important;background:linear-gradient(#0a2438,#0a2438) padding-box,linear-gradient(135deg,#8b9aa7,#59a88c) border-box!important}
+.ss-postcode-split:after{content:"";position:absolute;left:56%;top:0;bottom:0;width:1px;background:#31566a;pointer-events:none}
+.ss-postcode-space{display:none!important}.ss-postcode-hint{display:none!important}
+.ss-postcode-split input{height:58px!important;min-height:58px!important;border:0!important;border-radius:0!important;background:transparent!important;padding:23px 12px 7px!important;text-align:left!important;font-size:16px!important;letter-spacing:.03em!important}
+.ss-postcode-split input::placeholder{color:#aebdca!important;-webkit-text-fill-color:#aebdca!important;font-size:10px!important;font-weight:950!important;letter-spacing:.12em!important;opacity:1!important}
+#recordDetails .inside input:not([type=hidden]),#recordDetails .inside select,#recordDetails .inside textarea,.ss-address-row input{border:1px solid transparent!important;border-radius:12px!important;background:linear-gradient(#0a2438,#0a2438) padding-box,linear-gradient(135deg,#8798a5,#55a588) border-box!important}
+#recordDetails .inside input:focus,#recordDetails .inside select:focus,#recordDetails .inside textarea:focus,.ss-address-row input:focus{outline:2px solid rgba(49,223,104,.2)!important}
+select:not([multiple]){appearance:none!important;-webkit-appearance:none!important;padding-right:38px!important;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='m3 6 5 5 5-5' fill='none' stroke='%2369df83' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")!important;background-repeat:no-repeat!important;background-position:right 13px center!important;background-size:14px 14px!important}
+#recordDetails>summary{position:relative!important;padding-right:42px!important}
+.details summary:after{content:"⌄"!important;font-size:22px!important;line-height:1!important;color:#31df68!important;transform:translateY(-2px)!important}
+.details[open]>summary:after{content:"⌃"!important;transform:none!important}
+#recordDetails .report-helper{margin:3px 0 14px;padding:12px 13px;border:1px solid rgba(49,223,104,.35);border-radius:13px;background:#0b392e;color:#d9f4e6;font-size:13px;font-weight:800;line-height:1.4}
+#recordDetails .inside .ss-photo-actions label{min-height:46px;display:flex!important;align-items:center;justify-content:center;border:1px solid rgba(113,158,146,.65)!important;border-radius:11px!important;font-size:12px!important;letter-spacing:.04em}
+main{padding-bottom:calc(140px + env(safe-area-inset-bottom,0px))!important}body{padding-bottom:calc(124px + env(safe-area-inset-bottom,0px))!important}
+</style>
+<script id="ss-aplus-report-controls">
+(function(){
+ function polish(){
+  const kicker=document.querySelector('.ss-home-kicker');if(kicker)kicker.textContent='Find an asset or property';
+  const out=document.getElementById('postcodeOutward'),inn=document.getElementById('postcodeInward');
+  if(out){out.placeholder='POST';out.maxLength=4}if(inn){inn.placeholder='CODE';inn.maxLength=3}
+  const details=document.getElementById('recordDetails'),summary=details?.querySelector(':scope > summary');
+  if(summary){summary.textContent='FIELD LOCATION REPORT';summary.setAttribute('aria-label','Field location report')}
+  const address=document.getElementById('address');
+  if(address){address.placeholder='Describe the asset';const label=address.closest('div')?.querySelector('label');if(label)label.textContent='Asset to report'}
+  const box=details?.querySelector('.inside'),grid=box?.querySelector('.form-grid');
+  if(box&&grid&&!box.querySelector('.report-helper')){const note=document.createElement('div');note.className='report-helper';note.textContent='No postcode needed for inspection points, hazards or field locations.';box.insertBefore(note,grid)}
+  const observed=document.getElementById('observedBy');
+  if(observed&&!Array.from(observed.options).some(o=>o.text==='Not applicable'))observed.add(new Option('Not applicable','Not applicable'));
+  const camera=document.getElementById('photoCamera'),fromFile=document.getElementById('photo1'),extraCamera=document.getElementById('photo2Camera'),extraFile=document.getElementById('photo2');
+  if(extraFile)extraFile.multiple=false;
+  document.querySelectorAll('label[for="photoCamera"]').forEach(el=>{el.textContent='CAMERA';el.classList.add('ss-photo-action')});
+  document.querySelectorAll('label[for="photo1"]').forEach(el=>{el.textContent='FROM FILE';el.classList.add('ss-photo-action')});
+  const actionGrid=camera?.parentElement?.previousElementSibling;if(actionGrid?.tagName==='DIV')actionGrid.classList.add('ss-photo-actions');
+  document.querySelectorAll('#recordDetails button').forEach(el=>{const action=el.getAttribute('onclick')||'';if(action.includes('photo2Camera'))el.textContent='CAMERA';else if(action.includes("getElementById('photo2')"))el.textContent='FROM FILE'});
+  const single=(chosen,other)=>{if(chosen?.files?.length&&other)other.value=''};
+  camera?.addEventListener('change',()=>single(camera,fromFile));fromFile?.addEventListener('change',()=>single(fromFile,camera));
+  extraCamera?.addEventListener('change',()=>single(extraCamera,extraFile));extraFile?.addEventListener('change',()=>single(extraFile,extraCamera));
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',polish,{once:true});else polish();
+})();
+</script>
