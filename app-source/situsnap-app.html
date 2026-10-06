@@ -2257,9 +2257,10 @@ function ssSetFieldReportUi(field){
   const submit=document.getElementById("detailsFoundBtn");
   const note=document.getElementById("foundGpsNote");
   const notFound=document.getElementById("notFoundPanel");
+  if(postcode?.parentElement)postcode.parentElement.style.display=field?"none":"";
   if(postcodeLabel)postcodeLabel.textContent=field?"Postcode (optional)":"Postcode given";
   if(addressLabel)addressLabel.textContent=field?"Finding / landmark (optional)":"First line of address";
-  if(address)address.placeholder=field?"e.g. Leaky pipe in lay-by":"";
+  if(address)address.placeholder=field?"e.g. Damaged roadside drainage asset":"";
   if(notesLabel)notesLabel.textContent=field?"Handover notes (required)":"Handover notes";
   if(notes)notes.placeholder=field?"Describe the issue and how the next person can find or safely reach it.":"Anything useful for the next visit";
   if(title)title.textContent=field?"FIELD LOCATION REPORT":"HANDOVER NOTES";
@@ -2272,12 +2273,12 @@ function ssSetFieldReportUi(field){
   if(notFound)notFound.classList.toggle("hidden",field);
 }
 function startFieldReport(){
-  ssFieldReportMode=true;editingRecordId=null;gps=null;target=null;huntPostcode="";
+  const currentPostcode=(document.getElementById("huntPostcode")?.value||"").trim().toUpperCase();
+  ssFieldReportMode=true;editingRecordId=null;gps=null;target=null;huntPostcode=currentPostcode;
   clearRecordForm();
   ["photoCamera","photo1","photo2Camera","photo2"].forEach(id=>{const el=document.getElementById(id);if(el)el.value=""});
-  const pc=document.getElementById("postcode");if(pc)pc.value="";
+  const pc=document.getElementById("postcode");if(pc)pc.value=currentPostcode;
   const address=document.getElementById("address");if(address)address.value="";
-  const hunt=document.getElementById("huntPostcode");if(hunt)hunt.value="";
   const kind=document.getElementById("type");if(kind)kind.value="Field finding";
   ssSetFieldReportUi(true);
   showForm();
@@ -2379,7 +2380,7 @@ async function persistFoundRecord(){
   const entrance="";
   const approach=accessDirections;
   const accessInfo="";
-  const record={id:recordId,pinVerified:true,postcode,address,street,type:fieldReport?"Field finding":document.getElementById("type").value,observedBy:document.getElementById("observedBy").value,updateStatus:fieldReport?"Field finding reported":document.getElementById("updateStatus").value,result:"Location verified",entrance,approach,accessInfo,visibility:"My Team",localSource:(document.getElementById("localSource")?.value||"Not applicable"),notes,
+  const record={id:recordId,pinVerified:true,postcode,address,street,type:fieldReport?"Field finding":document.getElementById("type").value,observedBy:document.getElementById("observedBy").value,updateStatus:fieldReport?"Asset recorded":document.getElementById("updateStatus").value,result:"Location verified",entrance,approach,accessInfo,visibility:"My Team",localSource:(document.getElementById("localSource")?.value||"Not applicable"),notes,
     localPhotoIds,
     lastMile:{vehicleApproach:approach||null,entrance:entrance||null,hazard:accessInfo||null,handoverNote:notes||null,source:fieldReport?"SituSnap field finding":"SituSnap field handover",fieldConfirmed:true},
     gps:gps||previous?.gps||null,target:fieldReport?null:(target||previous?.target||null),photoUrl:previous?.photoUrl||"",photoPublicId:previous?.photoPublicId||"",verifiedAt:new Date().toISOString(),createdAt:previous?.createdAt||new Date().toISOString()};
@@ -2401,12 +2402,13 @@ async function persistFoundRecord(){
   editingRecordId=null;
   const button=document.getElementById("detailsFoundBtn");if(button)button.textContent=fieldReport?"📍 SAVE FIELD FINDING":"✓ PIN VERIFIED";
   const saveStatus=document.getElementById("localSaveStatus");
-  if(saveStatus)saveStatus.textContent=navigator.onLine?"✓ SAVED ON PHONE · CLOUD SYNC OFF":"✓ SAVED ON PHONE · OFFLINE";
+  if(saveStatus)saveStatus.textContent=fieldReport?(navigator.onLine?"✓ ASSET RECORDED ON PHONE · CLOUD SYNC OFF":"✓ ASSET RECORDED ON PHONE · OFFLINE"):(navigator.onLine?"✓ SAVED ON PHONE · CLOUD SYNC OFF":"✓ SAVED ON PHONE · OFFLINE");
   window.__ssLastVerifiedRecord=record;
   render();
   return true;
 }
 async function finishFound(){
+  const wasFieldReport=ssFieldReportMode;
   if(!(await persistFoundRecord())) return;
   const cloudRecord=window.__ssLastVerifiedRecord||getRecords().find(r=>r&&r.pinVerified===true);
   if(cloudRecord){
@@ -2431,7 +2433,7 @@ async function finishFound(){
   setTimeout(()=>{
     hideForm();
     const note=document.getElementById("foundGpsNote");
-    if(note) note.textContent=gps?(gps.accuracy<=10?"✓ PIN VERIFIED · Excellent GPS ±"+Math.round(gps.accuracy)+"m":gps.accuracy<=25?"✓ PIN VERIFIED · Good GPS ±"+Math.round(gps.accuracy)+"m":"✓ PIN VERIFIED · Best GPS ±"+Math.round(gps.accuracy)+"m"):"✓ PIN VERIFIED · Details saved; GPS unavailable";
+    if(note) note.textContent=wasFieldReport?(gps?"✓ ASSET RECORDED · GPS ±"+Math.round(gps.accuracy)+"m":"✓ ASSET RECORDED · Details saved"):(gps?(gps.accuracy<=10?"✓ PIN VERIFIED · Excellent GPS ±"+Math.round(gps.accuracy)+"m":gps.accuracy<=25?"✓ PIN VERIFIED · Good GPS ±"+Math.round(gps.accuracy)+"m":"✓ PIN VERIFIED · Best GPS ±"+Math.round(gps.accuracy)+"m"):"✓ PIN VERIFIED · Details saved; GPS unavailable");
     const card=document.getElementById("recordsCard");
     if(card)card.scrollIntoView({behavior:"smooth",block:"start"});
   },6100);
