@@ -1,6 +1,8 @@
 <!doctype html>
 <!-- PHOENIX-CLEAN-2: recovered from Phoenix 26 with approved final wording/build gate -->
-<html lang="en"><head>
+<html lang="en"><head><script id="ss-local-evidence-network-guard">
+(function(){const f=window.fetch.bind(window);window.fetch=function(input,init){const raw=typeof input==="string"?input:input instanceof URL?input.href:input?.url;const u=new URL(raw,location.href);if(u.hostname==="cloudinary.com"||u.hostname.endsWith(".cloudinary.com")||u.pathname.includes("/api/situ-vault"))return Promise.reject(new Error("Cloud evidence transport disabled"));return f(input,init)}})();
+</script>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="mobile-web-app-capable" content="yes"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#071a33"><title>SituSnap Phoenix — Find · Snap · Update</title>
 <style>
@@ -964,6 +966,8 @@ const SS_VAULT_QUEUE="situSnapVaultQueueV1";
 const SS_CLOUDINARY_CLOUD="wizvgv9a";
 const SS_CLOUDINARY_PRESET="situsnap_verified";
 async function ssUploadVerifiedPhoto(record){
+ return {ok:false,reason:"cloud_sync_disabled_for_play_release"};
+
   if(!navigator.onLine)return {ok:false,reason:"offline"};
   const file=document.getElementById("photoCamera")?.files?.[0]||document.getElementById("photo1")?.files?.[0]||null;
   if(!file)return {ok:false,reason:"no_file"};
@@ -1006,12 +1010,16 @@ function ssVaultQueuePut(record){
   try{localStorage.setItem(SS_VAULT_QUEUE,JSON.stringify(q.slice(0,50)))}catch(_){}
 }
 async function ssVaultPostPayload(payload){
+ return {ok:false,reason:"cloud_sync_disabled_for_play_release"};
+
   const r=await fetch(SS_VAULT_ENDPOINT,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(payload)});
   const data=await r.json().catch(()=>({}));
   if(!r.ok||data?.ok!==true||data?.cloudSaved!==true)throw new Error(data?.message||("Vault HTTP "+r.status));
   return data;
 }
 async function ssVaultSaveRecord(record){
+ return {ok:false,reason:"cloud_sync_disabled_for_play_release"};
+
   if(!record?.pinVerified)return false;
   ssVaultQueuePut(record);
   if(!navigator.onLine){ssVaultStatus("✓ PIN SAVED OFFLINE · Cloud pending");return false}
@@ -1024,6 +1032,8 @@ async function ssVaultSaveRecord(record){
   }catch(err){console.warn("SituSnap vault save deferred",err);ssVaultStatus("✓ PIN SAVED ON PHONE · Cloud pending");return false}
 }
 async function ssVaultFlush(){
+ return {ok:false,reason:"cloud_sync_disabled_for_play_release"};
+
   if(!navigator.onLine)return false;
   const q=ssVaultQueueRead(); if(!q.length)return true;
   let remaining=[];
@@ -1038,6 +1048,8 @@ function ssVaultRecordToLocal(v){
   return {id:v.recordId,pinVerified:true,postcode:v.postcode||"",address:v.property||"Verified property",street:v.street||"",observedBy:v.observedBy||"MGroup",result:"Location verified",updateStatus:"Verified",gps:{latitude:lat,longitude:lon},verifiedAt:v.verifiedAt||v.cloudSavedAt||null,createdAt:v.verifiedAt||v.cloudSavedAt||null,notes:v.notes||"",approach:v.approach||"",photoUrl:v.photoUrl||"",photoPublicId:v.photoPublicId||"",__restoredFromCloud:true};
 }
 async function ssVaultRestore(){
+ return {ok:false,reason:"cloud_sync_disabled_for_play_release"};
+
   if(!navigator.onLine)return {ok:false,reason:"offline"};
   try{
     const r=await fetch(SS_VAULT_ENDPOINT,{headers:{"accept":"application/json"}});const data=await r.json();
@@ -3203,6 +3215,8 @@ function ssPrepareQueue(){
   }));
 }
 async function ssSyncNow(){
+ return {ok:false,reason:"cloud_sync_disabled_for_play_release"};
+
   if(!SS_SYNC_CONFIG.endpoint)return {ok:false,prototype:true,reason:'shared_endpoint_not_configured'};
   const batch=ssPrepareQueue();
   try{
