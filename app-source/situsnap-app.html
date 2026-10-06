@@ -937,7 +937,7 @@ function ssSetUpdateAvailable(version,url){
 function ssShowMore(){document.getElementById("ssMorePanel")?.classList.remove("hidden");ssCheckForUpdate()}
 function ssHideMore(){document.getElementById("ssMorePanel")?.classList.add("hidden")}
 // Safe updater: checks metadata only. It never downloads or executes remote HTML.
-async async function ssCheckForUpdate(){ ssSetUpdateAvailable(SS_APP_VERSION,""); }
+async function ssCheckForUpdate(){ ssSetUpdateAvailable(SS_APP_VERSION,""); }
 function ssApplyUpdate(){ return; }
 window.addEventListener("DOMContentLoaded",()=>{
   const v=document.getElementById("ssPage2Version");if(v)v.textContent=`SituSnap ${SS_APP_VERSION}`;
