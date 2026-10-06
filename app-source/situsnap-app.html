@@ -1719,7 +1719,7 @@ function googleMapsNow(){
   document.getElementById("huntPc").textContent=chosenLabel ? (chosenLabel+" · "+p) : p;
   document.getElementById("huntPanel").classList.remove("hidden");
   startLiveHunt();
-  window.open("https://www.google.com/maps/dir/?api=1&destination="+encodeURIComponent(huntAddressQuery)+"&travelmode=driving","_blank");
+  window.location.href="https://www.google.com/maps/dir/?api=1&destination="+encodeURIComponent(huntAddressQuery)+"&travelmode=driving";
   // Breadcrumbs is deliberately independent and is triggered by postcode/name entry, not by this button.
 }
 async function openBreadcrumbsRoute(){
@@ -1993,9 +1993,8 @@ async function startHunt(){
   // If the colleague supplied/selected a property name, ask Breadcrumbs immediately.
   // This runs alongside normal navigation and may expose a deliberate TRY ME alternative.
   if(chosenLabel && typeof bcQueueResolve==="function") bcQueueResolve(chosenLabel,p);
-  // START HUNT now owns the complete journey. Open a tab immediately so mobile browsers are less likely to block navigation after the postcode lookup finishes.
-  let navWindow=null;
-  try{navWindow=window.open("about:blank","_blank")}catch(e){}
+  // Resolve the destination first, then use top-level navigation. The Android WebView does not create JavaScript popup windows.
+  const navWindow=null;
   document.getElementById("huntPc").textContent=p;
   document.getElementById("targetStatus").textContent="Finding the best available destination point…";
   document.getElementById("targetDetails").textContent="Checking destination data for the property.";
@@ -2101,14 +2100,29 @@ async function startHunt(){
   finishHunt(navWindow);
 }
 function finishHunt(navWindow){
-  if(navWindow && !navWindow.closed){
-    if(huntAddressQuery) navWindow.location.href="https://www.google.com/maps/dir/?api=1&destination="+encodeURIComponent(huntAddressQuery)+"&travelmode=driving";
-    else if(target) navWindow.location.href="https://www.google.com/maps/dir/?api=1&destination="+target.latitude+","+target.longitude+"&travelmode=driving";
-    else if(huntPostcode) navWindow.location.href="https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(huntPostcode);
+  const mapsUrl=huntAddressQuery
+    ? "https://www.google.com/maps/dir/?api=1&destination="+encodeURIComponent(huntAddressQuery)+"&travelmode=driving"
+    : target
+      ? "https://www.google.com/maps/dir/?api=1&destination="+target.latitude+","+target.longitude+"&travelmode=driving"
+      : huntPostcode
+        ? "https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(huntPostcode)
+        : "";
+  if(mapsUrl){
+    if(navWindow && !navWindow.closed) navWindow.location.href=mapsUrl;
+    else window.location.href=mapsUrl;
   }
   startLiveHunt();
 }
-function openMaps(){if(huntAddressQuery)window.open("https://www.google.com/maps/dir/?api=1&destination="+encodeURIComponent(huntAddressQuery)+"&travelmode=driving","_blank");else if(target)window.open("https://www.google.com/maps/dir/?api=1&destination="+target.latitude+","+target.longitude+"&travelmode=driving","_blank");else if(huntPostcode)window.open("https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(huntPostcode),"_blank")}
+function openMaps(){
+  const mapsUrl=huntAddressQuery
+    ? "https://www.google.com/maps/dir/?api=1&destination="+encodeURIComponent(huntAddressQuery)+"&travelmode=driving"
+    : target
+      ? "https://www.google.com/maps/dir/?api=1&destination="+target.latitude+","+target.longitude+"&travelmode=driving"
+      : huntPostcode
+        ? "https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(huntPostcode)
+        : "";
+  if(mapsUrl) window.location.href=mapsUrl;
+}
 function startLiveHunt(){
     document.getElementById('retryGpsBtn').style.display='none';
   if(!navigator.geolocation){document.getElementById("liveHunt").classList.remove("hidden");document.getElementById("liveStatus").textContent="GPS is unavailable in this browser/device.";return}
