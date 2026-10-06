@@ -74,12 +74,13 @@
   let shown=0;
   root.querySelectorAll(".record").forEach(card=>{
    const cardPc=normPc(card.querySelector(".pills .pill")?.textContent),title=normText(card.querySelector("h3")?.textContent);
-   const match=!!pc&&cardPc===pc&&includesTerms(title,number)&&includesTerms(title,name);
+   const fieldFinding=card.classList.contains("ss-field-report");
+   const match=fieldFinding?!pc:(!!pc&&cardPc===pc&&includesTerms(title,number)&&includesTerms(title,name));
    card.hidden=!match;card.style.display=match?"":"none";if(match)shown++;
   });
   let note=document.getElementById("ssPostcodeScopeNote");
   if(!note){note=document.createElement("p");note.id="ssPostcodeScopeNote";note.className="small-note";root.insertBefore(note,root.firstChild)}
-  note.textContent=!pc?"Enter a postcode to view verified locations saved on this phone.":number||name?(shown?"Saved verified location matches this destination.":"No saved verified location matches this destination."):shown+" verified location"+(shown===1?"":"s")+" saved for this postcode.";
+  note.textContent=!pc?"Field findings without postcodes are shown below. Enter a postcode to view saved property locations.":number||name?(shown?"Saved verified location matches this destination.":"No saved verified location matches this destination."):shown+" verified location"+(shown===1?"":"s")+" saved for this postcode.";
  }
  const draw=window.render;
  if(typeof draw==="function"){window.render=function(){const result=draw.apply(this,arguments);applyScope();return result};try{render=window.render}catch(_){}}
@@ -827,6 +828,8 @@ body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))!important}
   </div>
 
   <button class="ss-find-primary" type="button" onclick="ssFindDestination()">CHECK DESTINATION</button>
+  <button type="button" onclick="startFieldReport()" style="width:100%;min-height:46px;margin-top:7px;border:1px solid #69df83;border-radius:11px;background:#103d29;color:#dff8e3;font-weight:950">📍 REPORT A FIELD FINDING — NO POSTCODE NEEDED</button>
+  <div class="small-note" style="margin-top:4px">For a pipe, inspection point, hazard or other field location.</div>
   <div id="ssFindResult" class="hidden" style="margin-top:10px;padding:13px;border-radius:13px;background:#eaf6ee;border:1px solid #b9dfc4;color:#163b28">
     <div id="ssFindResultKicker" style="font-size:10px;font-weight:950;letter-spacing:.7px;color:#28734a">DESTINATION</div>
     <div id="ssFindResultTitle" style="font-size:18px;font-weight:1000;margin-top:3px">Checking…</div>
@@ -872,16 +875,16 @@ body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))!important}
 <section class="card" id="reminderCard">
 </div>
 <details class="details" id="recordDetails"><summary>HANDOVER NOTES</summary><div class="inside"><div class="form-grid">
-<div><label>Postcode given</label><input id="postcode" placeholder="Enter postcode" autocomplete="off" autocapitalize="characters" spellcheck="false" oninput="syncHuntPostcodeFromRecord();queuePostcodeLookup();render()"></div><div><label>First line of address</label><input id="address" placeholder="" autocomplete="off"></div><input type="hidden" id="street" value=""><div id="recordPostcodeChoices" class="hidden"><div id="recordStreetPickerMenu" class="hidden"></div><div id="streetLiveResults" class="hidden"></div><div id="streetMatchHint" class="hidden"></div></div>
+<div><label id="postcodeLabel">Postcode given</label><input id="postcode" placeholder="Enter postcode" autocomplete="off" autocapitalize="characters" spellcheck="false" oninput="syncHuntPostcodeFromRecord();queuePostcodeLookup();render()"></div><div><label id="addressLabel">First line of address</label><input id="address" placeholder="" autocomplete="off"></div><input type="hidden" id="street" value=""><div id="recordPostcodeChoices" class="hidden"><div id="recordStreetPickerMenu" class="hidden"></div><div id="streetLiveResults" class="hidden"></div><div id="streetMatchHint" class="hidden"></div></div>
 
 <input type="hidden" id="type" value="Property / building"><input type="hidden" id="updateStatus" value="New location found"><div><label>Observed by</label><select id="observedBy"><option>MGroup</option><option>Courier partner</option><option>Verified contributor</option><option>Utility partner</option><option>Emergency service</option><option>Professional survey</option></select></div>
 
 <input type="hidden" id="result" value="Location verified">
 <input type="hidden" id="accessDirections" value="">
-<div class="full"><label>Assisted</label><select id="localSource"><option>Not applicable</option><option>Local resident</option><option>Postie / delivery driver</option><option>Other</option></select></div><div class="full"><label>Handover notes</label><textarea id="notes" placeholder="Optional — anything useful for the next visit"></textarea></div>
+<div class="full"><label>Assisted</label><select id="localSource"><option>Not applicable</option><option>Local resident</option><option>Postie / delivery driver</option><option>Other</option></select></div><div class="full"><label id="notesLabel">Handover notes</label><textarea id="notes" placeholder="Anything useful for the next visit"></textarea></div>
 <div class="full" id="ssVersionCard" data-situsnap-version="1.1.3" style="margin-top:2px;padding:11px 12px;border:1px solid rgba(126,177,235,.22);border-radius:12px;background:rgba(10,25,52,.58)"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px"><div><div style="font-size:11px;opacity:.68;font-weight:800;letter-spacing:.04em">SITUSNAP</div><div id="ssPage2Version" style="font-size:13px;font-weight:900">SituSnap 1.1.3</div></div><button id="ssPage2UpdateBtn" type="button" class="hidden" onclick="ssApplyUpdate()" style="padding:9px 11px;border:0;border-radius:10px;background:#69df83;color:#071a33;font-size:11px;font-weight:950">UPDATE AVAILABLE</button></div><div id="ssPage2UpdateNote" class="hidden" style="margin-top:7px;font-size:11px;color:#dff8e3;font-weight:800">New signed SituSnap APK available.</div></div>
 
-<div class="full"><label>Photo — property / entrance <span style="opacity:.72">(1 REQUIRED)</span></label>
+<div class="full"><label id="photoLabel">Photo — property / entrance <span id="photoRequirementText" style="opacity:.72">(1 REQUIRED)</span></label>
 <div class="small-note" style="margin:0 0 7px">Take a photo now or choose one already taken. Extra photos are optional.</div>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
 <label for="photoCamera" style="margin:0;padding:13px 8px;border-radius:10px;background:#145a35;color:#fff;text-align:center;font-weight:900;cursor:pointer">📷 TAKE PHOTO</label>
@@ -892,7 +895,7 @@ body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))!important}
 <div class="full"><details class="details" style="margin-top:4px"><summary>＋ Add more photos</summary><div class="inside"><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button type="button" onclick="document.getElementById('photo2Camera').click()" style="padding:11px 7px;border-radius:10px;background:#145a35;color:#fff;font-size:11px">📷 TAKE PHOTO</button><button type="button" onclick="document.getElementById('photo2').click()" style="padding:11px 7px;border-radius:10px;background:#26384f;color:#fff;font-size:11px">▣ CHOOSE FILES</button></div><input id="photo2Camera" type="file" accept="image/*" capture="environment" style="display:none"><input id="photo2" type="file" accept="image/*" multiple style="display:none"><div id="extraPhotoStatus" class="small-note" style="margin-top:7px">No extra photo selected.</div><div class="small-note" style="margin-top:5px">Optional · 1 extra photo · 2 photos total max.</div></div></details></div>
 
 <div class="full"><button class="save" id="detailsFoundBtn" onclick="confirmFoundFromDetails()" disabled style="opacity:.45;filter:saturate(.45);cursor:not-allowed">✓ PIN VERIFIED</button><div class="small-note" id="foundGpsNote" style="margin-top:8px;text-align:center">Confirm when physically at the property.</div><div id="localSaveStatus" class="small-note" style="margin-top:7px;text-align:center;font-weight:900;color:#9ee9ad"></div></div>
-<div class="full"><details class="details" style="margin-top:4px"><summary>Couldn’t locate the property?</summary><div class="inside"><button type="button" onclick="saveNotFound()" style="width:100%;padding:13px 8px;border-radius:12px;border:0;background:#145a35;color:#fff;font-weight:950">NOT FOUND</button><div class="small-note" style="margin-top:7px">Save the attempt for handover without creating a verified pin.</div></div></details></div></div></div></details>
+<div class="full"><details class="details" id="notFoundPanel" style="margin-top:4px"><summary>Couldn’t locate the property?</summary><div class="inside"><button type="button" onclick="saveNotFound()" style="width:100%;padding:13px 8px;border-radius:12px;border:0;background:#145a35;color:#fff;font-weight:950">NOT FOUND</button><div class="small-note" style="margin-top:7px">Save the attempt for handover without creating a verified pin.</div></div></details></div></div></div></details>
 <div style="height:8px"></div>
 <details class="details" id="reminderIdentify"><summary>🏠 Identify the property</summary><div class="inside">Record the number/name, building, entrance, gate or another clear identifier.</div></details>
 <details class="details"><summary>🧭 Record how you found it</summary><div class="inside">Add the road, track, landmark, passage, gate or approach that actually helped you locate it.</div></details>
@@ -904,7 +907,7 @@ body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))!important}
 </main><nav class="bottom"><button class="nav active" onclick="window.scrollTo({top:0,behavior:'smooth'})"><span class="ico">⌂</span>Find</button><button class="nav" onclick="document.getElementById('recordsCard').scrollIntoView({behavior:'smooth'})"><span class="ico">↻</span>Verified</button><button id="ssMoreNavBtn" class="nav" onclick="ssShowMore()" style="position:relative"><span class="ico">☰</span>More<span id="ssUpdateBadge" class="hidden" aria-label="Update available">UPDATE</span></button></nav>
 <div id="ssMorePanel" class="hidden" style="position:fixed;inset:0;z-index:900;background:rgba(2,9,20,.72);padding:90px 16px;overflow:auto" onclick="if(event.target===this)ssHideMore()"><div style="max-width:520px;margin:auto;background:#0a1934;border:1px solid rgba(126,177,235,.25);border-radius:18px;padding:18px"><div style="display:flex;justify-content:space-between;align-items:center"><div><b>SituSnap</b><div id="ssVisibleVersion" style="font-size:12px;color:#a9bad0">SituSnap 1.1.3</div></div><button type="button" onclick="ssHideMore()" style="min-height:40px;padding:6px 12px;border-radius:10px;background:#26384f;color:#fff">CLOSE</button></div><div id="ssUpdateStatus" style="margin-top:16px;padding:13px;border-radius:12px;background:#103d29;color:#dff8e3;font-size:12px;font-weight:850">Checking for updates…</div><button id="ssUpdateBtn" type="button" class="hidden" onclick="ssApplyUpdate()" style="width:100%;margin-top:10px;padding:13px;border-radius:12px;background:#69df83;color:#071a33;font-weight:950">UPDATE AVAILABLE — TAP TO UPDATE</button></div></div>
 <script>
-let gps=null,huntPostcode="",huntAddressQuery="",target=null,watchId=null,postcodeTimer=null,editingRecordId=null;
+let gps=null,huntPostcode="",huntAddressQuery="",target=null,watchId=null,postcodeTimer=null,editingRecordId=null,ssFieldReportMode=false;
 let ssFindGeneration=0;
 window.addEventListener('DOMContentLoaded',()=>{
   const card=document.getElementById('bcResolveCard');
@@ -1809,6 +1812,7 @@ async function ssFindPostcodeChoices(postcode){
 }
 
 async function ssFindDestination(){
+  ssFieldReportMode=false;ssSetFieldReportUi(false);
   const myFindGeneration=++ssFindGeneration;
   window.__ssLocalVerifiedLocked=false;
   try{document.activeElement?.blur()}catch(_){}
@@ -2203,6 +2207,7 @@ function clearRecordForm(){
 function editSituSnap(id){
   const r=getRecords().find(x=>x.id===id); if(!r)return;
   editingRecordId=id;
+  ssFieldReportMode=r.type==="Field finding";ssSetFieldReportUi(ssFieldReportMode);
   huntPostcode=r.postcode||"";
   gps=r.gps||gps;
   target=r.target||target;
@@ -2223,7 +2228,44 @@ function syncHuntPostcodeFromRecord(){
   const src=document.getElementById("postcode"), dest=document.getElementById("huntPostcode");
   if(src&&dest){dest.value=src.value.trim().toUpperCase(); huntPostcode=dest.value;window.ssSetPostcodeParts?.(dest.value);}
 }
+function ssSetFieldReportUi(field){
+  const postcodeLabel=document.getElementById("postcodeLabel");
+  const addressLabel=document.getElementById("addressLabel");
+  const notesLabel=document.getElementById("notesLabel");
+  const postcode=document.getElementById("postcode");
+  const address=document.getElementById("address");
+  const notes=document.getElementById("notes");
+  const title=document.querySelector("#recordDetails > summary");
+  const submit=document.getElementById("detailsFoundBtn");
+  const note=document.getElementById("foundGpsNote");
+  const notFound=document.getElementById("notFoundPanel");
+  if(postcodeLabel)postcodeLabel.textContent=field?"Postcode (optional)":"Postcode given";
+  if(addressLabel)addressLabel.textContent=field?"Finding / landmark (optional)":"First line of address";
+  if(address)address.placeholder=field?"e.g. Leaky pipe in lay-by":"";
+  if(notesLabel)notesLabel.textContent=field?"Handover notes (required)":"Handover notes";
+  if(notes)notes.placeholder=field?"Describe the issue and how the next person can find or safely reach it.":"Anything useful for the next visit";
+  if(title)title.textContent=field?"FIELD LOCATION REPORT":"HANDOVER NOTES";
+  const photoLabel=document.getElementById("photoLabel");
+  if(photoLabel)photoLabel.childNodes[0].textContent=field?"Photo — site evidence ":"Photo — property / entrance ";
+  const photoText=document.getElementById("photoRequirementText");
+  if(photoText)photoText.textContent=field?"(1 REQUIRED · 2 MAX)":"(1 REQUIRED)";
+  if(submit)submit.textContent=field?"📍 SAVE FIELD FINDING":"✓ PIN VERIFIED";
+  if(note)note.textContent=field?"No postcode needed. Confirm at the location to capture its GPS pin; add a photo and handover notes.":"Confirm when physically at the property.";
+  if(notFound)notFound.classList.toggle("hidden",field);
+}
+function startFieldReport(){
+  ssFieldReportMode=true;editingRecordId=null;gps=null;target=null;huntPostcode="";
+  clearRecordForm();
+  ["photoCamera","photo1","photo2Camera","photo2"].forEach(id=>{const el=document.getElementById(id);if(el)el.value=""});
+  const pc=document.getElementById("postcode");if(pc)pc.value="";
+  const address=document.getElementById("address");if(address)address.value="";
+  const hunt=document.getElementById("huntPostcode");if(hunt)hunt.value="";
+  const kind=document.getElementById("type");if(kind)kind.value="Field finding";
+  ssSetFieldReportUi(true);
+  showForm();
+}
 function recordWithoutSatNav(){
+  ssFieldReportMode=false;ssSetFieldReportUi(false);
   const p=(document.getElementById("huntPostcode")?.value||"").trim().toUpperCase();
   huntPostcode=p;
   target=null;
@@ -2250,20 +2292,20 @@ function updateFoundButton(){
   const note=document.getElementById("foundGpsNote");
   if(!btn)return false;
   if(editingRecordId!==null){
-    btn.disabled=false;btn.textContent="✓ SAVE UPDATE";btn.style.opacity="1";btn.style.filter="none";btn.style.cursor="pointer";
+    btn.disabled=false;btn.textContent=ssFieldReportMode?"📍 SAVE FIELD UPDATE":"✓ SAVE UPDATE";btn.style.opacity="1";btn.style.filter="none";btn.style.cursor="pointer";
     return true;
   }
   const postcode=(document.getElementById("postcode")?.value||"").trim();
   const address=(document.getElementById("address")?.value||"").trim();
-  const street=(document.getElementById("street")?.value||"").trim();
+  const notes=(document.getElementById("notes")?.value||"").trim();
   const mainPhoto=!!(document.getElementById("photoCamera")?.files?.length||document.getElementById("photo1")?.files?.length);
-  // Rural-first: street remains optional. A verified pin requires the main property/entrance photo.
-  const ready=!!(postcode&&address&&mainPhoto);
+  const ready=ssFieldReportMode?!!(notes&&mainPhoto):!!(postcode&&address&&mainPhoto);
   btn.disabled=!ready;
-  btn.textContent="✓ PIN VERIFIED";
+  btn.textContent=ssFieldReportMode?"📍 SAVE FIELD FINDING":"✓ PIN VERIFIED";
   btn.style.opacity=ready?"1":".45";btn.style.filter=ready?"none":"saturate(.45)";btn.style.cursor=ready?"pointer":"not-allowed";
   if(note){
-    if(!postcode)note.textContent="Enter the postcode first.";
+    if(ssFieldReportMode)note.textContent=!mainPhoto?"Add at least one site photo.":!notes?"Add handover notes describing the finding.":"At the site? Confirm to capture the GPS pin and save.";
+    else if(!postcode)note.textContent="Enter the postcode first.";
     else if(!address)note.textContent="Enter the property number or name.";
     else if(!mainPhoto)note.textContent="Add the property / entrance photo to verify the pin.";
     else note.textContent="Ready for confirmation.";
@@ -2272,57 +2314,82 @@ function updateFoundButton(){
 }
 document.addEventListener("input",e=>{if(e.target?.closest?.("#recordDetails"))updateFoundButton()});
 document.addEventListener("change",e=>{if(e.target?.closest?.("#recordDetails"))updateFoundButton()});
-function persistFoundRecord(){
-  const postcode=document.getElementById("postcode").value.trim();
-  const address=document.getElementById("address").value.trim();
+async function ssStoreLocalEvidencePhotos(recordId,files,previousIds=[]){
+  if(!files.length)return previousIds;
+  const keys=[];
+  for(let i=0;i<files.length&&i<2;i++){
+    const key=String(recordId)+":"+String(i+1);
+    await ssCachePhotoBlob(key,files[i]);
+    if(!await ssGetCachedPhoto(key))throw new Error("Local photo read-back failed");
+    keys.push(key);
+  }
+  for(const old of previousIds)if(!keys.includes(String(old)))await ssDeleteCachedPhoto(String(old));
+  return keys;
+}
+async function persistFoundRecord(){
+  const fieldReport=ssFieldReportMode;
+  const postcode=(document.getElementById("postcode")?.value||"").trim().toUpperCase();
+  const enteredAddress=(document.getElementById("address")?.value||"").trim();
+  const notes=(document.getElementById("notes")?.value||"").trim();
+  const address=fieldReport?(enteredAddress||notes.split(/\r?\n/)[0].slice(0,80)||"Field finding"):enteredAddress;
   const street=(document.getElementById("street")?.value||"").trim();
-  if(!postcode||!address){alert("Please complete the postcode and property number/name or location before confirming.");return false}
-  const mainPhoto=!!(document.getElementById("photoCamera")?.files?.length||document.getElementById("photo1")?.files?.length);
-  if(editingRecordId===null && !mainPhoto){alert("Please add the property / entrance photo before verifying the pin.");return false}
+  if(fieldReport){
+    if(!gps||!Number.isFinite(Number(gps.latitude))||!Number.isFinite(Number(gps.longitude))){alert("GPS is needed to pin this field finding. Move to a clearer spot and try again.");return false}
+    if(!notes){alert("Add handover notes for this field finding.");return false}
+  }else if(!postcode||!address){
+    alert("Please complete the postcode and property number/name or location before confirming.");return false
+  }
+  const cameraExtra=document.getElementById("photo2Camera")?.files?.[0];
+  const fileExtra=document.getElementById("photo2")?.files?.[0];
+  const photoFiles=[
+    document.getElementById("photoCamera")?.files?.[0]||document.getElementById("photo1")?.files?.[0],
+    cameraExtra||fileExtra
+  ].filter(Boolean).slice(0,2);
+  if(editingRecordId===null&&!photoFiles.length){alert("Please add at least one site photo before saving this location.");return false}
   const rs=getRecords();
   const norm=v=>String(v||"").trim().toUpperCase().replace(/\s+/g," ");
   let existingIndex=editingRecordId===null?-1:rs.findIndex(r=>r.id===editingRecordId);
-  if(existingIndex<0){
+  if(existingIndex<0&&!fieldReport){
     existingIndex=rs.findIndex(r=>r&&r.pinVerified===true&&norm(r.postcode)===norm(postcode)&&norm(r.address)===norm(address));
   }
   const previous=existingIndex>=0?rs[existingIndex]:null;
+  const recordId=previous?.id||Date.now();
+  let localPhotoIds=previous?.localPhotoIds||[];
+  try{localPhotoIds=await ssStoreLocalEvidencePhotos(String(recordId),photoFiles,localPhotoIds)}
+  catch(err){console.error("Local photo save failed",err);alert("PHOTO NOT SAVED — keep this screen open and try again.");return false}
   const accessDirections=(document.getElementById("accessDirections")?.value||"").trim();
   const entrance="";
   const approach=accessDirections;
   const accessInfo="";
-  const notes=document.getElementById("notes").value.trim();
-  const record={id:previous?.id||Date.now(),pinVerified:true,postcode,address,street,type:document.getElementById("type").value,observedBy:document.getElementById("observedBy").value,updateStatus:document.getElementById("updateStatus").value,result:document.getElementById("result").value,entrance,approach,accessInfo,visibility:"My Team",localSource:(document.getElementById("localSource")?.value||"Not applicable"),notes,
-    lastMile:{vehicleApproach:approach||null,entrance:entrance||null,hazard:accessInfo||null,handoverNote:notes||null,source:"SituSnap field handover",fieldConfirmed:true},
-    gps:gps||previous?.gps||null,target:target||previous?.target||null,photoUrl:previous?.photoUrl||"",photoPublicId:previous?.photoPublicId||"",verifiedAt:new Date().toISOString(),createdAt:previous?.createdAt||new Date().toISOString()};
+  const record={id:recordId,pinVerified:true,postcode,address,street,type:fieldReport?"Field finding":document.getElementById("type").value,observedBy:document.getElementById("observedBy").value,updateStatus:fieldReport?"Field finding reported":document.getElementById("updateStatus").value,result:"Location verified",entrance,approach,accessInfo,visibility:"My Team",localSource:(document.getElementById("localSource")?.value||"Not applicable"),notes,
+    localPhotoIds,
+    lastMile:{vehicleApproach:approach||null,entrance:entrance||null,hazard:accessInfo||null,handoverNote:notes||null,source:fieldReport?"SituSnap field finding":"SituSnap field handover",fieldConfirmed:true},
+    gps:gps||previous?.gps||null,target:fieldReport?null:(target||previous?.target||null),photoUrl:previous?.photoUrl||"",photoPublicId:previous?.photoPublicId||"",verifiedAt:new Date().toISOString(),createdAt:previous?.createdAt||new Date().toISOString()};
   if(existingIndex>=0)rs.splice(existingIndex,1);
   rs.unshift(record);
   try{
     localStorage.setItem("situSnapRecords",JSON.stringify(rs));
     const check=JSON.parse(localStorage.getItem("situSnapRecords")||"[]");
     const confirmed=check.find(r=>String(r.id)===String(record.id));
-    const lat=Number(confirmed?.gps?.latitude ?? confirmed?.latitude);
-    const lon=Number(confirmed?.gps?.longitude ?? confirmed?.longitude);
-    if(!confirmed || confirmed.pinVerified!==true || !Number.isFinite(lat) || !Number.isFinite(lon)){
-      throw new Error("Local verified-pin read-back failed");
-    }
-    if(!ssArchiveVerified(confirmed)){
-      throw new Error("Verified archive read-back failed");
-    }
+    const lat=Number(confirmed?.gps?.latitude??confirmed?.latitude),lon=Number(confirmed?.gps?.longitude??confirmed?.longitude);
+    if(!confirmed||confirmed.pinVerified!==true||!Number.isFinite(lat)||!Number.isFinite(lon))throw new Error("Local verified-pin read-back failed");
+    if(!ssArchiveVerified(confirmed))throw new Error("Verified archive read-back failed");
   }catch(err){
-    alert("PIN NOT SAVED — keep this screen open and try PIN VERIFIED again.");
-    const b=document.getElementById("detailsFoundBtn");if(b){b.disabled=false;b.textContent="✓ PIN VERIFIED"}
+    console.error("Local record save failed",err);
+    alert("PIN NOT SAVED — keep this screen open and try again.");
+    const button=document.getElementById("detailsFoundBtn");if(button){button.disabled=false;button.textContent=fieldReport?"📍 SAVE FIELD FINDING":"✓ PIN VERIFIED"}
     return false;
   }
   editingRecordId=null;
-  const b=document.getElementById("detailsFoundBtn");if(b)b.textContent="✓ PIN VERIFIED";
+  const button=document.getElementById("detailsFoundBtn");if(button)button.textContent=fieldReport?"📍 SAVE FIELD FINDING":"✓ PIN VERIFIED";
   const saveStatus=document.getElementById("localSaveStatus");
-  if(saveStatus)saveStatus.textContent=navigator.onLine?"✓ PIN SAVED ON PHONE · Cloud pending":"✓ PIN SAVED OFFLINE · Cloud pending";
+  if(saveStatus)saveStatus.textContent=navigator.onLine?"✓ SAVED ON PHONE · CLOUD SYNC OFF":"✓ SAVED ON PHONE · OFFLINE";
   window.__ssLastVerifiedRecord=record;
   render();
   return true;
 }
-function finishFound(){
-  if(!persistFoundRecord()) return;
+async function finishFound(){
+  if(!(await persistFoundRecord())) return;
   const cloudRecord=window.__ssLastVerifiedRecord||getRecords().find(r=>r&&r.pinVerified===true);
   if(cloudRecord){
     (async()=>{
@@ -2421,7 +2488,7 @@ function confirmFoundFromDetails(){
   if(btn){btn.disabled=true;btn.textContent="📍 LOCKING LOCATION…"}
   if(note)note.textContent="Checking the phone location for the best available accuracy…";
   const complete=()=>{if(btn){btn.disabled=false;btn.textContent="✓ PIN VERIFIED"}finishFound()};
-  if(!navigator.geolocation){if(note)note.textContent="Phone location unavailable — confirming with the recorded details.";complete();return}
+  if(!navigator.geolocation){if(ssFieldReportMode){if(note)note.textContent="GPS is required for a field finding. Turn on Location and try again.";if(btn){btn.disabled=false;btn.textContent="📍 SAVE FIELD FINDING"}return}if(note)note.textContent="Phone location unavailable — confirming with the recorded details.";complete();return}
 
   let best=null,confirmWatch=null,finished=false;
   const usePosition=(p)=>{
@@ -2437,6 +2504,7 @@ function confirmFoundFromDetails(){
     if(finished)return; finished=true;
     if(confirmWatch!==null)navigator.geolocation.clearWatch(confirmWatch);
     if(best)gps=best;
+    if(!best&&ssFieldReportMode){if(note)note.textContent="No GPS fix yet. Move to a clearer spot and try again.";if(btn){btn.disabled=false;btn.textContent="📍 SAVE FIELD FINDING"}return}
     if(note)note.textContent=best?(best.accuracy<=10?"Excellent GPS lock":best.accuracy<=25?"Good GPS lock":"Best available GPS lock")+" · ±"+best.accuracy+"m":"Location unavailable — confirming with recorded details.";
     complete();
   };
@@ -2480,21 +2548,22 @@ async function ssShowPhotoBlob(blob,label){
   if(status)status.textContent=label||"PHOTO READY OFFLINE ✓";
   m.style.display="flex";
 }
-async function ssViewVerifiedPhoto(id){
+async function ssViewVerifiedPhoto(id,slot=1){
   const r=getRecords().find(x=>String(x.id)===String(id));if(!r)return;
   try{
-    let blob=await ssGetCachedPhoto(id);
+    const localKey=r.localPhotoIds?.[slot-1]||String(id)+":"+String(slot);
+    let blob=await ssGetCachedPhoto(localKey);
+    if(!blob&&slot===1)blob=await ssGetCachedPhoto(id);
     if(blob){await ssShowPhotoBlob(blob,"PHOTO READY OFFLINE ✓");return}
-    if(r.photoUrl&&navigator.onLine){
+    if(slot===1&&r.photoUrl&&navigator.onLine){
       const resp=await fetch(r.photoUrl,{mode:"cors",cache:"no-store"});
       if(!resp.ok)throw new Error("photo_http_"+resp.status);
-      blob=await resp.blob();
-      await ssCachePhotoBlob(id,blob);
+      blob=await resp.blob();await ssCachePhotoBlob(id,blob);
       const check=await ssGetCachedPhoto(id);
       if(check){await ssShowPhotoBlob(check,"PHOTO READY OFFLINE ✓");render();return}
     }
   }catch(e){console.warn("Verified photo unavailable",e)}
-  alert(navigator.onLine?"Verified photo could not be cached. Try again while online.":"Verified photo is not ready offline on this phone. Open it once while online before entering the dead zone.");
+  alert(navigator.onLine?"Verified photo could not be loaded. Try again.":"This photo is not available on this phone.");
 }
 function useSituSnap(id){
   const r=getRecords().find(x=>String(x.id)===String(id)); if(!r)return;
@@ -2510,15 +2579,12 @@ async function ssDeleteCachedPhoto(id){
   try{
     const db=await ssPhotoDb();
     await new Promise((resolve,reject)=>{
-      const tx=db.transaction("photos","readwrite");
-      tx.objectStore("photos").delete(String(id));
-      tx.oncomplete=resolve;
-      tx.onerror=()=>reject(tx.error);
-    });
-    db.close();
+      const tx=db.transaction("photos","readwrite"),store=tx.objectStore("photos");
+      [String(id),String(id)+":1",String(id)+":2"].forEach(key=>store.delete(key));
+      tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);
+    });db.close();
   }catch(e){console.warn("Verified photo cache removal deferred",e)}
 }
-
 function ssConfirmRemoveVerified(label){
   return new Promise(resolve=>{
     const old=document.getElementById("ssRemoveVerifiedConfirm");
@@ -2589,29 +2655,31 @@ async function ssRemoveVerifiedLocation(id){
   ssRenderVerifiedFirst(document.getElementById("huntPostcode")?.value||"");
 }
 function render(){
-  // Verified locations is the phone's learned-pin memory, not a search-result panel.
-  // Always show every locally verified record; postcode filtering belongs in the Find workflow.
-  const f=getRecords().filter(r=>isVerifiedSituSnap(r));
-  const recordsRoot=document.getElementById("records");
-  const demoMarkup=document.getElementById("ssDemoPins")?.outerHTML||"";
-  recordsRoot.innerHTML=demoMarkup+(f.length?f.map(r=>{
-    const accuracy=r.gps?.accuracy?` ±${Math.round(r.gps.accuracy)}m`:"";
-    const when=r.verifiedAt||r.createdAt;
-    const stamp=when?new Date(when).toLocaleString():"";
-    const gpsLabel=r.gps?"GPS verified"+accuracy:"Verified record";
-    return `<article class="record" onclick="editSituSnap(${r.id})" title="Tap to review or edit"><h3>${esc(r.address)}${r.street?` · ${esc(r.street)}`:""}</h3><div class="pills"><span class="pill">${esc(r.postcode)}</span><span class="pill">PIN VERIFIED</span></div>`+
-      `${r.entrance?`<div class="meta"><b>Entrance:</b> ${esc(r.entrance)}</div>`:""}${r.approach?`<div class="meta"><b>Approach:</b> ${esc(r.approach)}</div>`:""}${r.accessInfo?`<div class="meta"><b>Access:</b> ${esc(r.accessInfo)}</div>`:""}`+
-      `<div class="meta">${esc(r.notes||"No additional handover notes.")}</div><div class="meta">📍 ${gpsLabel} · ${esc(r.observedBy||"MGroup")}${stamp?" · "+esc(stamp):""}</div>`+
-      `${r.photoUrl?`<div id="photoReady_${esc(String(r.id))}" class="small-note" style="margin-top:8px;text-align:center">📷 Checking offline photo…</div><button type="button" onclick='event.stopPropagation();ssViewVerifiedPhoto(${JSON.stringify(String(r.id))})' style="margin-top:7px;width:100%;padding:11px;border-radius:10px;border:0;font-weight:900;background:#26384f;color:#fff">📷 VIEW VERIFIED PHOTO</button>`:""}`+
-      `<button type="button" onclick='event.stopPropagation();useSituSnap(${JSON.stringify(String(r.id))})' style="margin-top:10px;width:100%;padding:11px;border-radius:10px;border:0;font-weight:900;background:#145a35;color:#fff">ROUTE TO VERIFIED PIN →</button>`+
-      `<button type="button" onclick='event.stopPropagation();ssRemoveVerifiedLocation(${JSON.stringify(String(r.id))})' style="margin-top:12px;width:100%;padding:8px;border-radius:9px;border:1px solid #b9c2c9;background:#fff;color:#59636b;font-size:12px;font-weight:800">REMOVE VERIFIED LOCATION</button></article>`;
-  }).join(""):`<div class="empty">No verified locations saved on this phone yet.</div>`);
-  for(const r of f.filter(x=>x.photoUrl)){
-    ssPhotoReadyOffline(r.id).then(ok=>{
-      const el=document.getElementById("photoReady_"+String(r.id));
-      if(el)el.textContent=ok?"📷 PHOTO READY OFFLINE ✓":"📷 Photo online only";
-    });
-  }
+  const records=getRecords().filter(r=>isVerifiedSituSnap(r));
+  const root=document.getElementById('records');if(!root)return;
+  root.innerHTML=document.getElementById('ssDemoPins')?.outerHTML||'';
+  const addText=(parent,tag,cls,value)=>{const el=document.createElement(tag);if(cls)el.className=cls;el.textContent=value;parent.appendChild(el);return el};
+  const addButton=(parent,label,style,action)=>{const b=document.createElement('button');b.type='button';b.textContent=label;b.style.cssText=style;b.addEventListener('click',e=>{e.stopPropagation();action()});parent.appendChild(b);return b};
+  if(!records.length){addText(root,'div','empty','No verified locations saved on this phone yet.');return}
+  records.forEach(r=>{
+    const field=r.type==='Field finding',photos=Array.isArray(r.localPhotoIds)?r.localPhotoIds:[];
+    const article=document.createElement('article');article.className='record'+(field?' ss-field-report':'');article.title='Tap to review or edit';article.addEventListener('click',()=>editSituSnap(r.id));
+    addText(article,'h3','',(r.address|| (field?'Field finding':'Verified location')) + (r.street&&!field?' · '+r.street:''));
+    const pills=document.createElement('div');pills.className='pills';
+    addText(pills,'span','pill',field?'FIELD FINDING':(r.postcode||''));addText(pills,'span','pill',field?'GPS PIN SAVED':'PIN VERIFIED');article.appendChild(pills);
+    if(r.entrance&&!field)addText(article,'div','meta','Entrance: '+r.entrance);
+    if(r.approach)addText(article,'div','meta','Approach: '+r.approach);
+    if(r.accessInfo)addText(article,'div','meta','Access: '+r.accessInfo);
+    addText(article,'div','meta',r.notes||'No additional handover notes.');
+    const accuracy=r.gps?.accuracy?' ±'+Math.round(r.gps.accuracy)+'m':'';
+    const when=r.verifiedAt||r.createdAt,stamp=when?' · '+new Date(when).toLocaleString():'';
+    addText(article,'div','meta','📍 GPS pin saved'+accuracy+' · '+(r.observedBy||'MGroup')+stamp);
+    photos.slice(0,2).forEach((photo,i)=>addButton(article,'📷 VIEW SITE PHOTO '+(i+1),'margin-top:7px;width:100%;padding:11px;border-radius:10px;border:0;font-weight:900;background:#26384f;color:#fff',()=>ssViewVerifiedPhoto(r.id,i+1)));
+    if(!photos.length&&r.photoUrl)addButton(article,'📷 VIEW VERIFIED PHOTO','margin-top:7px;width:100%;padding:11px;border-radius:10px;border:0;font-weight:900;background:#26384f;color:#fff',()=>ssViewVerifiedPhoto(r.id));
+    addButton(article,field?'OPEN FIELD PIN IN MAPS →':'ROUTE TO VERIFIED PIN →','margin-top:10px;width:100%;padding:11px;border-radius:10px;border:0;font-weight:900;background:#145a35;color:#fff',()=>useSituSnap(r.id));
+    addButton(article,'REMOVE SAVED LOCATION','margin-top:12px;width:100%;padding:8px;border-radius:9px;border:1px solid #b9c2c9;background:#fff;color:#59636b;font-size:12px;font-weight:800',()=>ssRemoveVerifiedLocation(r.id));
+    root.appendChild(article);
+  });
 }
 function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[c]))}
 render();
