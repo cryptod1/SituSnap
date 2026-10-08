@@ -6,7 +6,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="mobile-web-app-capable" content="yes"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#071a33"><title>SituSnap Phoenix — Find · Snap · Update</title>
 <style>
-*{box-sizing:border-box}:root{--navy:#071a33;--navy2:#0c3a25;--blue:#69df83;--ink:#10233f;--muted:#a9bad0;--line:#dce5ef}html{scroll-behavior:smooth}body{margin:0;color:#f3f7fc;font-family:Inter,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;background:linear-gradient(rgba(7,26,51,.80),rgba(7,26,51,.90)),url("situsnap-background.png");background-size:cover;background-position:center;background-attachment:fixed;padding-bottom:90px}header{height:70px;background:var(--navy);display:flex;align-items:center;justify-content:space-between;padding:0 18px;position:sticky;top:0;z-index:20;box-shadow:0 4px 18px #071a3330}.brand{display:flex;gap:10px;align-items:center} .brand-mark{width:40px;height:40px;display:grid;place-items:center;position:relative;overflow:visible}.brand-mark svg{width:40px;height:40px;display:block;filter:drop-shadow(0 0 8px rgba(53,216,233,.22))}.brand-name{font-size:19px;font-weight:900}.tag{font-size:8px;letter-spacing:1px;white-space:nowrap;color:#dff8e3;font-weight:800}.menu{width:42px;height:42px;border-radius:12px;background:#ffffff12;border:1px solid #ffffff1c;display:grid;place-items:center;font-size:22px}main{max-width:680px;margin:auto;padding:18px 13px 95px}.hero{background:linear-gradient(145deg,var(--navy),var(--navy2) 58%,#146b3a);border-radius:20px;padding:20px 18px;color:#fff;box-shadow:0 18px 35px #071a3328;margin-bottom:13px}.eyebrow{font-size:9px;letter-spacing:2px;font-weight:900;color:#8fe7a1}.hero h1{font-size:clamp(28px,8vw,42px);line-height:1.02;margin:6px 0 7px;letter-spacing:-1px}.hero p{margin:0;color:#e3f8e8;font-size:13px;line-height:1.5}.find{color-scheme:only light;margin-top:18px;background:rgba(255,255,255,.97);border-radius:16px;padding:10px;box-shadow:0 10px 25px #0005}.find-row{display:flex;gap:7px}.find input{flex:1;min-width:0;border:0;outline:0;padding:12px 10px;font-size:14px;color:var(--ink)}button{border:0;cursor:pointer;font:inherit;font-weight:850;min-height:52px}.find button{padding:0 16px;border-radius:11px;background:var(--blue);color:#fff}.quick{display:grid;grid-template-columns:1fr 1fr;gap:9px}.quick button{padding:15px 12px;border-radius:14px;background:rgba(13,34,67,.92);color:#9ee9ad;border:1px solid rgba(126,177,235,.25);box-shadow:0 10px 22px #02091450}.quick button.primary{background:var(--blue);color:#fff}.card{background:rgba(10,25,52,.88);backdrop-filter:blur(16px);border:1px solid rgba(126,177,235,.22);border-radius:18px;padding:14px;margin-bottom:10px;box-shadow:0 16px 36px #02091470}.card h2{font-size:17px;margin:0}.muted{color:var(--muted);font-size:11px;margin:4px 0 12px}.section-head{display:flex;justify-content:space-between;align-items:center;gap:10px}.pill{padding:5px 8px;border-radius:99px;background:#145a35;color:#9ee9ad;font-size:9px;font-weight:850}.hidden{display:none}.location{display:flex;gap:11px;align-items:center;padding:12px;border:1px solid rgba(126,177,235,.2);border-radius:13px;margin-top:8px;background:rgba(17,39,73,.58)}.pin{width:38px;height:38px;border-radius:12px;background:#145a35;display:grid;place-items:center;font-size:19px}.location b{display:block;font-size:12px}.location span{display:block;font-size:10px;color:var(--muted);margin-top:3px}.details{border:1px solid rgba(126,177,235,.2);border-radius:13px;background:rgba(17,39,73,.58);margin-top:8px;overflow:hidden}.details summary{list-style:none;cursor:pointer;padding:12px 13px;font-size:12px;font-weight:850;display:flex;align-items:center;justify-content:space-between}.details summary:after{content:"＋";color:#69df83;font-size:16px}.details[open] summary:after{content:"−"}.details .inside{padding:0 13px 13px;color:var(--muted);font-size:10px;line-height:1.5}.searchbox,input,select,textarea{width:100%;min-height:52px;padding:11px;border:1px solid rgba(126,177,235,.25);border-radius:10px;background:#0d3525;color:#f3f7fc;font:inherit;font-size:16px;outline:0}textarea{min-height:78px;resize:vertical}label{display:block;font-size:10px;font-weight:850;color:#aebed2;margin:8px 0 5px}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 11px}.full{grid-column:1/-1}.gps{display:flex;justify-content:space-between;gap:8px;align-items:center;background:#103d29;border:1px solid rgba(126,177,235,.2);padding:10px;border-radius:11px;margin-top:8px}.gps span{font-size:9px;color:var(--muted)}.gps button{padding:8px 10px;border-radius:9px;background:#2f9b55;color:#fff}.bottom{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(680px,100%);height:72px;background:rgba(6,19,39,.97);backdrop-filter:blur(14px);border-top:1px solid rgba(126,177,235,.2);display:grid;grid-template-columns:repeat(4,1fr);z-index:25;padding:7px 5px}.nav{background:none;color:#91a5be;font-size:9px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border-radius:10px;min-height:0}.nav .ico{font-size:19px}.nav.active{color:#69df83;background:#123f2a}.record{border:1px solid rgba(126,177,235,.2);border-radius:14px;padding:13px;margin-top:9px;background:rgba(18,40,75,.78);cursor:pointer}.record:active{transform:scale(.995)}.record h3{margin:0 0 6px;font-size:13px}.meta{font-size:10px;color:var(--muted);line-height:1.5;margin-top:7px}.pills{display:flex;gap:6px;flex-wrap:wrap}.scroll-hint{text-align:center;color:#9ee9ad;font-size:9px;font-weight:850;letter-spacing:1.2px;margin:8px 0 10px}.scroll-hint span{display:block;font-size:17px}.save{width:100%;padding:13px;border-radius:12px;background:var(--blue);color:#fff;margin-top:10px}.link{background:none;color:#69df83;padding:4px;min-height:40px}.empty{text-align:center;padding:24px 10px;color:var(--muted);font-size:11px}.offline-banner{position:fixed;top:70px;left:50%;transform:translateX(-50%);z-index:30;width:min(680px,calc(100% - 18px));padding:9px 12px;border-radius:0 0 12px 12px;background:#f5f1e7;color:#17221c;text-align:center;font-size:12px;font-weight:900;box-shadow:0 8px 20px #0004}.offline-banner.hidden{display:none}@media(max-width:520px){.form-grid{grid-template-columns:1fr}.full{grid-column:auto}.hero{padding:21px 17px}.quick button{font-size:12px}.find-row{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(138px,.75fr);gap:8px}.find button{font-size:11px;padding:0 9px;line-height:1.15}}
+*{box-sizing:border-box}:root{--navy:#071a33;--navy2:#0c3a25;--blue:#69df83;--ink:#10233f;--muted:#a9bad0;--line:#dce5ef}html{scroll-behavior:smooth}body{margin:0;color:#f3f7fc;font-family:Inter,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;background:linear-gradient(rgba(7,26,51,.80),rgba(7,26,51,.90)),url("situsnap-background.png");background-size:cover;background-position:center;background-attachment:fixed;padding-bottom:90px}header{height:70px;background:var(--navy);display:flex;align-items:center;justify-content:space-between;padding:0 18px;position:sticky;top:0;z-index:20;box-shadow:0 4px 18px #071a3330}.brand{display:flex;gap:10px;align-items:center} .brand-mark{width:40px;height:40px;display:grid;place-items:center;position:relative;overflow:visible}.brand-mark svg{width:40px;height:40px;display:block;filter:drop-shadow(0 0 8px rgba(53,216,233,.22))}.brand-name{font-size:19px;font-weight:900}.tag{font-size:8px;letter-spacing:1px;white-space:nowrap;color:#dff8e3;font-weight:800}main{max-width:680px;margin:auto;padding:18px 13px 95px}.hero{background:linear-gradient(145deg,var(--navy),var(--navy2) 58%,#146b3a);border-radius:20px;padding:20px 18px;color:#fff;box-shadow:0 18px 35px #071a3328;margin-bottom:13px}.eyebrow{font-size:9px;letter-spacing:2px;font-weight:900;color:#8fe7a1}.hero h1{font-size:clamp(28px,8vw,42px);line-height:1.02;margin:6px 0 7px;letter-spacing:-1px}.hero p{margin:0;color:#e3f8e8;font-size:13px;line-height:1.5}.find{color-scheme:only light;margin-top:18px;background:rgba(255,255,255,.97);border-radius:16px;padding:10px;box-shadow:0 10px 25px #0005}.find-row{display:flex;gap:7px}.find input{flex:1;min-width:0;border:0;outline:0;padding:12px 10px;font-size:14px;color:var(--ink)}button{border:0;cursor:pointer;font:inherit;font-weight:850;min-height:52px}.find button{padding:0 16px;border-radius:11px;background:var(--blue);color:#fff}.quick{display:grid;grid-template-columns:1fr 1fr;gap:9px}.quick button{padding:15px 12px;border-radius:14px;background:rgba(13,34,67,.92);color:#9ee9ad;border:1px solid rgba(126,177,235,.25);box-shadow:0 10px 22px #02091450}.quick button.primary{background:var(--blue);color:#fff}.card{background:rgba(10,25,52,.88);backdrop-filter:blur(16px);border:1px solid rgba(126,177,235,.22);border-radius:18px;padding:14px;margin-bottom:10px;box-shadow:0 16px 36px #02091470}.card h2{font-size:17px;margin:0}.muted{color:var(--muted);font-size:11px;margin:4px 0 12px}.section-head{display:flex;justify-content:space-between;align-items:center;gap:10px}.pill{padding:5px 8px;border-radius:99px;background:#145a35;color:#9ee9ad;font-size:9px;font-weight:850}.hidden{display:none}.location{display:flex;gap:11px;align-items:center;padding:12px;border:1px solid rgba(126,177,235,.2);border-radius:13px;margin-top:8px;background:rgba(17,39,73,.58)}.pin{width:38px;height:38px;border-radius:12px;background:#145a35;display:grid;place-items:center;font-size:19px}.location b{display:block;font-size:12px}.location span{display:block;font-size:10px;color:var(--muted);margin-top:3px}.details{border:1px solid rgba(126,177,235,.2);border-radius:13px;background:rgba(17,39,73,.58);margin-top:8px;overflow:hidden}.details summary{list-style:none;cursor:pointer;padding:12px 13px;font-size:12px;font-weight:850;display:flex;align-items:center;justify-content:space-between}.details summary:after{content:"＋";color:#69df83;font-size:16px}.details[open] summary:after{content:"−"}.details .inside{padding:0 13px 13px;color:var(--muted);font-size:10px;line-height:1.5}.searchbox,input,select,textarea{width:100%;min-height:52px;padding:11px;border:1px solid rgba(126,177,235,.25);border-radius:10px;background:#0d3525;color:#f3f7fc;font:inherit;font-size:16px;outline:0}textarea{min-height:78px;resize:vertical}label{display:block;font-size:10px;font-weight:850;color:#aebed2;margin:8px 0 5px}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 11px}.full{grid-column:1/-1}.gps{display:flex;justify-content:space-between;gap:8px;align-items:center;background:#103d29;border:1px solid rgba(126,177,235,.2);padding:10px;border-radius:11px;margin-top:8px}.gps span{font-size:9px;color:var(--muted)}.gps button{padding:8px 10px;border-radius:9px;background:#2f9b55;color:#fff}.bottom{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(680px,100%);height:72px;background:rgba(6,19,39,.97);backdrop-filter:blur(14px);border-top:1px solid rgba(126,177,235,.2);display:grid;grid-template-columns:repeat(4,1fr);z-index:25;padding:7px 5px}.nav{background:none;color:#91a5be;font-size:9px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border-radius:10px;min-height:0}.nav .ico{font-size:19px}.nav.active{color:#69df83;background:#123f2a}.record{border:1px solid rgba(126,177,235,.2);border-radius:14px;padding:13px;margin-top:9px;background:rgba(18,40,75,.78);cursor:pointer}.record:active{transform:scale(.995)}.record h3{margin:0 0 6px;font-size:13px}.meta{font-size:10px;color:var(--muted);line-height:1.5;margin-top:7px}.pills{display:flex;gap:6px;flex-wrap:wrap}.scroll-hint{text-align:center;color:#9ee9ad;font-size:9px;font-weight:850;letter-spacing:1.2px;margin:8px 0 10px}.scroll-hint span{display:block;font-size:17px}.save{width:100%;padding:13px;border-radius:12px;background:var(--blue);color:#fff;margin-top:10px}.link{background:none;color:#69df83;padding:4px;min-height:40px}.empty{text-align:center;padding:24px 10px;color:var(--muted);font-size:11px}.offline-banner{position:fixed;top:70px;left:50%;transform:translateX(-50%);z-index:30;width:min(680px,calc(100% - 18px));padding:9px 12px;border-radius:0 0 12px 12px;background:#f5f1e7;color:#17221c;text-align:center;font-size:12px;font-weight:900;box-shadow:0 8px 20px #0004}.offline-banner.hidden{display:none}@media(max-width:520px){.form-grid{grid-template-columns:1fr}.full{grid-column:auto}.hero{padding:21px 17px}.quick button{font-size:12px}.find-row{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(138px,.75fr);gap:8px}.find button{font-size:11px;padding:0 9px;line-height:1.15}}
 
 .precision{margin-top:10px;border:1px solid rgba(126,177,235,.22);background:linear-gradient(135deg,#0d294e,#123761);border-radius:14px;padding:12px}.precision-top{display:flex;justify-content:space-between;align-items:center;gap:10px}.precision-title{font-size:11px;font-weight:900;letter-spacing:.3px}.precision-badge{font-size:9px;font-weight:900;padding:5px 8px;border-radius:999px;background:#173f69;color:#b8f7c3}.precision-bar{height:7px;background:#071a33;border-radius:99px;overflow:hidden;margin:9px 0 7px}.precision-fill{height:100%;width:45%;background:#69df83;border-radius:99px}.small-note{font-size:9px;color:#a9bad0;line-height:1.45}.live-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px}.metric{background:#0a2040;border:1px solid rgba(126,177,235,.18);border-radius:11px;padding:10px}.metric b{display:block;font-size:15px}.metric span{font-size:8px;color:#9fb3ca;text-transform:uppercase;letter-spacing:.5px}
 
@@ -795,7 +795,7 @@ body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))!important}
 </head>
 <body>
 <div id="ssBuildStamp" data-build="SituSnap-1.1.3" style="display:none">SituSnap-1.1.3</div>
-<div id="offlineBanner" class="offline-banner hidden" role="status" aria-live="polite">No signal — continue offline.</div><div id="celebration" aria-hidden="true"><div class="celebrate-content"><div class="celebrate-title">PIN VERIFIED!</div><div class="celebrate-sub">SituSnap location confirmed</div></div></div><header><div class="brand"><div class="brand-mark" aria-label="SituSnap logo"><img src="situsnap-brand-mark.png" alt="" style="width:100%;height:100%;object-fit:contain;display:block;border-radius:18%" /></div><div><div class="brand-name"><span style="color:#fff">Situ</span><span style="color:#69df83">Snap</span></div><div class="tag">Find it. Snap it. Update it.</div></div></div><div class="menu">☰</div></header>
+<div id="offlineBanner" class="offline-banner hidden" role="status" aria-live="polite">No signal — continue offline.</div><div id="celebration" aria-hidden="true"><div class="celebrate-content"><div class="celebrate-title">PIN VERIFIED!</div><div class="celebrate-sub">SituSnap location confirmed</div></div></div><header><div class="brand"><div class="brand-mark" aria-label="SituSnap logo"><img src="situsnap-brand-mark.png" alt="" style="width:100%;height:100%;object-fit:contain;display:block;border-radius:18%" /></div><div><div class="brand-name"><span style="color:#fff">Situ</span><span style="color:#69df83">Snap</span></div><div class="tag">Find it. Snap it. Update it.</div></div></div></header>
 <main><div id="breadcrumbsBridge" class="card hidden" style="border:2px solid #69df83;margin-top:12px"><div class="eyebrow">BREADCRUMBS</div><h2 id="bridgeTitle" style="margin:5px 0">Continue</h2><div class="meta" id="bridgeText"></div></div>
 <section class="ss-home-shell" aria-labelledby="ssHomeTitle">
 <div class="ss-home-kicker">Find it. Snap it. Update it.</div>
@@ -1772,16 +1772,6 @@ async function ssFindDestination(){
       })||null;
     }else if(verifiedRows.length===1){
       row=verifiedRows[0];
-    }
-
-    if(typeof window.__ssTrace==="function"){
-      window.__ssTrace("VERIFIED TAB SOURCE",JSON.stringify({
-        postcode:pc,wanted:property,count:verifiedRows.length,
-        rows:verifiedRows.map(r=>({id:r.id,address:r.address,street:r.street,postcode:r.postcode,
-          pinVerified:r.pinVerified,result:r.result,updateStatus:r.updateStatus,
-          hasGps:!!r.gps})).slice(0,12),
-        matched:row?{id:row.id,address:row.address,street:row.street}:null
-      }));
     }
 
     if(row){
@@ -3340,88 +3330,8 @@ window.addEventListener("load",()=>{if(navigator.onLine){ssVaultRestore().then((
 </script>
 
 <script>
-/* V1.0.5q VERIFIED-PATH TRACE — diagnostic only */
-(function(){
-  const KEY="situSnapDebugTraceV1";
-  const MAX=120;
-  function load(){try{return JSON.parse(localStorage.getItem(KEY)||"[]")}catch(e){return []}}
-  function save(a){try{localStorage.setItem(KEY,JSON.stringify(a.slice(-MAX)))}catch(e){}}
-  window.__ssTrace=function(event,detail){
-    const a=load();
-    a.push({t:new Date().toISOString(),event:String(event),detail:String(detail||"").slice(0,700)});
-    save(a);
-  };
-  window.__ssTrace("BOOT","SituSnap 1.0.5q tracer loaded");
-
-  function watch(id){
-    const el=document.getElementById(id); if(!el)return;
-    let last=(el.innerText||el.textContent||"").trim();
-    new MutationObserver(()=>{
-      const now=(el.innerText||el.textContent||"").trim();
-      if(now!==last){
-        window.__ssTrace("DOM "+id, now);
-        last=now;
-      }
-    }).observe(el,{subtree:true,childList:true,characterData:true,attributes:true});
-  }
-
-  window.addEventListener("load",()=>{
-    ["ssFindResult","ssFindResultTitle","ssFindResultMeta","bcResolveCard",
-     "bcResolveTitle","bcResolveMeta","bcQuickStatus"].forEach(watch);
-
-    ["ssFindDestination","ssShowFindResult","bcResolve","bcQueueResolve",
-     "bcUI","bcRender","bcSetStatus","bcSetMainAvailable"].forEach(name=>{
-      const original=window[name];
-      if(typeof original!=="function")return;
-      window[name]=function(){
-        let args="";
-        try{args=[...arguments].map(v=>{
-          if(v && typeof v==="object")return JSON.stringify(v).slice(0,350);
-          return String(v);
-        }).join(" | ")}catch(e){}
-        window.__ssTrace("CALL "+name,args);
-        let result;
-        try{result=original.apply(this,arguments)}
-        catch(e){window.__ssTrace("THROW "+name,e.stack||e);throw e}
-        if(result && typeof result.then==="function"){
-          return result.then(v=>{
-            let x="";try{x=typeof v==="object"?JSON.stringify(v).slice(0,600):String(v)}catch(e){}
-            window.__ssTrace("RETURN "+name,x);return v;
-          },e=>{window.__ssTrace("REJECT "+name,e.stack||e);throw e});
-        }
-        return result;
-      };
-    });
-  });
-
-  window.ssCopyTrace=async function(){
-    const text=JSON.stringify(load(),null,2);
-    try{await navigator.clipboard.writeText(text);alert("TRACE COPIED");}
-    catch(e){prompt("Copy trace:",text);}
-  };
-  window.ssClearTrace=function(){localStorage.removeItem(KEY);alert("TRACE CLEARED");};
-  window.ssShowTrace=function(){
-    let box=document.getElementById("ssTraceBox");
-    if(!box){
-      box=document.createElement("div");box.id="ssTraceBox";
-      box.style.cssText="position:fixed;z-index:99999;inset:8% 4% 10%;background:#071a33;color:#fff;border:2px solid #69df83;border-radius:16px;padding:12px;overflow:auto;font:11px monospace;white-space:pre-wrap";
-      document.body.appendChild(box);
-    }
-    box.innerHTML='<div style="font:900 15px system-ui;margin-bottom:10px">PHOENIX 2 TRACE</div>'+
-      '<button onclick="ssCopyTrace()" style="margin:3px;padding:8px">COPY TRACE</button>'+
-      '<button onclick="ssClearTrace()" style="margin:3px;padding:8px">CLEAR</button>'+
-      '<button onclick="document.getElementById(\'ssTraceBox\').remove()" style="margin:3px;padding:8px">CLOSE</button><hr>'+
-      JSON.stringify(load(),null,2).replace(/&/g,"&amp;").replace(/</g,"&lt;");
-  };
-
-  // Long-press the header menu button to open trace; normal tap remains untouched.
-  window.addEventListener("load",()=>{
-    const m=document.querySelector(".menu"); if(!m)return;
-    let timer;
-    m.addEventListener("pointerdown",()=>timer=setTimeout(()=>window.ssShowTrace(),700));
-    ["pointerup","pointercancel","pointerleave"].forEach(x=>m.addEventListener(x,()=>clearTimeout(timer)));
-  });
-})();
+try{localStorage.removeItem("situSnapDebugTraceV1")}catch(_){}
+document.getElementById("ssTraceBox")?.remove();
 </script>
 
 <script id="phoenix-26-isolation-adapter">
