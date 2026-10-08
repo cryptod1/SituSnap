@@ -1250,18 +1250,9 @@ function queueMainStreetSearch(){
   if(q.length<2){if(box){box.classList.add("hidden");box.innerHTML=""}return}
   showMainStreetMatches(mainStreetNames(),q);mainStreetTimer=setTimeout(()=>mainStreetSearch(q),120);
 }
-async function mainStreetSearch(typed){
-  const seq=++mainStreetSeq;const raw=normalisePc(document.getElementById("huntPostcode")?.value);
-  if(!isCompleteUkPostcode(raw)||raw.startsWith("BT"))return; // NI deliberately parked for this phase.
-  const formatted=raw.slice(0,-3)+" "+raw.slice(-3);const controller=new AbortController();const timeout=setTimeout(()=>controller.abort(),1800);
-  try{
-    const url="https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&countrycodes=gb&limit=16&q="+encodeURIComponent(typed+" "+formatted);
-    const r=await fetch(url,{headers:{"Accept":"application/json"},signal:controller.signal});if(!r.ok)throw new Error();const data=await r.json();if(seq!==mainStreetSeq)return;
-    const names=[];const seen=new Set();
-    for(const item of (data||[])){const a=item.address||{};if(normalisePc(a.postcode||"")&&normalisePc(a.postcode)!==raw)continue;const road=(a.road||a.pedestrian||a.residential||"").trim();if(road&&!seen.has(road.toLowerCase())){seen.add(road.toLowerCase());names.push(road)}}
-    for(const n of mainStreetNames()){const k=n.toLowerCase();if(!seen.has(k)){seen.add(k);names.push(n)}}
-    if(names.length)saveCachedStreetNames(formatted,names);showMainStreetMatches(names,typed);
-  }catch(e){}finally{clearTimeout(timeout)}
+function mainStreetSearch(typed){
+  // Suggestions come only from the postcode results already loaded by Overpass.
+  showMainStreetMatches(mainStreetNames(),typed);
 }
 let liveStreetTimer=null;
 let liveStreetSeq=0;
@@ -1328,51 +1319,12 @@ function queueLiveStreetSearch(){
   else if(hint)hint.textContent="Finding matching streets…";
   liveStreetTimer=setTimeout(()=>liveStreetSearch(q),90);
 }
-async function liveStreetSearch(typed){
-  const seq=++liveStreetSeq;
+function liveStreetSearch(typed){
+  // Use locally cached postcode results; let the user enter an unmatched street manually.
+  const matches=localStreetMatches(typed);
+  if(showStreetMatches(matches))return;
   const hint=document.getElementById("streetMatchHint");
-  const results=document.getElementById("streetLiveResults");
-  const postcode=(document.getElementById("postcode")?.value||document.getElementById("huntPostcode")?.value||"").trim().toUpperCase();
-  if(!postcode){if(hint)hint.textContent="Enter the postcode first.";return}
-  const pcCompact=postcode.replace(/\s+/g,"");
-  const pcFormatted=pcCompact.length>3?pcCompact.slice(0,-3)+" "+pcCompact.slice(-3):postcode;
-  const controller=new AbortController();
-  const timeout=setTimeout(()=>controller.abort(),1800);
-  try{
-    // Search the street text + exact postcode directly. This does not wait for the
-    // slower postcode-wide Overpass lookup used elsewhere in the prototype.
-    const url="https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&countrycodes=gb&limit=12&q="+encodeURIComponent(typed+" "+pcFormatted);
-    const r=await fetch(url,{headers:{"Accept":"application/json"},signal:controller.signal});
-    if(!r.ok)throw new Error("Street search unavailable");
-    const data=await r.json();
-    if(seq!==liveStreetSeq)return;
-    const names=[];const seen=new Set();
-    for(const item of (data||[])){
-      const a=item.address||{};
-      const pc=String(a.postcode||"").replace(/\s+/g,"").toUpperCase();
-      if(pc && pc!==pcCompact)continue;
-      const road=(a.road||a.pedestrian||a.footway||a.path||"").trim();
-      if(!road)continue;
-      const k=road.toLowerCase();
-      if(!seen.has(k)){seen.add(k);names.push(road)}
-    }
-    // Merge anything already known locally so suggestions can appear immediately.
-    for(const road of localStreetMatches(typed)){
-      const k=road.toLowerCase();if(!seen.has(k)){seen.add(k);names.push(road)}
-    }
-    saveCachedStreetNames(postcode,names);
-    const matches=names.filter(n=>n.toLowerCase().includes(typed.toLowerCase())).slice(0,6);
-    if(!matches.length){
-      if(results){results.classList.add("hidden");results.innerHTML=""}
-      if(hint)hint.textContent="No matching street found yet — keep typing or enter it manually.";
-      return;
-    }
-    showStreetMatches(matches);
-  }catch(e){
-    if(seq!==liveStreetSeq)return;
-    if(results){results.classList.add("hidden");results.innerHTML=""}
-    if(hint)hint.textContent="Street search is unavailable right now — you can still type the street manually.";
-  }finally{clearTimeout(timeout)}
+  if(hint)hint.textContent="No saved match yet — keep typing or enter the street manually.";
 }
 function applyStreetSuggestion(name){
   const input=document.getElementById("street");
@@ -1451,27 +1403,7 @@ async function lookupPostcodeOptions(){
       throw lastErr||new Error("Street lookup unavailable");
     }
 
-    let od=null;
-    try{
-      od=await fetchOverpass(q);
-    }catch(overpassErr){
-      // Fallback: Nominatim can still recover the road/building names for the postcode
-      // when Overpass is temporarily unavailable.
-      const nUrl="https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&countrycodes=gb&postalcode="+encodeURIComponent(canonicalPc)+"&limit=50";
-      const nr=await fetch(nUrl,{headers:{"Accept":"application/json"}});
-      if(!nr.ok) throw overpassErr;
-      const nd=await nr.json();
-      od={elements:(nd||[]).map((r,i)=>({
-        type:"node",lat:Number(r.lat),lon:Number(r.lon),tags:{
-          "addr:postcode":r.address?.postcode||canonicalPc,
-          "addr:housenumber":r.address?.house_number||"",
-          "addr:housename":r.address?.house_name||"",
-          "addr:street":r.address?.road||r.address?.pedestrian||r.address?.residential||"",
-          "name":r.name||"",
-          "highway":(!r.address?.house_number && (r.address?.road||r.address?.pedestrian||r.address?.residential))?"road":""
-        }
-      }))};
-    }
+    const od=await fetchOverpass(q);
     const seen=new Set(), properties=[], streets=[];
     const distance=(a,b,c,d)=>{const R=6371000,x=(d-b)*Math.PI/180*Math.cos(((a+c)/2)*Math.PI/180),y=(c-a)*Math.PI/180;return Math.sqrt(x*x+y*y)*R};
     for(const el of (od.elements||[])){
@@ -1543,42 +1475,11 @@ async function lookupPostcodeOptions(){
     if(manualWrap)manualWrap.classList.remove("hidden");
   }
 }
-let postcodeWarmTimer=null,postcodeWarmController=null;
+
 function normalisePc(v){return String(v||"").toUpperCase().replace(/\s+/g,"").trim()}
 function isCompleteUkPostcode(v){
   const pc=normalisePc(v);
   return /^[A-Z]{1,2}[0-9][A-Z0-9]?[0-9][A-Z]{2}$/.test(pc);
-}
-async function fastPostcodeStreetPrefetch(){
-  const raw=normalisePc(document.getElementById("huntPostcode")?.value);
-  if(!isCompleteUkPostcode(raw))return;
-  const formatted=raw.slice(0,-3)+" "+raw.slice(-3);
-  try{
-    if(postcodeWarmController)postcodeWarmController.abort();
-    postcodeWarmController=new AbortController();
-    const timer=setTimeout(()=>postcodeWarmController.abort(),1400);
-    const url="https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&countrycodes=gb&limit=40&postalcode="+encodeURIComponent(formatted);
-    const r=await fetch(url,{headers:{"Accept":"application/json"},signal:postcodeWarmController.signal});
-    clearTimeout(timer);
-    if(!r.ok)return;
-    const data=await r.json();
-    const names=[];const seen=new Set();
-    for(const item of (data||[])){
-      const a=item.address||{};
-      const resultPc=normalisePc(a.postcode||"");
-      if(resultPc && resultPc!==raw)continue;
-      const road=(a.road||a.pedestrian||"").trim();
-      if(road&&!seen.has(road.toLowerCase())){seen.add(road.toLowerCase());names.push(road)}
-    }
-    if(names.length){
-      saveCachedStreetNames(formatted,names);
-      saveCachedStreetNames(raw,names);
-      const typed=(document.getElementById("street")?.value||"").trim();
-      if(typed){const m=names.filter(n=>n.toLowerCase().includes(typed.toLowerCase())).slice(0,6);if(m.length)showStreetMatches(m)}
-      const hint=document.getElementById("streetMatchHint");
-      if(hint&&!typed)hint.textContent="Street options ready — start typing or tap the box.";
-    }
-  }catch(e){}
 }
 function ssPcKey(v){return String(v||"").toUpperCase().replace(/\s+/g,"")}
 function ssVerifiedForPostcode(postcode){
@@ -1613,46 +1514,14 @@ function ssChooseVerifiedFirst(id){
   if(pc)pc.value=r.postcode||"";
   useSituSnap(id);
 }
-let ssPartialPcTimer=null,ssPartialPcSeq=0;
-function ssQueuePartialPostcodeHints(raw){
-  clearTimeout(ssPartialPcTimer);
-  if(raw.length<3||isCompleteUkPostcode(raw))return;
-  const seq=++ssPartialPcSeq;
-  ssPartialPcTimer=setTimeout(()=>ssPartialPostcodeHints(raw,seq),260);
-}
-async function ssPartialPostcodeHints(raw,seq){
-  if(!navigator.onLine)return;
-  try{
-    const ar=await fetch("https://api.postcodes.io/postcodes/"+encodeURIComponent(raw)+"/autocomplete?limit=3");
-    const ad=await ar.json();
-    if(seq!==ssPartialPcSeq||!ar.ok||!Array.isArray(ad.result))return;
-    const pcs=ad.result.slice(0,2);
-    const names=[],seen=new Set();
-    for(const pc of pcs){
-      const nr=await fetch("https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&countrycodes=gb&limit=18&postalcode="+encodeURIComponent(pc),{headers:{"Accept":"application/json"}});
-      if(!nr.ok)continue;
-      const nd=await nr.json();
-      for(const item of (nd||[])){
-        const a=item.address||{},road=(a.road||a.pedestrian||a.residential||"").trim();
-        const resultPc=normalisePc(a.postcode||"");
-        if(resultPc&&!resultPc.startsWith(raw))continue;
-        if(road&&!seen.has(road.toLowerCase())){seen.add(road.toLowerCase());names.push(road)}
-      }
-    }
-    if(seq!==ssPartialPcSeq||!names.length)return;
-    showMainStreetMatches(names,"");
-  }catch(e){}
-}
 function queuePostcodeLookup(){
   clearTimeout(postcodeTimer);
-  clearTimeout(postcodeWarmTimer);
   const raw=normalisePc(document.getElementById("huntPostcode")?.value);
   ssRenderVerifiedFirst(raw);
   // Do not run address services on partial postcodes: that was causing reflow and screen jumping.
   if(!isCompleteUkPostcode(raw)){
     const box=document.getElementById("postcodeChoices");
     if(box)box.classList.add("hidden");
-    ssQueuePartialPostcodeHints(raw);
     return;
   }
   // A complete postcode should immediately expose the human-friendly property-name box.
@@ -1665,7 +1534,6 @@ function queuePostcodeLookup(){
   // V1.0.5j: never auto-start Breadcrumbs when a postcode completes.
   // FIND DESTINATION owns resolver order: local SituSnap pin first, Breadcrumbs only if needed.
   // Mapping suggestions still load quietly in the background.
-  postcodeWarmTimer=setTimeout(fastPostcodeStreetPrefetch,40);
   postcodeTimer=setTimeout(lookupPostcodeOptions,450);
 }
 function bcPropertyInput(){
