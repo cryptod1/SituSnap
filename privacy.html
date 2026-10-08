@@ -27,61 +27,57 @@ footer{border-top:1px solid var(--line);border-bottom:0;padding:20px 0;color:var
 </head>
 <body>
 <header><div class="wrap nav"><a class="brand" href="/">SituSnap</a><span>Privacy policy</span></div></header>
-<main class="wrap">
-<p class="muted">Owner review draft · Prepared 8 October 2026</p>
+<main class="wrap"><p class="muted">Effective 8 October 2026 · SituSnap 1.3.0</p>
 <h1>SituSnap Privacy Policy</h1>
-<div class="draft"><strong>Not approved for publication yet.</strong> This draft records the checked Play build’s current design. Before it is used in Play Console, the operator’s legal identity, Android backup behaviour, end-to-end deletion behaviour, and service-provider retention and transfer details must be confirmed.</div>
 <section class="section">
 <h2>Who operates SituSnap</h2>
-<p>SituSnap is the app and service name. It is published on Google Play under the developer name “situsnap”. The operator is responsible for the data handling described in this notice. For privacy questions or requests, contact <a href="mailto:situsnap1@gmail.com">situsnap1@gmail.com</a>.</p>
-<p><strong>Owner action before publication:</strong> confirm whether the responsible controller is an organisation or an individual operating under the SituSnap name, and make sure this notice identifies the responsible operator accurately. Complete the remaining technical and provider checks before publication.</p>
+<p>SituSnap is the app and service name. It is published on Google Play under the developer name “situsnap” and operated by its founder and administrator. For privacy questions or requests, contact <a href="mailto:situsnap1@gmail.com">situsnap1@gmail.com</a>.</p>
 </section>
 <section class="section">
 <h2>Information SituSnap uses</h2>
-<p>SituSnap lets you search for a destination, record a property or field asset, add notes and photos, verify a visit using your phone’s location, and open an external map. The checked Play build does not require an account and includes no advertising or analytics SDK.</p>
-<ul>
-<li><strong>Information you enter:</strong> postcode, property or asset name, street or address details, observed-by choice and handover notes.</li>
-<li><strong>Photos and files:</strong> images you take or choose for a field record.</li>
-<li><strong>Device location:</strong> when you use location or pin-verification features, the app reads the phone’s GPS location to help check a visit and show distance from the selected destination.</li>
-<li><strong>Connection information:</strong> when the app contacts an online service, that service may receive technical information such as your IP address, request time, and device or browser information.</li>
-</ul>
+<p>Depending on the features you use, SituSnap accesses information you enter about a property, asset or field location, including postcodes, names, address details, observed-by choices and handover notes; photos you take or select; and your device’s precise location when you use visit or pin-verification features. Online services may also receive connection details such as your IP address, request time and technical device information.</p>
+<p>The app does not require an account. This release contains no advertising or analytics SDK and does not access the advertising ID.</p>
 </section>
 <section class="section">
-<h2>On-device records, photos and location</h2>
-<p>In the checked Play release, field records, notes, photos, and visit-location details are designed to be stored in the app on your device. Shared company storage and photo synchronisation are disabled. SituSnap does not provide an in-app shared workspace in this release.</p>
-<p>Records remain in the app until you remove them. The app’s removal control removes the saved record and its offline photo cache from the phone. Photos you separately save outside SituSnap must be removed separately. Android device or account backup settings may create or retain copies of app data; SituSnap does not control those backups. This backup and deletion description must be rechecked against the final release before publication.</p>
+<h2>Why we use information and lawful basis</h2>
+<p>SituSnap uses information on your device to provide the field-record, photo and visit-verification features you choose to use. Where UK data-protection law applies, the operator relies on legitimate interests in providing the requested lookup and field-record service, maintaining its reliability, and responding to support enquiries. Online destination queries are sent only when you use a lookup feature. You can contact us to object to processing based on legitimate interests.</p>
 </section>
 <section class="section">
-<h2>Online searches and external maps</h2>
-<p>Destination searches need an internet connection. Depending on the feature used, the postcode, property or street query may be sent to:</p>
+<h2>Records, photos and location on your device</h2>
+<p>In this release, field records, notes, photos and visit-location details are stored in the app on your device. SituSnap does not provide shared company storage or photo synchronisation. Your records remain in the app until you remove them or clear the app’s data.</p>
+<p>Android backup may copy app data to a device or account backup, depending on your settings. Deleting a record in SituSnap does not necessarily delete a backup copy. Manage Android backup and restore through your device or account settings. Photos saved separately outside SituSnap must be removed separately.</p>
+</section>
+<section class="section">
+<h2>Online searches, navigation and updates</h2>
+<p>When you search for a destination, the query may be sent to:</p>
 <ul>
-<li><a href="https://situsnap.app/">Breadcrumbs</a>, the SituSnap lookup service hosted on Cloudflare, to resolve property and address details;</li>
+<li><a href="https://situsnap.app/">Breadcrumbs</a>, SituSnap’s lookup service hosted on Cloudflare;</li>
 <li><a href="https://postcodes.io/">Postcodes.io</a>, for postcode lookup; and</li>
-<li><a href="https://www.openstreetmap.org/">OpenStreetMap services</a>, including Nominatim and Overpass, for address and map-feature search.</li>
+<li><a href="https://www.openstreetmap.org/">OpenStreetMap Overpass services</a>, for mapped streets and properties.</li>
 </ul>
-<p>If Google destination lookup is configured and used, the address query is sent to Google. When you choose to open navigation or a map search, the destination address or coordinates are passed to Google Maps or the mapping service you choose. The external map provider may also process your device location and route while you navigate. Each provider handles its requests under its own privacy terms.</p>
-<p>SituSnap also checks online release information hosted by GitHub. These requests can expose connection information to GitHub.</p>
+<p>If optional Google destination lookup is configured and used, the address query is sent to Google. When you choose to open a map or navigation, the destination address or coordinates are sent to Google Maps or the mapping service you choose. The external map provider may also process your device location and route while you navigate.</p>
+<p>SituSnap checks online release information hosted by GitHub. Search, map and update providers receive the technical connection information needed to serve those requests. Providers may retain request logs under their own policies and may process information outside the UK. Their handling is governed by their own privacy information: <a href="https://www.cloudflare.com/privacypolicy/">Cloudflare</a>, <a href="https://postcodes.io/">Postcodes.io</a>, <a href="https://wiki.osmfoundation.org/wiki/Privacy_Policy">OpenStreetMap Foundation</a>, <a href="https://policies.google.com/privacy">Google</a> and <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement">GitHub</a>.</p>
 </section>
 <section class="section">
-<h2>How information is used and shared</h2>
-<p>SituSnap uses locally stored information to provide its field-record and visit-verification features. It sends destination queries to the lookup services listed above and sends a destination to an external map only when you choose that option. It does not sell field records or photos, and this release does not upload them to shared SituSnap storage.</p>
-<p>Online providers process requests under their own privacy policies. Their retention periods, hosting locations, and international-transfer arrangements still need to be confirmed for the final policy.</p>
+<h2>How information is shared</h2>
+<p>SituSnap uses local records only to provide features on your device. This release does not upload your field records, notes or photos to shared SituSnap storage. Destination queries go to the lookup provider used for that search, and a destination is sent to a map provider only when you choose that option. SituSnap does not sell field records or photos.</p>
 </section>
 <section class="section">
-<h2>Security and retention</h2>
-<p>Online service requests in the checked build use HTTPS. Field records are stored by the app on your device and are subject to the security and backup settings of that device. Records are kept until you remove them or remove the app’s data. Copies held in Android backups or outside the app may remain under the relevant provider’s retention controls.</p>
+<h2>Retention and security</h2>
+<p>Local records are kept until you remove them or clear the app’s data, subject to any Android backups described above. Support emails are kept only as needed to respond to and manage your enquiry. Online service providers may retain request logs according to their own policies.</p>
+<p>Online requests in the checked release use HTTPS. Records stored on your device are subject to your device’s security and backup settings. No method of storage or transmission can be guaranteed completely secure.</p>
 </section>
 <section class="section">
-<h2>Your choices and privacy requests</h2>
-<p>You can manage camera and location permissions in Android settings. Some capture, search, or verification features may not work without the relevant permission or an internet connection. For a privacy question or request, contact <a href="mailto:situsnap1@gmail.com">situsnap1@gmail.com</a>. UK users may also contact the Information Commissioner’s Office at <a href="https://ico.org.uk/">ico.org.uk</a>.</p>
+<h2>Your choices and privacy rights</h2>
+<p>You can manage camera and location permissions in Android settings. Some features may not work if you deny a permission or do not have an internet connection. Depending on the circumstances, UK data-protection rights may include access, correction, erasure, restriction, objection and data portability. To make a request, contact <a href="mailto:situsnap1@gmail.com">situsnap1@gmail.com</a>. You can also complain to the <a href="https://ico.org.uk/">Information Commissioner’s Office</a>.</p>
 </section>
 <section class="section">
 <h2>Photos and safe use</h2>
-<p>Take photos in public places, or on private land only where you own the land or have permission to access and photograph it. Avoid including people, vehicle registration plates, or private interiors unless necessary for the field task.</p>
+<p>Take photos in public places, or on private land only where you own the land or have permission to access and photograph it. Avoid including people, vehicle registration plates or private interiors unless necessary for the field task. Use SituSnap only when it is safe to do so; do not interact with it while driving.</p>
 </section>
 <section class="section">
-<h2>Changes and publication checks</h2>
-<p>This notice must be updated when SituSnap’s data handling changes. Before publication, the operator must confirm the remaining items shown in the draft banner above and verify that this page is accessible from the app and Play Store listing.</p>
+<h2>Changes to this policy</h2>
+<p>We will update this policy when the app’s data handling changes. The latest version will be available at this page and from SituSnap’s More section.</p>
 </section>
 </main>
 <footer><div class="wrap">SituSnap · Privacy policy draft · <a href="/">Home</a></div></footer>
