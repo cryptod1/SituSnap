@@ -832,6 +832,7 @@ body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))!important}
     <div id="ssFindResultTitle" style="font-size:18px;font-weight:1000;margin-top:3px">Checking…</div>
     <div id="ssFindResultText" style="font-size:12px;font-weight:750;line-height:1.4;margin-top:4px"></div>
     <button id="ssNavigateBtn" type="button" class="hidden" onclick="ssNavigateFound()" style="width:100%;min-height:50px;margin-top:11px;border-radius:11px;background:#145a35;color:#fff;font-weight:1000">NAVIGATE TO PIN</button>
+    <button id="ssRecordWithoutSatNavBtn" type="button" class="hidden" onclick="recordWithoutSatNav()" style="width:100%;min-height:50px;margin-top:11px;border-radius:11px;background:#145a35;color:#fff;font-weight:1000">RECORD WITHOUT SAT NAV</button>
     <button id="googleMapsBtn" type="button" onclick="googleMapsNow()" disabled style="width:100%;min-height:48px;margin-top:9px;border:0;border-radius:11px;background:#52606d;color:#fff;font-weight:950">GOOGLE MAPS — UNVERIFIED</button>
   </div>
 
@@ -1619,6 +1620,8 @@ function ssShowFindResult(title,text,canNavigate=false,kicker='DESTINATION'){
   document.getElementById('ssFindResultText').textContent=text||'';
   const nav=document.getElementById('ssNavigateBtn');
   nav.classList.toggle('hidden',!canNavigate);
+  const fieldRecord=document.getElementById('ssRecordWithoutSatNavBtn');
+  if(fieldRecord)fieldRecord.classList.toggle('hidden',canNavigate);
   box.classList.remove('hidden');
 }
 
@@ -1733,6 +1736,7 @@ async function ssFindPostcodeChoices(postcode){
 async function ssFindDestination(){
   const myFindGeneration=++ssFindGeneration;
   window.__ssLocalVerifiedLocked=false;
+  window.ssRecordWithoutSatNavActive=false;
   try{document.activeElement?.blur()}catch(_){}
   ssPendingNavigation=null;
   ssHidePostcodeChoices();
@@ -2137,7 +2141,9 @@ function syncHuntPostcodeFromRecord(){
 function recordWithoutSatNav(){
   const p=(document.getElementById("huntPostcode")?.value||"").trim().toUpperCase();
   huntPostcode=p;
+  window.ssRecordWithoutSatNavActive=true;
   target=null;
+  bcResolution=null;
   if(editingRecordId===null) clearRecordForm();
   const pc=document.getElementById("postcode"); if(pc)pc.value=p;
   showForm();
@@ -4134,7 +4140,7 @@ function exactSitePoint(){const pc=document.getElementById("postcode")?.value||d
 function distanceM(a,b){const rad=x=>x*Math.PI/180,R=6371000,dLat=rad(b.lat-a.lat),dLon=rad(b.lon-a.lon),h=Math.sin(dLat/2)**2+Math.cos(rad(a.lat))*Math.cos(rad(b.lat))*Math.sin(dLon/2)**2;return 2*R*Math.asin(Math.sqrt(h))}
 function addBoundaryChoice(){const btn=document.getElementById("detailsFoundBtn");if(!btn||document.getElementById("ssVisitBoundary"))return;const field=document.createElement("div");field.className="full ss-boundary-field";field.innerHTML='<label for="ssVisitBoundary">Pin location</label><select id="ssVisitBoundary"><option value="site">At the property or work site · 250 m</option><option value="landmark">At an access landmark · up to 1 mile</option></select><div class="small-note">Choose a landmark when the verified access point is up to a mile away.</div>';btn.parentElement.parentElement.insertBefore(field,btn.parentElement)}
 addBoundaryChoice();document.addEventListener("DOMContentLoaded",addBoundaryChoice);
-const originalFinish=window.finishFound;if(typeof originalFinish==="function")window.finishFound=function(){const note=document.getElementById("foundGpsNote"),block=m=>{if(note)note.textContent=m;alert(m);return false},fix=typeof gps!=="undefined"&&gps?gps:null,captured=Date.parse(fix?.capturedAt||"");if(!fix||!Number.isFinite(captured)||Date.now()-captured>60000||Date.now()<captured-30000)return block("Location check failed. Turn on phone Location and try again at the site.");if(!Number.isFinite(Number(fix.accuracy))||Number(fix.accuracy)>50)return block("GPS is too weak to verify this pin. Wait for accuracy of 50 m or better, then retry.");const point=exactSitePoint();if(!point)return block("Check Destination and select the actual property or site location before adding photos.");const landmark=document.getElementById("ssVisitBoundary")?.value==="landmark",limit=landmark?1609.344:250,dist=distanceM({lat:Number(fix.latitude),lon:Number(fix.longitude)},point);if(!Number.isFinite(dist)||dist>limit)return block("You are outside this pin's visit boundary. Photos and the pin were not saved. Return to the site or choose the nearby-landmark option.");const type=document.getElementById("type");if(type)type.value=landmark?"Landmark / access point":"Property / building";return originalFinish.apply(this,arguments)};
+const originalFinish=window.finishFound;if(typeof originalFinish==="function")window.finishFound=function(){const note=document.getElementById("foundGpsNote"),block=m=>{if(note)note.textContent=m;alert(m);return false},fix=typeof gps!=="undefined"&&gps?gps:null,captured=Date.parse(fix?.capturedAt||"");if(!fix||!Number.isFinite(captured)||Date.now()-captured>60000||Date.now()<captured-30000)return block("Location check failed. Turn on phone Location and try again at the site.");if(!Number.isFinite(Number(fix.accuracy))||Number(fix.accuracy)>50)return block("GPS is too weak to verify this pin. Wait for accuracy of 50 m or better, then retry.");const point=exactSitePoint(),fieldRecordedWithoutSatNav=window.ssRecordWithoutSatNavActive===true;if(!point&&!fieldRecordedWithoutSatNav)return block("Check Destination and select the actual property or site location, or choose Record Without Sat Nav when you are at the property.");const landmark=document.getElementById("ssVisitBoundary")?.value==="landmark";if(point){const limit=landmark?1609.344:250,dist=distanceM({lat:Number(fix.latitude),lon:Number(fix.longitude)},point);if(!Number.isFinite(dist)||dist>limit)return block("You are outside this pin visit boundary. Photos and the pin were not saved. Return to the site or choose the nearby-landmark option.")}const type=document.getElementById("type");if(type)type.value=point&&landmark?"Landmark / access point":"Property / building";return originalFinish.apply(this,arguments)};
 })();
 </script></body></html>
 <script>
