@@ -1712,7 +1712,7 @@ function ssRenderPostcodeChoices(choices){
 
 async function ssFindPostcodeChoices(postcode){
   const controller=new AbortController();
-  const timeout=setTimeout(()=>controller.abort(),7000);
+  const timeout=setTimeout(()=>controller.abort(),BC_RESOLVER_TIMEOUT_MS);
   try{
     const r=await fetch(BREADCRUMBS_RESOLVER_URL,{
       method:'POST',
@@ -1742,6 +1742,13 @@ async function ssFindDestination(){
   if(!pc && !property){
     alert("Enter a postcode or property name.");
     (window.ssFocusPostcode||function(){document.getElementById("postcodeOutward")?.focus()})();
+    return;
+  }
+  const door=(document.getElementById("doorNumber")?.value||"").trim();
+  const street=(document.getElementById("manualAddress")?.value||"").trim();
+  if(pc && door && !street){
+    ssShowFindResult('ADD STREET OR PROPERTY NAME','Enter the street or house name as well as the number and postcode.',false,'SITUSNAP');
+    document.getElementById("manualAddress")?.focus();
     return;
   }
 
@@ -2559,6 +2566,7 @@ function updatePrimaryPhotoStatus(){
 </script>
 <script>
 const BREADCRUMBS_RESOLVER_URL='https://holy-frost-eda0.stopjunkmail35.workers.dev/api/resolve';
+const BC_RESOLVER_TIMEOUT_MS=15000;
 let bcResolution=null, bcTimer=null;
 const BC_HUNT_CACHE='situSnapBreadcrumbsHuntV1';
 
@@ -2705,7 +2713,7 @@ async function bcResolve(property,postcode,requestSeq,explicitFind=false){
   bcUI('Checking destination…','Breadcrumbs is checking the property and postcode.',false);
   try{
     const controller=new AbortController();
-    const timeout=setTimeout(()=>controller.abort(),7000);
+    const timeout=setTimeout(()=>controller.abort(),BC_RESOLVER_TIMEOUT_MS);
     const doorNumber=bcRequestedDoorNumber();
     const resolverProperty=(doorNumber && property.toLowerCase().startsWith((doorNumber+' ').toLowerCase()))
       ? property.slice(doorNumber.length).trim()
@@ -2758,7 +2766,7 @@ async function bcResolve(property,postcode,requestSeq,explicitFind=false){
     if(window.__ssLocalVerifiedLocked || __bcGenerationAtStart!==ssFindGeneration) return null;
     bcResolution={verified:false,unavailable:true,property,postcode};
     if(window.__ssLocalVerifiedLocked || __bcGenerationAtStart!==ssFindGeneration) return null;
-    bcUI('BREADCRUMBS UNAVAILABLE','No response after 7 seconds — field recording remains available. Google Maps is an unverified fallback.',false,false,'red');
+    bcUI('BREADCRUMBS UNAVAILABLE','No response after 15 seconds — field recording remains available. Google Maps is an unverified fallback.',false,false,'red');
   }
   return null;
 }
