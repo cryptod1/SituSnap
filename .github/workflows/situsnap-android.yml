@@ -76,7 +76,7 @@ jobs:
           "$BUILD_TOOLS/apksigner" verify --verbose --print-certs "$APK"
           jarsigner -verify -verbose -certs "$AAB" >/dev/null
           BADGING=$("$BUILD_TOOLS/aapt" dump badging "$APK")
-          echo "$BADGING" | grep -q "package: name='com.situsnap.app' versionCode='28' versionName='1.3.0'"
+          echo "$BADGING" | grep -q "package: name='com.situsnap.app' versionCode='29' versionName='1.3.1'"
           echo "$BADGING" | grep -q "sdkVersion:'26'"
           echo "$BADGING" | grep -q "targetSdkVersion:'36'"
           echo "$BADGING" | grep -q "launchable-activity: name='com.situsnap.app.SplashActivity'"
