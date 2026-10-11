@@ -1,6 +1,9 @@
 <!doctype html>
 <!-- PHOENIX-CLEAN-2: recovered from Phoenix 26 with approved final wording/build gate -->
 <html lang="en"><head>
+<script id="ss-local-evidence-network-guard">
+(function(){const f=window.fetch.bind(window);const blocked=h=>h==="cloudinary.com"||h.endsWith(".cloudinary.com")||h==="api.github.com"||h==="cryptod1.github.io";window.fetch=function(input,init){const raw=typeof input==="string"?input:input instanceof URL?input.href:input?.url;const u=new URL(raw,location.href);if(blocked(u.hostname)||u.pathname.includes("/api/situ-vault"))return Promise.reject(new Error("Cloud transport disabled"));return f(input,init)}})();
+</script>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="mobile-web-app-capable" content="yes"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#071a33"><title>SituSnap Phoenix — Find · Snap · Update</title>
 <style>
@@ -800,7 +803,7 @@ body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))!important}
 <body>
 <div id="ssApprovedSiteSplash" aria-hidden="true"><img src="/situsnap-approved-splash.png" alt="" fetchpriority="high"></div>
 
-<div id="ssBuildStamp" data-build="SituSnap-1.1.3" style="display:none">SituSnap-1.1.3</div>
+<div id="ssBuildStamp" data-build="SituSnap-1.3.1" style="display:none">SituSnap-1.3.1</div>
 <div id="offlineBanner" class="offline-banner hidden" role="status" aria-live="polite">No signal — continue offline.</div><div id="celebration" aria-hidden="true"><div class="celebrate-content"><div class="celebrate-title">PIN VERIFIED!</div><div class="celebrate-sub">SituSnap location confirmed</div></div></div><header><div class="brand"><div class="brand-mark" aria-label="SituSnap logo"><img src="situsnap-brand-mark.png" alt="" style="width:100%;height:100%;object-fit:contain;display:block;border-radius:18%" /></div><div><div class="brand-name"><span style="color:#fff">Situ</span><span style="color:#69df83">Snap</span></div><div class="tag">Find it. Snap it. Update it.</div></div></div></header>
 <main><div id="breadcrumbsBridge" class="card hidden" style="border:2px solid #69df83;margin-top:12px"><div class="eyebrow">BREADCRUMBS</div><h2 id="bridgeTitle" style="margin:5px 0">Continue</h2><div class="meta" id="bridgeText"></div></div>
 <section class="ss-home-shell" aria-labelledby="ssHomeTitle">
@@ -880,7 +883,7 @@ body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))!important}
 <input type="hidden" id="result" value="Location verified">
 <input type="hidden" id="accessDirections" value="">
 <div class="full"><label>Assisted</label><select id="localSource"><option>Not applicable</option><option>Local resident</option><option>Postie / delivery driver</option><option>Other</option></select></div><div class="full"><label>Handover notes</label><textarea id="notes" placeholder="Optional — anything useful for the next visit"></textarea></div>
-<div class="full" id="ssVersionCard" data-situsnap-version="1.1.3" style="margin-top:2px;padding:11px 12px;border:1px solid rgba(126,177,235,.22);border-radius:12px;background:rgba(10,25,52,.58)"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px"><div><div style="font-size:11px;opacity:.68;font-weight:800;letter-spacing:.04em">SITUSNAP</div><div id="ssPage2Version" style="font-size:13px;font-weight:900">SituSnap 1.1.3</div></div><button id="ssPage2UpdateBtn" type="button" class="hidden" onclick="ssApplyUpdate()" style="padding:9px 11px;border:0;border-radius:10px;background:#69df83;color:#071a33;font-size:11px;font-weight:950">UPDATE AVAILABLE</button></div><div id="ssPage2UpdateNote" class="hidden" style="margin-top:7px;font-size:11px;color:#dff8e3;font-weight:800">New signed SituSnap APK available.</div></div>
+<div class="full" id="ssVersionCard" data-situsnap-version="1.3.1" style="margin-top:2px;padding:11px 12px;border:1px solid rgba(126,177,235,.22);border-radius:12px;background:rgba(10,25,52,.58)"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px"><div><div style="font-size:11px;opacity:.68;font-weight:800;letter-spacing:.04em">SITUSNAP</div><div id="ssPage2Version" style="font-size:13px;font-weight:900">SituSnap 1.3.1</div></div><button id="ssPage2UpdateBtn" type="button" class="hidden" onclick="ssApplyUpdate()" style="padding:9px 11px;border:0;border-radius:10px;background:#69df83;color:#071a33;font-size:11px;font-weight:950">UPDATE AVAILABLE</button></div><div id="ssPage2UpdateNote" class="hidden" style="margin-top:7px;font-size:11px;color:#dff8e3;font-weight:800">New signed SituSnap APK available.</div></div>
 
 <div class="full"><label>Photo — property / entrance <span style="opacity:.72">(1 REQUIRED)</span></label>
 <div class="small-note" style="margin:0 0 7px">Take a photo now or choose one already taken. Extra photos are optional.</div>
@@ -903,7 +906,7 @@ body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))!important}
 <section class="card" id="recordsCard"><div class="section-head"><div><h2>Verified locations</h2><p class="muted">Previously verified properties for this postcode.</p></div></div><div id="records"><section id="ssDemoPins" aria-label="Fictional sample pins"><p class="ss-demo-note">Fictional sample pins · sample map points only</p><article class="ss-demo-record"><div class="ss-demo-name">Bramblewick Farm</div><div class="ss-demo-kind">Remote farm · SAMPLE-01</div><p class="ss-demo-note">Fictional rural setting · Narrow track · limited turning. Confirm the entrance with the site contact.</p><a class="ss-demo-map" href="https://www.google.com/maps/search/?api=1&amp;query=52.993%2C-3.566" target="_blank" rel="noopener noreferrer">VIEW SAMPLE MAP PIN</a></article><article class="ss-demo-record"><div class="ss-demo-name">Heatherdown Cottage</div><div class="ss-demo-kind">Remote cottage · SAMPLE-02</div><p class="ss-demo-note">Fictional rural setting · Lane ends before the property. Check the final approach on foot.</p><a class="ss-demo-map" href="https://www.google.com/maps/search/?api=1&amp;query=51.982%2C-3.320" target="_blank" rel="noopener noreferrer">VIEW SAMPLE MAP PIN</a></article><article class="ss-demo-record"><div class="ss-demo-name">Ridgeway Inspection Chamber</div><div class="ss-demo-kind">Inspection point · SAMPLE-03</div><p class="ss-demo-note">Fictional forestry track · Remote verge · approach on foot. Sample only · no live site or GPS.</p><a class="ss-demo-map" href="https://www.google.com/maps/search/?api=1&amp;query=52.190%2C-3.729" target="_blank" rel="noopener noreferrer">VIEW SAMPLE MAP PIN</a></article></section></div></section>
 
 </main><nav class="bottom"><button class="nav active" onclick="window.scrollTo({top:0,behavior:'smooth'})"><span class="ico">⌂</span>Find</button><button class="nav" onclick="document.getElementById('recordsCard').scrollIntoView({behavior:'smooth'})"><span class="ico">↻</span>Verified</button><button id="ssMoreNavBtn" class="nav" onclick="ssShowMore()" style="position:relative"><span class="ico">☰</span>More<span id="ssUpdateBadge" class="hidden" aria-label="Update available">UPDATE</span></button></nav>
-<div id="ssMorePanel" class="hidden" style="position:fixed;inset:0;z-index:900;background:rgba(2,9,20,.72);padding:90px 16px;overflow:auto" onclick="if(event.target===this)ssHideMore()"><div style="max-width:520px;margin:auto;background:#0a1934;border:1px solid rgba(126,177,235,.25);border-radius:18px;padding:18px"><div style="display:flex;justify-content:space-between;align-items:center"><div><b>SituSnap</b><div id="ssVisibleVersion" style="font-size:12px;color:#a9bad0">SituSnap 1.1.3</div></div><button type="button" onclick="ssHideMore()" style="min-height:40px;padding:6px 12px;border-radius:10px;background:#26384f;color:#fff">CLOSE</button></div><div id="ssUpdateStatus" style="margin-top:16px;padding:13px;border-radius:12px;background:#103d29;color:#dff8e3;font-size:12px;font-weight:850">Checking for updates…</div><button id="ssUpdateBtn" type="button" class="hidden" onclick="ssApplyUpdate()" style="width:100%;margin-top:10px;padding:13px;border-radius:12px;background:#69df83;color:#071a33;font-weight:950">UPDATE AVAILABLE — TAP TO UPDATE</button></div></div>
+<div id="ssMorePanel" class="hidden" style="position:fixed;inset:0;z-index:900;background:rgba(2,9,20,.72);padding:90px 16px;overflow:auto" onclick="if(event.target===this)ssHideMore()"><div style="max-width:520px;margin:auto;background:#0a1934;border:1px solid rgba(126,177,235,.25);border-radius:18px;padding:18px"><div style="display:flex;justify-content:space-between;align-items:center"><div><b>SituSnap</b><div id="ssVisibleVersion" style="font-size:12px;color:#a9bad0">SituSnap 1.3.1</div></div><button type="button" onclick="ssHideMore()" style="min-height:40px;padding:6px 12px;border-radius:10px;background:#26384f;color:#fff">CLOSE</button></div><div id="ssUpdateStatus" style="margin-top:16px;padding:13px;border-radius:12px;background:#103d29;color:#dff8e3;font-size:12px;font-weight:850">Checking for updates…</div><button id="ssUpdateBtn" type="button" class="hidden" onclick="ssApplyUpdate()" style="width:100%;margin-top:10px;padding:13px;border-radius:12px;background:#69df83;color:#071a33;font-weight:950">UPDATE AVAILABLE — TAP TO UPDATE</button></div></div>
 <script>
 let gps=null,huntPostcode="",huntAddressQuery="",target=null,watchId=null,postcodeTimer=null,editingRecordId=null;
 let ssFindGeneration=0;
@@ -917,7 +920,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   };
   new MutationObserver(keepLocalWinner).observe(card,{attributes:true,childList:true,subtree:true});
 });
-const SS_APP_VERSION="1.1.3";
+const SS_APP_VERSION="1.3.1";
 const SS_UPDATE_MANIFEST="https://cryptod1.github.io/SituSnap/situsnap-update.json";
 let ssApkUpdateUrl="";
 function ssVersionParts(v){return String(v||"").replace(/^v/i,"").split(".").map(n=>parseInt(n,10)||0)}
@@ -937,23 +940,9 @@ function ssSetUpdateAvailable(version,url){
 }
 function ssShowMore(){document.getElementById("ssMorePanel")?.classList.remove("hidden");ssCheckForUpdate()}
 function ssHideMore(){document.getElementById("ssMorePanel")?.classList.add("hidden")}
-// Safe updater: checks metadata only. It never downloads or executes remote HTML.
-async function ssCheckForUpdate(){
-  try{
-    const r=await fetch(SS_UPDATE_MANIFEST+"?t="+Date.now(),{cache:"no-store"});
-    if(!r.ok)throw new Error("manifest unavailable");
-    const m=await r.json();
-    const version=String(m.version||"");
-    const apk=String(m.apk||"");
-    if(ssIsNewerVersion(version,SS_APP_VERSION) && /^https:\/\//i.test(apk)){ssSetUpdateAvailable(version,apk);return;}
-  }catch(e){}
-  ssSetUpdateAvailable(SS_APP_VERSION,"");
-}
-function ssApplyUpdate(){
-  if(!ssApkUpdateUrl)return;
-  // Hand the signed APK URL to Android/browser. No HTML replacement is permitted.
-  window.location.href=ssApkUpdateUrl;
-}
+// Updates are delivered only through Google Play. No manifest fetch, no APK link.
+async function ssCheckForUpdate(){ssSetUpdateAvailable(SS_APP_VERSION,"")}
+function ssApplyUpdate(){}
 window.addEventListener("DOMContentLoaded",()=>{
   const v=document.getElementById("ssPage2Version");if(v)v.textContent=`SituSnap ${SS_APP_VERSION}`;
   ssCheckForUpdate();
@@ -965,26 +954,61 @@ const SS_VAULT_QUEUE="situSnapVaultQueueV1";
 const SS_CLOUDINARY_CLOUD="wizvgv9a";
 const SS_CLOUDINARY_PRESET="situsnap_verified";
 async function ssUploadVerifiedPhoto(record){
-  if(!navigator.onLine)return {ok:false,reason:"offline"};
+  const id=String(record?.id||"");
+  if(!id)return {ok:false,reason:"no_record"};
   const file=document.getElementById("photoCamera")?.files?.[0]||document.getElementById("photo1")?.files?.[0]||null;
-  if(!file)return {ok:false,reason:"no_file"};
-  const fd=new FormData();
-  fd.append("file",file);
-  fd.append("upload_preset",SS_CLOUDINARY_PRESET);
-  fd.append("tags","situsnap_verified");
-  fd.append("context",`record_id=${String(record?.id||"")}|postcode=${String(record?.postcode||"")}`);
-  const r=await fetch(`https://api.cloudinary.com/v1_1/${SS_CLOUDINARY_CLOUD}/image/upload`,{method:"POST",body:fd});
-  const d=await r.json().catch(()=>({}));
-  if(!r.ok||!d?.secure_url)throw new Error(d?.error?.message||("Photo upload HTTP "+r.status));
-  record.photoUrl=String(d.secure_url);
-  record.photoPublicId=String(d.public_id||"");
-  try{await ssCachePhotoBlob(record.id,file)}catch(e){console.warn("Fresh verified photo cache failed",e)}
-  return {ok:true,url:record.photoUrl,publicId:record.photoPublicId};
+  const extraFile=document.getElementById("photo2Camera")?.files?.[0]||document.getElementById("photo2")?.files?.[0]||null;
+  let cachedMain=null,cachedExtra=null,lookupFailed=false;
+  try{cachedMain=await ssGetCachedPhoto(id)}catch(e){console.warn("Local main photo lookup failed",e);lookupFailed=true}
+  try{cachedExtra=await ssGetExtraCachedPhoto(id)}catch(e){console.warn("Local extra photo lookup failed",e);lookupFailed=true}
+  if(!file){
+    if(!lookupFailed){record.localPhoto=!!cachedMain;record.localExtraPhoto=!!cachedExtra}
+    if(lookupFailed&&!extraFile){ssVaultStatus("PIN SAVED ON PHONE · PHOTO CHECK TEMPORARILY UNAVAILABLE");return {ok:false,reason:"local_cache_lookup_failed"}}
+    if(extraFile){
+      try{await ssCacheExtraPhotoBlob(id,extraFile);record.localExtraPhoto=true}
+      catch(e){console.warn("Local extra photo save failed",e);ssVaultStatus("PIN SAVED ON PHONE · EXTRA PHOTO STORAGE FAILED");return {ok:false,reason:"extra_local_cache_failed"}}
+    }
+    return {ok:true,localOnly:true,extraSaved:record.localExtraPhoto};
+  }
+  try{
+    await ssCachePhotoBlob(id,file);
+  }catch(e){
+    console.warn("Local verified photo save failed",e);
+    ssVaultStatus("PIN SAVED ON PHONE · PHOTO STORAGE FAILED — please retry");
+    return {ok:false,reason:"local_cache_failed"};
+  }
+  let extraSaved=lookupFailed?(record.localExtraPhoto===true):!!cachedExtra;
+  if(extraFile){
+    try{await ssCacheExtraPhotoBlob(id,extraFile);extraSaved=true}
+    catch(e){console.warn("Local extra photo save failed",e);ssVaultStatus("PIN SAVED ON PHONE · EXTRA PHOTO STORAGE FAILED")}
+  }
+  record.localPhoto=true;
+  record.localExtraPhoto=extraSaved;
+  return {ok:true,localOnly:true,extraSaved};
 }
 const SS_PHOTO_DB="SituSnapOfflinePhotosV1";
 function ssPhotoDb(){return new Promise((resolve,reject)=>{const q=indexedDB.open(SS_PHOTO_DB,1);q.onupgradeneeded=()=>{const db=q.result;if(!db.objectStoreNames.contains("photos"))db.createObjectStore("photos")};q.onsuccess=()=>resolve(q.result);q.onerror=()=>reject(q.error)})}
 async function ssCachePhotoBlob(id,blob){if(!id||!blob)return false;const db=await ssPhotoDb();return new Promise((resolve,reject)=>{const tx=db.transaction("photos","readwrite");tx.objectStore("photos").put(blob,String(id));tx.oncomplete=()=>{db.close();resolve(true)};tx.onerror=()=>{db.close();reject(tx.error)}})}
+async function ssCacheExtraPhotoBlob(id,blob){if(!id||!blob)return false;const db=await ssPhotoDb();return new Promise((resolve,reject)=>{const tx=db.transaction("photos","readwrite");tx.objectStore("photos").put(blob,String(id)+"::extra");tx.oncomplete=()=>{db.close();resolve(true)};tx.onerror=()=>{db.close();reject(tx.error)}})}
+async function ssGetExtraCachedPhoto(id){const db=await ssPhotoDb();return new Promise((resolve,reject)=>{const tx=db.transaction("photos","readonly"),q=tx.objectStore("photos").get(String(id)+"::extra");q.onsuccess=()=>{db.close();resolve(q.result||null)};q.onerror=()=>{db.close();reject(q.error)}})}
 async function ssGetCachedPhoto(id){const db=await ssPhotoDb();return new Promise((resolve,reject)=>{const tx=db.transaction("photos","readonly"),q=tx.objectStore("photos").get(String(id));q.onsuccess=()=>{db.close();resolve(q.result||null)};q.onerror=()=>{db.close();reject(q.error)}})}
+async function ssReconcileLocalPhotoFlags(){
+  let keys;
+  try{
+    const db=await ssPhotoDb();
+    keys=await new Promise((resolve,reject)=>{const tx=db.transaction("photos","readonly"),q=tx.objectStore("photos").getAllKeys();q.onsuccess=()=>{db.close();resolve(new Set(q.result.map(String)))};q.onerror=()=>{db.close();reject(q.error)}});
+  }catch(e){console.warn("Local photo index check deferred",e);return false}
+  const rows=ssReadArray("situSnapRecords");let changed=false;
+  for(const r of rows){
+    if(!r?.id)continue;
+    const main=keys.has(String(r.id)),extra=keys.has(String(r.id)+"::extra");
+    if(r.localPhoto!==main||r.localExtraPhoto!==extra){r.localPhoto=main;r.localExtraPhoto=extra;changed=true}
+  }
+  if(!changed)return true;
+  try{localStorage.setItem("situSnapRecords",JSON.stringify(rows));for(const r of rows)if(r?.pinVerified===true)ssArchiveVerified(r);if(typeof render==="function")render();return true}
+  catch(e){console.warn("Local photo index repair deferred",e);return false}
+}
+window.addEventListener("load",()=>{ssReconcileLocalPhotoFlags()});
 async function ssCacheRemotePhoto(record){if(!record?.id||!record?.photoUrl||!navigator.onLine)return false;try{if(await ssGetCachedPhoto(record.id))return true;const r=await fetch(record.photoUrl,{mode:"cors",cache:"force-cache"});if(!r.ok)throw new Error("photo_http_"+r.status);return await ssCachePhotoBlob(record.id,await r.blob())}catch(e){console.warn("SituSnap photo cache deferred",e);return false}}
 async function ssPrepareOfflinePhotos(){if(!navigator.onLine)return;for(const r of getRecords().filter(r=>isVerifiedSituSnap(r)&&r.photoUrl))await ssCacheRemotePhoto(r)}
 function ssPersistPhotoReference(record){
@@ -993,6 +1017,17 @@ function ssPersistPhotoReference(record){
   const i=rows.findIndex(r=>String(r?.id)===String(record.id));
   if(i>=0){rows[i]={...rows[i],photoUrl:record.photoUrl,photoPublicId:record.photoPublicId||""};localStorage.setItem("situSnapRecords",JSON.stringify(rows))}
   ssArchiveVerified({...record,pinVerified:true});
+}
+function ssPersistLocalPhotoReference(record){
+  if(!record?.id)return false;
+  record.localPhoto=record.localPhoto===true;
+  record.localExtraPhoto=record.localExtraPhoto===true;
+  const rows=ssReadArray("situSnapRecords");
+  const i=rows.findIndex(r=>String(r?.id)===String(record.id));
+  if(i<0)return false;
+  rows[i]={...rows[i],localPhoto:record.localPhoto,localExtraPhoto:record.localExtraPhoto,photoUrl:rows[i].photoUrl||record.photoUrl||"",photoPublicId:rows[i].photoPublicId||record.photoPublicId||""};
+  localStorage.setItem("situSnapRecords",JSON.stringify(rows));
+  return ssArchiveVerified({...record,pinVerified:true});
 }
 function ssVaultStatus(text){const el=document.getElementById("localSaveStatus");if(el)el.textContent=text}
 function ssVaultPayload(record){
@@ -1007,12 +1042,14 @@ function ssVaultQueuePut(record){
   try{localStorage.setItem(SS_VAULT_QUEUE,JSON.stringify(q.slice(0,50)))}catch(_){}
 }
 async function ssVaultPostPayload(payload){
+  return {ok:false,reason:"cloud_sync_disabled_for_play_release"};
   const r=await fetch(SS_VAULT_ENDPOINT,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(payload)});
   const data=await r.json().catch(()=>({}));
   if(!r.ok||data?.ok!==true||data?.cloudSaved!==true)throw new Error(data?.message||("Vault HTTP "+r.status));
   return data;
 }
 async function ssVaultSaveRecord(record){
+  return {ok:false,reason:"cloud_sync_disabled_for_play_release"};
   if(!record?.pinVerified)return false;
   ssVaultQueuePut(record);
   if(!navigator.onLine){ssVaultStatus("✓ PIN SAVED OFFLINE · Cloud pending");return false}
@@ -1025,6 +1062,7 @@ async function ssVaultSaveRecord(record){
   }catch(err){console.warn("SituSnap vault save deferred",err);ssVaultStatus("✓ PIN SAVED ON PHONE · Cloud pending");return false}
 }
 async function ssVaultFlush(){
+  return {ok:false,reason:"cloud_sync_disabled_for_play_release"};
   if(!navigator.onLine)return false;
   const q=ssVaultQueueRead(); if(!q.length)return true;
   let remaining=[];
@@ -1039,6 +1077,7 @@ function ssVaultRecordToLocal(v){
   return {id:v.recordId,pinVerified:true,postcode:v.postcode||"",address:v.property||"Verified property",street:v.street||"",observedBy:v.observedBy||"MGroup",result:"Location verified",updateStatus:"Verified",gps:{latitude:lat,longitude:lon},verifiedAt:v.verifiedAt||v.cloudSavedAt||null,createdAt:v.verifiedAt||v.cloudSavedAt||null,notes:v.notes||"",approach:v.approach||"",photoUrl:v.photoUrl||"",photoPublicId:v.photoPublicId||"",__restoredFromCloud:true};
 }
 async function ssVaultRestore(){
+  return {ok:false,reason:"cloud_sync_disabled_for_play_release"};
   if(!navigator.onLine)return {ok:false,reason:"offline"};
   try{
     const r=await fetch(SS_VAULT_ENDPOINT,{headers:{"accept":"application/json"}});const data=await r.json();
@@ -1498,7 +1537,7 @@ function ssRenderVerifiedFirst(postcode){
   if(!rows.length){panel.classList.add("hidden");list.innerHTML="";return}
   list.innerHTML=rows.map(r=>{
     const label=[r.address,r.street].filter(Boolean).join(" · ");
-    return `<button type="button" onclick='ssChooseVerifiedFirst(${JSON.stringify(String(r.id))})' style="width:100%;margin-top:6px;padding:12px;border-radius:10px;border:0;background:#145a35;color:#fff;font-weight:900;text-align:left">✓ ${esc(label||"Verified property")}<br><span style="font-size:11px;font-weight:700;opacity:.86">${esc(r.postcode||"")} · ROUTE TO VERIFIED PIN →</span></button>${r.photoUrl?`<button type="button" onclick='ssViewVerifiedPhoto(${JSON.stringify(String(r.id))})' style="width:100%;margin-top:5px;padding:9px;border-radius:9px;border:1px solid #145a35;background:#fff;color:#145a35;font-weight:900">📷 VIEW VERIFIED PHOTO</button>`:""}`;
+    return `<button type="button" onclick='ssChooseVerifiedFirst(${JSON.stringify(String(r.id))})' style="width:100%;margin-top:6px;padding:12px;border-radius:10px;border:0;background:#145a35;color:#fff;font-weight:900;text-align:left">✓ ${esc(label||"Verified property")}<br><span style="font-size:11px;font-weight:700;opacity:.86">${esc(r.postcode||"")} · ROUTE TO VERIFIED PIN →</span></button>${(r.photoUrl||r.localPhoto)?`<button type="button" onclick='ssViewVerifiedPhoto(${JSON.stringify(String(r.id))})' style="width:100%;margin-top:5px;padding:9px;border-radius:9px;border:1px solid #145a35;background:#fff;color:#145a35;font-weight:900">📷 VIEW VERIFIED PHOTO</button>`:""}`;
   }).join("");
   panel.classList.remove("hidden");
 }
@@ -2213,7 +2252,7 @@ function persistFoundRecord(){
   const notes=document.getElementById("notes").value.trim();
   const record={id:previous?.id||Date.now(),pinVerified:true,postcode,address,street,type:document.getElementById("type").value,observedBy:document.getElementById("observedBy").value,updateStatus:document.getElementById("updateStatus").value,result:document.getElementById("result").value,entrance,approach,accessInfo,visibility:"My Team",localSource:(document.getElementById("localSource")?.value||"Not applicable"),notes,
     lastMile:{vehicleApproach:approach||null,entrance:entrance||null,hazard:accessInfo||null,handoverNote:notes||null,source:"SituSnap field handover",fieldConfirmed:true},
-    gps:gps||previous?.gps||null,target:target||previous?.target||null,photoUrl:previous?.photoUrl||"",photoPublicId:previous?.photoPublicId||"",verifiedAt:new Date().toISOString(),createdAt:previous?.createdAt||new Date().toISOString()};
+    gps:gps||previous?.gps||null,target:target||previous?.target||null,localPhoto:previous?.localPhoto===true,localExtraPhoto:previous?.localExtraPhoto===true,photoUrl:previous?.photoUrl||"",photoPublicId:previous?.photoPublicId||"",verifiedAt:new Date().toISOString(),createdAt:previous?.createdAt||new Date().toISOString()};
   if(existingIndex>=0)rs.splice(existingIndex,1);
   rs.unshift(record);
   try{
@@ -2236,7 +2275,7 @@ function persistFoundRecord(){
   editingRecordId=null;
   const b=document.getElementById("detailsFoundBtn");if(b)b.textContent="✓ PIN VERIFIED";
   const saveStatus=document.getElementById("localSaveStatus");
-  if(saveStatus)saveStatus.textContent=navigator.onLine?"✓ PIN SAVED ON PHONE · Cloud pending":"✓ PIN SAVED OFFLINE · Cloud pending";
+  if(saveStatus)saveStatus.textContent=navigator.onLine?"✓ PIN SAVED ON PHONE":"✓ PIN SAVED OFFLINE";
   window.__ssLastVerifiedRecord=record;
   render();
   return true;
@@ -2247,11 +2286,8 @@ function finishFound(){
   if(cloudRecord){
     (async()=>{
       try{
-        if(navigator.onLine){
-          ssVaultStatus("✓ PIN SAVED ON PHONE · Securing verified photo…");
-          const photo=await ssUploadVerifiedPhoto(cloudRecord);
-          if(photo.ok)ssPersistPhotoReference(cloudRecord);
-        }
+        const photo=await ssUploadVerifiedPhoto(cloudRecord);
+        if(photo.ok)ssPersistLocalPhotoReference(cloudRecord);
       }catch(err){console.warn("Verified photo upload failed",err)}
       await ssVaultSaveRecord(cloudRecord);
       render();
@@ -2400,6 +2436,13 @@ async function ssShowPhotoBlob(blob,label){
   if(status)status.textContent=label||"PHOTO READY OFFLINE ✓";
   m.style.display="flex";
 }
+async function ssViewExtraVerifiedPhoto(id){
+  try{
+    const blob=await ssGetExtraCachedPhoto(id);
+    if(blob){await ssShowPhotoBlob(blob,"EXTRA PHOTO SAVED ON PHONE ✓");return}
+  }catch(e){console.warn("Extra verified photo unavailable",e)}
+  alert("Extra photo is not available in the app's local photo store.");
+}
 async function ssViewVerifiedPhoto(id){
   const r=getRecords().find(x=>String(x.id)===String(id));if(!r)return;
   try{
@@ -2432,6 +2475,7 @@ async function ssDeleteCachedPhoto(id){
     await new Promise((resolve,reject)=>{
       const tx=db.transaction("photos","readwrite");
       tx.objectStore("photos").delete(String(id));
+      tx.objectStore("photos").delete(String(id)+"::extra");
       tx.oncomplete=resolve;
       tx.onerror=()=>reject(tx.error);
     });
@@ -2522,11 +2566,12 @@ function render(){
     return `<article class="record" onclick="editSituSnap(${r.id})" title="Tap to review or edit"><h3>${esc(r.address)}${r.street?` · ${esc(r.street)}`:""}</h3><div class="pills"><span class="pill">${esc(r.postcode)}</span><span class="pill">PIN VERIFIED</span></div>`+
       `${r.entrance?`<div class="meta"><b>Entrance:</b> ${esc(r.entrance)}</div>`:""}${r.approach?`<div class="meta"><b>Approach:</b> ${esc(r.approach)}</div>`:""}${r.accessInfo?`<div class="meta"><b>Access:</b> ${esc(r.accessInfo)}</div>`:""}`+
       `<div class="meta">${esc(r.notes||"No additional handover notes.")}</div><div class="meta">📍 ${gpsLabel} · ${esc(r.observedBy||"MGroup")}${stamp?" · "+esc(stamp):""}</div>`+
-      `${r.photoUrl?`<div id="photoReady_${esc(String(r.id))}" class="small-note" style="margin-top:8px;text-align:center">📷 Checking offline photo…</div><button type="button" onclick='event.stopPropagation();ssViewVerifiedPhoto(${JSON.stringify(String(r.id))})' style="margin-top:7px;width:100%;padding:11px;border-radius:10px;border:0;font-weight:900;background:#26384f;color:#fff">📷 VIEW VERIFIED PHOTO</button>`:""}`+
+      `${(r.photoUrl||r.localPhoto)?`<div id="photoReady_${esc(String(r.id))}" class="small-note" style="margin-top:8px;text-align:center">📷 Checking offline photo…</div><button type="button" onclick='event.stopPropagation();ssViewVerifiedPhoto(${JSON.stringify(String(r.id))})' style="margin-top:7px;width:100%;padding:11px;border-radius:10px;border:0;font-weight:900;background:#26384f;color:#fff">📷 VIEW VERIFIED PHOTO</button>`:""}`+
+      `${r.localExtraPhoto?`<button type="button" onclick='event.stopPropagation();ssViewExtraVerifiedPhoto(${JSON.stringify(String(r.id))})' style="margin-top:6px;width:100%;padding:9px;border:1px solid #26384f;border-radius:9px;background:#fff;color:#26384f;font-weight:900">📷 VIEW EXTRA PHOTO</button>`:""}`+
       `<button type="button" onclick='event.stopPropagation();useSituSnap(${JSON.stringify(String(r.id))})' style="margin-top:10px;width:100%;padding:11px;border-radius:10px;border:0;font-weight:900;background:#145a35;color:#fff">ROUTE TO VERIFIED PIN →</button>`+
       `<button type="button" onclick='event.stopPropagation();ssRemoveVerifiedLocation(${JSON.stringify(String(r.id))})' style="margin-top:12px;width:100%;padding:8px;border-radius:9px;border:1px solid #b9c2c9;background:#fff;color:#59636b;font-size:12px;font-weight:800">REMOVE VERIFIED LOCATION</button></article>`;
   }).join(""):`<div class="empty">No verified locations saved on this phone yet.</div>`);
-  for(const r of f.filter(x=>x.photoUrl)){
+  for(const r of f.filter(x=>x.photoUrl||x.localPhoto)){
     ssPhotoReadyOffline(r.id).then(ok=>{
       const el=document.getElementById("photoReady_"+String(r.id));
       if(el)el.textContent=ok?"📷 PHOTO READY OFFLINE ✓":"📷 Photo online only";
@@ -3504,59 +3549,15 @@ document.getElementById("ssTraceBox")?.remove();
     '<details class="more-card" id="ssPhoenixUpdates">'+
       '<summary>Updates <span class="update-dot" id="ssUpdateDot" aria-label="Update available"></span><span class="plus">＋</span></summary>'+
       '<div class="more-inside">'+
-        '<div class="version-line"><span>Installed version</span><b>SituSnap 1.1.3</b></div>'+
+        '<div class="version-line"><span>Installed version</span><b>SituSnap 1.3.1</b></div>'+
         '<div class="version-line"><span>Update status</span><b id="ssUpdateStatus">Checking…</b></div>'+
-        '<button class="share-btn" id="ssUpdateAction" type="button" hidden>DOWNLOAD UPDATE</button>'+
-      '</div>'+
-    '</details>'+
-    '<details class="more-card" id="ssPhoenixShare">'+
-      '<summary>Share SituSnap <span class="plus">＋</span></summary>'+
-      '<div class="more-inside" style="text-align:center">'+
-        '<div style="font-weight:900;font-size:17px;color:#fff">Scan to install SituSnap</div>'+
-        '<div style="margin-top:4px">Android · SituSnap 1.1.3</div>'+
-        '<img class="share-qr" alt="QR code to download SituSnap 1.1.3" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAbgAAAG4AQAAAAAfsc8eAAAD7ElEQVR4nO1cy27cQAwjC///L7MHidI4DXpI0q5nVsYisJ0hbEHQi9KYwpeOX1+DDW5wgxvcMbgLAONUoAAKFBFnIAABABH3c+U28p2Ou4DSEAQCoPUIIDVGxb9q5TbynY67AKTuQk2hQoUKCYigQKsyV24j3/vhBEFMNS6aS8X9+PMG9x3ctZxTYWkEIYYrDU0qAuAL33Nwnx+hP9XfylFCaWJqjQ6I33ze4P4BjiS55KGCnHyGNdoEvXIz+Q7GXbjFtTQ/dbIZHpSKZObbzxvcz+LY1R2ygIg76Udbb4SI8qe7yPcmOMWPhBT+EoKkMEWBoFT14evec3AfDkbS4thnA7P/THMj0qfKGc0u8p2OuwDzZUupRxfrqnuludDpLvKdjus80wVDZSk2ulSt14Qed5HvdFzwn8FXU2g766qdCEZG9rNjf8/BsagVyikm0szK2MomWQnqLvKdjrP9QWl8rtQj21SxMGl4qd9t5Dsd160iK0j+ASjXmjVhxsSJf4/BXUjzS38JIIiyMD+2xwSAqd+fiCNkz6g12klUlxaMSMjXvefg/jwy/oWaxEw0c5iCYvFm6UazM7iNfKfjin9RZimqet6lu8uIpXrfR753wFHM/gKAbt9K5VAjNwWbodlJvpNxrNZCHM133q67Hzj856Nw2X9njUhE8eDxwew+xBBTkDSvec/B/QXX84ORYGaXiIvrjIGYKi/2ku9gXM4vqTg05zBART0nqJGjTv75JJxHruuG42H135cYWAv2ke90XOclvqQbtRkKe3LQ4xPDnz0HV8xmase8WftMoOc/afe6jXyn4xYDs3KqZocnlhwMu8TfRr53wMXIUnUiYlCJgrQw12RFxck/n4OL+Zfo88Fjuz0EqjW/4dIK3EW+03G5/8hEZ29V4TJ6xuKzS5e7yPcWOCrZTqb37JQ02vISm2jTxL/n4HL/ZuiuvGeqKwJe5SzroP0u8p2Oq1kzdoKpRZMAbqO7nhXdRb63wEX5kJ1Z+gqg1DkovTVw8pcH4Tq/1K0OVOc0TdKol+0i3+m4IsRqRqLTF5bjtPq62N9FvtNx66y1xwPNwfTe267iPSqzi3zvgCv1xY4xwF0IsgfOSJCc/OVhOOrDOb0Dovi0nG4qzzrzuw/C3b6/VPWD0OUg0L0IFkWzi3yn49bvL7laDxqGN0rUU6H+s4t8p+Nu31+q74V4bh5FbC9d+tm/+VAcU0m5G0mC6L3wuTnQ67aU70TcdbsSI/ilIRZv5lmmIGVe8Z6D+/y4f3+JnnvJjQ/NgtKudOY/H4Vb9r9rKeZZrEtao4kzN5Z2ke903Fr//Y/nDW5wgxvcKbjfp4QUngMz6PwAAAAASUVORK5CYII=">'+
-        '<div style="font-size:12px;color:#a9bad0">Open your phone camera and scan this code.</div>'+
       '</div>'+
     '</details>'+
     '<a id="ssPrivacyPolicyLink" href="https://situsnap.app/privacy.html" target="_blank" rel="noopener" style="display:flex;min-height:54px;margin-top:12px;padding:14px 16px;align-items:center;justify-content:space-between;border:1px solid rgba(255,255,255,.15);border-radius:14px;background:#0b2b38;color:#fff;text-decoration:none;font-size:18px;font-weight:900">Privacy policy <span aria-hidden="true">↗</span></a>';
    document.body.appendChild(p);
-   // Read-only release check. Only a newer, published APK is eligible.
-   // No remote HTML loading or automatic app replacement.
-   var updateButton=p.querySelector('#ssUpdateAction');
-   var updateDot=p.querySelector('#ssUpdateDot');
-   var updateStatus=p.querySelector('#ssUpdateStatus');
-   var installed=((document.getElementById('ssBuildStamp')?.getAttribute('data-build')||'SituSnap-1.1.3').match(/[0-9]+\.[0-9]+\.[0-9]+/)||['1.1.3'])[0].split('.').map(Number);
-   var approvedApk=null;
-   function checkApprovedUpdate(){
-     fetch('https://api.github.com/repos/cryptod1/SituSnap/releases/latest',
-       {headers:{'Accept':'application/vnd.github+json'},cache:'no-store'})
-     .then(function(response){if(!response.ok)throw Error('release check failed');return response.json()})
-     .then(function(release){
-       var match=/^[vV]?(\d+)\.(\d+)\.(\d+)$/.exec(release.tag_name||'');
-       if(!match || release.draft || release.prerelease)throw Error('no approved version');
-       var latest=match.slice(1).map(Number);
-       var newer=false;
-       for(var i=0;i<3;i++){
-         if(latest[i]>installed[i]){newer=true;break}
-         if(latest[i]<installed[i])break;
-       }
-       var asset=(release.assets||[]).find(function(a){return /^SituSnap-[0-9]+\.[0-9]+\.[0-9]+\.apk$/.test(a.name||'') && /^https:\/\/github\.com\/cryptod1\/SituSnap\/releases\/download\//.test(a.browser_download_url||'')});
-       if(newer && asset){
-         approvedApk=asset.browser_download_url;
-         updateStatus.textContent='SituSnap '+latest.join('.')+' available';
-         updateDot.classList.add('available');
-         updateButton.hidden=false;
-       }else{
-         updateStatus.textContent='Up to date';
-       }
-     }).catch(function(){updateStatus.textContent='Unable to check (try online)'});
-   }
-   updateButton.addEventListener('click',function(){
-     if(!approvedApk)return;
-     // Android must still approve installation; browser/WebView handles the download.
-     window.open(approvedApk,'_blank','noopener');
-   });
-   checkApprovedUpdate();
+    // Updates are delivered only through Google Play.
+    var updateStatus=p.querySelector('#ssUpdateStatus');
+    if(updateStatus)updateStatus.textContent='Updates are delivered through Google Play.';
    document.getElementById('ssPhoenixMoreClose').onclick=function(){
       p.querySelectorAll('details').forEach(function(d){d.removeAttribute('open')});
       p.classList.remove('open'); p.setAttribute('aria-hidden','true');
