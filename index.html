@@ -2140,6 +2140,7 @@ function syncHuntPostcodeFromRecord(){
 }
 function recordWithoutSatNav(){
   const p=(document.getElementById("huntPostcode")?.value||"").trim().toUpperCase();
+  const property=bcPropertyInput();
   huntPostcode=p;
   window.ssRecordWithoutSatNavActive=true;
   target=null;
@@ -2147,6 +2148,8 @@ function recordWithoutSatNav(){
   if(editingRecordId===null) clearRecordForm();
   const pc=document.getElementById("postcode"); if(pc)pc.value=p;
   showForm();
+  const address=document.getElementById("address");
+  if(address&&!address.value&&property){address.value=property;updateFoundButton()}
   const note=document.getElementById("foundGpsNote");
   if(note)note.textContent="Sat Nav is optional. Enter the details you know and SituSnap can save them; phone GPS will only be used if available when you confirm.";
 }
