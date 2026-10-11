@@ -1,4 +1,4 @@
-name: Build SituSnap Android APK
+name: Build SituSnap Android Play bundle and APK
 
 on:
   push:
@@ -19,6 +19,17 @@ jobs:
       - name: Create Android project
         run: python3 .github/scripts/make_android.py
 
+      - name: Set Play release version and API level
+        run: |
+          set -e
+          sed -i "s/version '8.7.3'/version '8.13.2'/" build.gradle
+          sed -i "s/compileSdk 35/compileSdk 36/; s/targetSdk 35/targetSdk 36/; s/versionCode 17/versionCode 28/; s/versionName '1.1.1'/versionName '1.3.0'/" app/build.gradle
+          grep -q "version '8.13.2'" build.gradle
+          grep -q "compileSdk 36" app/build.gradle
+          grep -q "targetSdk 36" app/build.gradle
+          grep -q "versionCode 28" app/build.gradle
+          grep -q "versionName '1.3.0'" app/build.gradle
+
       - name: Use the same front page and approved logo as situsnap.app
         run: |
           cp index.html app/src/main/assets/phoenix.html
@@ -36,16 +47,16 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: '8.9'
+          gradle-version: '8.13'
 
-      - name: Build permanently signed APK
+      - name: Build signed APK and Play Store AAB
         env:
           SITUSNAP_STORE_PASSWORD: ${{ secrets.SITUSNAP_KEYSTORE_PASSWORD }}
           SITUSNAP_KEY_ALIAS: ${{ secrets.SITUSNAP_KEY_ALIAS }}
           SITUSNAP_KEY_PASSWORD: ${{ secrets.SITUSNAP_KEY_PASSWORD }}
         run: |
           set -e
-          gradle assembleRelease
+          gradle assembleRelease bundleRelease
 
       - name: Locate Android build tools
         run: |
@@ -55,23 +66,21 @@ jobs:
           test -x "$BUILD_TOOLS/apksigner"
           test -x "$BUILD_TOOLS/aapt"
 
-      - name: Verify APK signature
+      - name: Verify signed release packages
         run: |
           set -e
           APK="app/build/outputs/apk/release/app-release.apk"
+          AAB="app/build/outputs/bundle/release/app-release.aab"
           test -f "$APK"
+          test -f "$AAB"
           "$BUILD_TOOLS/apksigner" verify --verbose --print-certs "$APK"
-          echo "🔥 SIGNED APK VERIFIED"
-
-      - name: Final SituSnap package gate
-        run: |
-          set -e
-          APK="app/build/outputs/apk/release/app-release.apk"
+          jarsigner -verify -verbose -certs "$AAB" >/dev/null
           BADGING=$("$BUILD_TOOLS/aapt" dump badging "$APK")
-          echo "$BADGING" | grep -q "package: name='com.situsnap.app'"
+          echo "$BADGING" | grep -q "package: name='com.situsnap.app' versionCode='28' versionName='1.3.0'"
           echo "$BADGING" | grep -q "sdkVersion:'26'"
-          echo "$BADGING" | grep -q "targetSdkVersion:'35'"
+          echo "$BADGING" | grep -q "targetSdkVersion:'36'"
           echo "$BADGING" | grep -q "launchable-activity: name='com.situsnap.app.SplashActivity'"
+          unzip -l "$AAB" | grep -q "base/assets/phoenix.html"
           python3 - <<'PY'
           import hashlib
           import os
@@ -82,6 +91,7 @@ jobs:
           source = Path("index.html").read_bytes()
           staged = Path("app/src/main/assets/phoenix.html").read_bytes()
           apk = Path("app/build/outputs/apk/release/app-release.apk")
+          aab = Path("app/build/outputs/bundle/release/app-release.aab")
           expected = hashlib.sha256(source).hexdigest()
           if staged != source:
               sys.exit("FAIL: staged app HTML differs from the website index.html")
@@ -92,22 +102,28 @@ jobs:
                   sys.exit("FAIL: APK is missing assets/phoenix.html")
           if packaged != source:
               sys.exit("FAIL: APK HTML differs from website index.html")
+          with zipfile.ZipFile(aab) as archive:
+              try:
+                  packaged = archive.read("base/assets/phoenix.html")
+              except KeyError:
+                  sys.exit("FAIL: AAB is missing base/assets/phoenix.html")
+          if packaged != source:
+              sys.exit("FAIL: AAB HTML differs from website index.html")
           commit = os.environ.get("GITHUB_SHA", "unknown")
-          print(f"Website and APK HTML SHA-256: {expected}")
+          print(f"Website, APK and AAB HTML SHA-256: {expected}")
           print(f"Source commit: {commit}")
           with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as summary:
               summary.write("## SituSnap release consistency\n\n")
               summary.write(f"- Source commit: {commit}\n")
-              summary.write(f"- Website and APK HTML SHA-256: {expected}\n")
+              summary.write(f"- Website, APK and AAB HTML SHA-256: {expected}\n")
           PY
-          echo "🔥 PACKAGE ID VERIFIED"
-          echo "🔥 SDK VERIFIED"
-          echo "🔥 SPLASH LAUNCHER VERIFIED"
-          echo "🔥 WEBSITE AND APK HTML MATCH"
-          echo "🔥 SITUSNAP APK PASSED ALL BUILD GATES"
+          echo "🔥 SIGNED APK AND AAB VERIFIED"
+          echo "🔥 PACKAGE, VERSION, SDK, LAUNCHER AND HTML VERIFIED"
 
       - uses: actions/upload-artifact@v4
         with:
-          name: SituSnap-Android-V1
-          path: app/build/outputs/apk/release/app-release.apk
+          name: SituSnap-Android-Play-v1.3.0
+          path: |
+            app/build/outputs/apk/release/app-release.apk
+            app/build/outputs/bundle/release/app-release.aab
           if-no-files-found: error
