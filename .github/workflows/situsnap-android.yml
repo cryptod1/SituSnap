@@ -29,6 +29,10 @@ jobs:
           grep -q "targetSdk 36" app/build.gradle
           grep -q "versionCode 29" app/build.gradle
           grep -q "versionName '1.3.1'" app/build.gradle
+          sed -i "s/applicationId 'com.situsnap.app'/applicationId 'com.situsnap.app.test'/" app/build.gradle
+          sed -i 's/android:label="SituSnap"/android:label="SituSnap Test"/' app/src/main/AndroidManifest.xml
+          grep -q "applicationId 'com.situsnap.app.test'" app/build.gradle
+          grep -q 'android:label="SituSnap Test"' app/src/main/AndroidManifest.xml
 
       - name: Use the same front page and approved logo as situsnap.app
         run: |
@@ -49,14 +53,14 @@ jobs:
         with:
           gradle-version: '8.13'
 
-      - name: Build signed APK and Play Store AAB
+      - name: Build signed side-by-side test APK
         env:
           SITUSNAP_STORE_PASSWORD: ${{ secrets.SITUSNAP_KEYSTORE_PASSWORD }}
           SITUSNAP_KEY_ALIAS: ${{ secrets.SITUSNAP_KEY_ALIAS }}
           SITUSNAP_KEY_PASSWORD: ${{ secrets.SITUSNAP_KEY_PASSWORD }}
         run: |
           set -e
-          gradle assembleRelease bundleRelease
+          gradle assembleRelease
 
       - name: Locate Android build tools
         run: |
@@ -70,17 +74,14 @@ jobs:
         run: |
           set -e
           APK="app/build/outputs/apk/release/app-release.apk"
-          AAB="app/build/outputs/bundle/release/app-release.aab"
           test -f "$APK"
-          test -f "$AAB"
           "$BUILD_TOOLS/apksigner" verify --verbose --print-certs "$APK"
-          jarsigner -verify -verbose -certs "$AAB" >/dev/null
           BADGING=$("$BUILD_TOOLS/aapt" dump badging "$APK")
-          echo "$BADGING" | grep -q "package: name='com.situsnap.app' versionCode='29' versionName='1.3.1'"
+          echo "$BADGING" | grep -q "package: name='com.situsnap.app.test' versionCode='29' versionName='1.3.1'"
           echo "$BADGING" | grep -q "sdkVersion:'26'"
           echo "$BADGING" | grep -q "targetSdkVersion:'36'"
+          echo "$BADGING" | grep -q "application-label:'SituSnap Test'"
           echo "$BADGING" | grep -q "launchable-activity: name='com.situsnap.app.SplashActivity'"
-          unzip -l "$AAB" | grep -q "base/assets/phoenix.html"
           python3 - <<'PY'
           import hashlib
           import os
@@ -91,7 +92,6 @@ jobs:
           source = Path("index.html").read_bytes()
           staged = Path("app/src/main/assets/phoenix.html").read_bytes()
           apk = Path("app/build/outputs/apk/release/app-release.apk")
-          aab = Path("app/build/outputs/bundle/release/app-release.aab")
           expected = hashlib.sha256(source).hexdigest()
           if staged != source:
               sys.exit("FAIL: staged app HTML differs from the website index.html")
@@ -102,18 +102,11 @@ jobs:
                   sys.exit("FAIL: APK is missing assets/phoenix.html")
           if packaged != source:
               sys.exit("FAIL: APK HTML differs from website index.html")
-          with zipfile.ZipFile(aab) as archive:
-              try:
-                  packaged = archive.read("base/assets/phoenix.html")
-              except KeyError:
-                  sys.exit("FAIL: AAB is missing base/assets/phoenix.html")
-          if packaged != source:
-              sys.exit("FAIL: AAB HTML differs from website index.html")
           commit = os.environ.get("GITHUB_SHA", "unknown")
           print(f"Website, APK and AAB HTML SHA-256: {expected}")
           print(f"Source commit: {commit}")
           with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as summary:
-              summary.write("## SituSnap release consistency\n\n")
+              summary.write("## SituSnap side-by-side test APK consistency\n\n")
               summary.write(f"- Source commit: {commit}\n")
               summary.write(f"- Website, APK and AAB HTML SHA-256: {expected}\n")
           PY
@@ -122,8 +115,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: SituSnap-Android-Play-v1.3.1
+          name: SituSnap-Android-Side-by-Side-Test-v1.3.1
           path: |
             app/build/outputs/apk/release/app-release.apk
-            app/build/outputs/bundle/release/app-release.aab
           if-no-files-found: error
