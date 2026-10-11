@@ -1744,14 +1744,6 @@ async function ssFindDestination(){
     (window.ssFocusPostcode||function(){document.getElementById("postcodeOutward")?.focus()})();
     return;
   }
-  const door=(document.getElementById("doorNumber")?.value||"").trim();
-  const street=(document.getElementById("manualAddress")?.value||"").trim();
-  if(pc && door && !street){
-    ssShowFindResult('ADD STREET OR PROPERTY NAME','Enter the street or house name as well as the number and postcode.',false,'SITUSNAP');
-    document.getElementById("manualAddress")?.focus();
-    return;
-  }
-
   ssShowFindResult('Checking destination…',[property,pc].filter(Boolean).join(' · '),false,'SITUSNAP');
 
   // V1.0.5q: FIND now consumes the EXACT SAME verified collection used by
@@ -2715,9 +2707,11 @@ async function bcResolve(property,postcode,requestSeq,explicitFind=false){
     const controller=new AbortController();
     const timeout=setTimeout(()=>controller.abort(),BC_RESOLVER_TIMEOUT_MS);
     const doorNumber=bcRequestedDoorNumber();
-    const resolverProperty=(doorNumber && property.toLowerCase().startsWith((doorNumber+' ').toLowerCase()))
-      ? property.slice(doorNumber.length).trim()
-      : property;
+    const resolverProperty=(doorNumber && property.toLowerCase()===doorNumber.toLowerCase())
+      ? ''
+      : (doorNumber && property.toLowerCase().startsWith((doorNumber+' ').toLowerCase()))
+        ? property.slice(doorNumber.length).trim()
+        : property;
     const r=await fetch(BREADCRUMBS_RESOLVER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({property:resolverProperty,postcode,doorNumber}),signal:controller.signal});
     clearTimeout(timeout);
     const d=await r.json().catch(()=>null);
