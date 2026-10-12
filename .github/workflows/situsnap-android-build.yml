@@ -119,7 +119,7 @@ jobs:
 
           MANIFEST=$( "$BUILD_TOOLS/aapt" dump xmltree "$APK" AndroidManifest.xml )
           echo "$MANIFEST"
-          echo "$MANIFEST" | grep -Eq 'android:allowBackup.*=false'
+          echo "$MANIFEST" | grep -Eq 'android:allowBackup.*0x0'
           echo "$MANIFEST" | grep -Fq 'android:dataExtractionRules'
           echo "$MANIFEST" | grep -Fq 'android:fullBackupContent'
 
