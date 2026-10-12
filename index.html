@@ -2252,7 +2252,7 @@ function persistFoundRecord(recordIdOverride){
   const notes=document.getElementById("notes").value.trim();
   const record={id:previous?.id||recordIdOverride||Date.now(),pinVerified:true,postcode,address,street,type:document.getElementById("type").value,observedBy:document.getElementById("observedBy").value,updateStatus:document.getElementById("updateStatus").value,result:document.getElementById("result").value,entrance,approach,accessInfo,visibility:"My Team",localSource:(document.getElementById("localSource")?.value||"Not applicable"),notes,
     lastMile:{vehicleApproach:approach||null,entrance:entrance||null,hazard:accessInfo||null,handoverNote:notes||null,source:"SituSnap field handover",fieldConfirmed:true},
-    gps:gps||previous?.gps||null,target:target||previous?.target||null,localPhoto:previous?.localPhoto===true||String(window.__ssPhotoPreSavedId||"")===String(previous?.id||recordIdOverride||""),localExtraPhoto:previous?.localExtraPhoto===true,photoUrl:previous?.photoUrl||"",photoPublicId:previous?.photoPublicId||"",verifiedAt:new Date().toISOString(),createdAt:previous?.createdAt||new Date().toISOString()};
+    gps:gps||previous?.gps||null,target:target||previous?.target||null,localPhoto:previous?.localPhoto===true||!!window.__ssPhotoPreSavedId&&String(window.__ssPhotoPreSavedId)===String(previous?.id||recordIdOverride||""),localExtraPhoto:previous?.localExtraPhoto===true,photoUrl:previous?.photoUrl||"",photoPublicId:previous?.photoPublicId||"",verifiedAt:new Date().toISOString(),createdAt:previous?.createdAt||new Date().toISOString()};
   if(existingIndex>=0)rs.splice(existingIndex,1);
   rs.unshift(record);
   try{
