@@ -117,6 +117,12 @@ jobs:
           echo "$BADGING" | grep -q "targetSdkVersion:'36'"
           echo "$BADGING" | grep -q "launchable-activity: name='com.situsnap.app.SplashActivity'"
 
+          MANIFEST=$( "$BUILD_TOOLS/aapt" dump xmltree "$APK" AndroidManifest.xml )
+          echo "$MANIFEST"
+          echo "$MANIFEST" | grep -Eq 'android:allowBackup.*=false'
+          echo "$MANIFEST" | grep -Fq 'android:dataExtractionRules'
+          echo "$MANIFEST" | grep -Fq 'android:fullBackupContent'
+
           python3 - <<'PY'
           import hashlib
           import os
