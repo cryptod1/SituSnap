@@ -1,3 +1,4 @@
+# Candidate-only build. This branch does not deploy GitHub Pages.
 name: Build SituSnap signed release candidate
 
 on:
