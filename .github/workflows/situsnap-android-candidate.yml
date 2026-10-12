@@ -1,0 +1,17 @@
+name: Build SituSnap signed release candidate
+
+on:
+  push:
+    branches:
+      - 'release-candidate/**'
+
+jobs:
+  build:
+    uses: ./.github/workflows/situsnap-android-build.yml
+    with:
+      artifact_name: SituSnap-Android-Candidate
+    secrets:
+      SITUSNAP_KEYSTORE_BASE64: ${{ secrets.SITUSNAP_KEYSTORE_BASE64 }}
+      SITUSNAP_KEYSTORE_PASSWORD: ${{ secrets.SITUSNAP_KEYSTORE_PASSWORD }}
+      SITUSNAP_KEY_ALIAS: ${{ secrets.SITUSNAP_KEY_ALIAS }}
+      SITUSNAP_KEY_PASSWORD: ${{ secrets.SITUSNAP_KEY_PASSWORD }}
