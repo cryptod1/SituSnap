@@ -963,7 +963,7 @@ async function ssUploadVerifiedPhoto(record){
   try{cachedExtra=await ssGetExtraCachedPhoto(id)}catch(e){console.warn("Local extra photo lookup failed",e);lookupFailed=true}
   if(!file){
     if(!lookupFailed){record.localPhoto=!!cachedMain;record.localExtraPhoto=!!cachedExtra}
-    if(lookupFailed&&!extraFile){ssVaultStatus("PIN SAVED ON PHONE · PHOTO CHECK TEMPORARILY UNAVAILABLE");return {ok:false,reason:"local_cache_lookup_failed"}}
+    if(lookupFailed&&!extraFile){ssVaultStatus("PIN NOT SAVED — PHOTO CHECK TEMPORARILY UNAVAILABLE");return {ok:false,reason:"local_cache_lookup_failed"}}
     if(extraFile){
       try{await ssCacheExtraPhotoBlob(id,extraFile);record.localExtraPhoto=true}
       catch(e){console.warn("Local extra photo save failed",e);ssVaultStatus("PIN SAVED ON PHONE · EXTRA PHOTO STORAGE FAILED");return {ok:false,reason:"extra_local_cache_failed"}}
@@ -974,7 +974,7 @@ async function ssUploadVerifiedPhoto(record){
     await ssCachePhotoBlob(id,file);
   }catch(e){
     console.warn("Local verified photo save failed",e);
-    ssVaultStatus("PIN SAVED ON PHONE · PHOTO STORAGE FAILED — please retry");
+    ssVaultStatus("PIN NOT SAVED — PHOTO STORAGE FAILED · please retry");
     return {ok:false,reason:"local_cache_failed"};
   }
   let extraSaved=lookupFailed?(record.localExtraPhoto===true):!!cachedExtra;
@@ -2231,7 +2231,7 @@ function updateFoundButton(){
 }
 document.addEventListener("input",e=>{if(e.target?.closest?.("#recordDetails"))updateFoundButton()});
 document.addEventListener("change",e=>{if(e.target?.closest?.("#recordDetails"))updateFoundButton()});
-function persistFoundRecord(){
+function persistFoundRecord(recordIdOverride){
   const postcode=document.getElementById("postcode").value.trim();
   const address=document.getElementById("address").value.trim();
   const street=(document.getElementById("street")?.value||"").trim();
@@ -2250,9 +2250,9 @@ function persistFoundRecord(){
   const approach=accessDirections;
   const accessInfo="";
   const notes=document.getElementById("notes").value.trim();
-  const record={id:previous?.id||Date.now(),pinVerified:true,postcode,address,street,type:document.getElementById("type").value,observedBy:document.getElementById("observedBy").value,updateStatus:document.getElementById("updateStatus").value,result:document.getElementById("result").value,entrance,approach,accessInfo,visibility:"My Team",localSource:(document.getElementById("localSource")?.value||"Not applicable"),notes,
+  const record={id:previous?.id||recordIdOverride||Date.now(),pinVerified:true,postcode,address,street,type:document.getElementById("type").value,observedBy:document.getElementById("observedBy").value,updateStatus:document.getElementById("updateStatus").value,result:document.getElementById("result").value,entrance,approach,accessInfo,visibility:"My Team",localSource:(document.getElementById("localSource")?.value||"Not applicable"),notes,
     lastMile:{vehicleApproach:approach||null,entrance:entrance||null,hazard:accessInfo||null,handoverNote:notes||null,source:"SituSnap field handover",fieldConfirmed:true},
-    gps:gps||previous?.gps||null,target:target||previous?.target||null,localPhoto:previous?.localPhoto===true,localExtraPhoto:previous?.localExtraPhoto===true,photoUrl:previous?.photoUrl||"",photoPublicId:previous?.photoPublicId||"",verifiedAt:new Date().toISOString(),createdAt:previous?.createdAt||new Date().toISOString()};
+    gps:gps||previous?.gps||null,target:target||previous?.target||null,localPhoto:previous?.localPhoto===true||String(window.__ssPhotoPreSavedId||"")===String(previous?.id||recordIdOverride||""),localExtraPhoto:previous?.localExtraPhoto===true,photoUrl:previous?.photoUrl||"",photoPublicId:previous?.photoPublicId||"",verifiedAt:new Date().toISOString(),createdAt:previous?.createdAt||new Date().toISOString()};
   if(existingIndex>=0)rs.splice(existingIndex,1);
   rs.unshift(record);
   try{
@@ -2280,25 +2280,50 @@ function persistFoundRecord(){
   render();
   return true;
 }
-function finishFound(){
-  if(!persistFoundRecord()) return;
+async function finishFound(){
+  const recordId=editingRecordId!==null?editingRecordId:Date.now();
+  const draft={id:recordId,localPhoto:false,localExtraPhoto:false};
+  let photo;
+  try{photo=await ssUploadVerifiedPhoto(draft)}
+  catch(err){console.warn("Verified photo storage failed",err)}
+  if(!photo?.ok||draft.localPhoto!==true){
+    const message="PIN NOT SAVED — the property photo could not be confirmed on this phone. Check storage or select the photo again, then retry.";
+    const note=document.getElementById("foundGpsNote");if(note)note.textContent=message;
+    const status=document.getElementById("localSaveStatus");if(status)status.textContent=message;
+    alert(message);
+    return;
+  }
+
+  window.ssClearRemovedVerifiedPlace?.(
+    document.getElementById("postcode")?.value||"",
+    document.getElementById("address")?.value||""
+  );
+  window.__ssPhotoPreSavedId=String(recordId);
+  const saved=persistFoundRecord(recordId);
+  window.__ssPhotoPreSavedId="";
+  if(!saved){
+    if(editingRecordId===null&&recordId!==window.__ssLastVerifiedRecord?.id)await ssDeleteCachedPhoto(recordId);
+    return;
+  }
+
+  ["photoCamera","photo1","photo2Camera","photo2"].forEach(id=>{
+    const input=document.getElementById(id);if(input)input.value="";
+  });
+  const extraStatus=document.getElementById("extraPhotoStatus");
+  if(extraStatus)extraStatus.textContent="No photo selected.";
+  updateFoundButton();
+
   const cloudRecord=window.__ssLastVerifiedRecord||getRecords().find(r=>r&&r.pinVerified===true);
   if(cloudRecord){
     (async()=>{
-      try{
-        const photo=await ssUploadVerifiedPhoto(cloudRecord);
-        if(photo.ok)ssPersistLocalPhotoReference(cloudRecord);
-      }catch(err){console.warn("Verified photo upload failed",err)}
       await ssVaultSaveRecord(cloudRecord);
       render();
       ssRenderVerifiedFirst(document.getElementById("huntPostcode")?.value||"");
-    })();
+    })().catch(err=>console.warn("Verified record sync failed",err));
   }
 
-  // Show the success screen first. Keep the form/page untouched underneath it
-  // until the colleague has actually had time to see the confirmation.
+  // Show success only after both the pin and its required photo are saved locally.
   triggerCelebration();
-
   setTimeout(()=>{
     hideForm();
     const note=document.getElementById("foundGpsNote");
@@ -4153,6 +4178,12 @@ const originalFinish=window.finishFound;if(typeof originalFinish==="function")wi
  const key="situSnapRemovedVerifiedV1";
  const read=k=>{try{const x=JSON.parse(localStorage.getItem(k)||"[]");return Array.isArray(x)?x:[]}catch(_){return []}};
  const place=r=>{const pc=String(r?.postcode||"").toUpperCase().replace(/\s+/g,"").trim(),n=String(r?.address||r?.property||r?.propertyName||"").toUpperCase().replace(/[^A-Z0-9]+/g," ").trim();return pc&&n?"place:"+pc+"|"+n:""};
+ window.ssClearRemovedVerifiedPlace=function(postcode,address){
+  const token=place({postcode,address});if(!token)return false;
+  const ids=read(key).map(String),next=ids.filter(id=>id!==token);
+  if(next.length!==ids.length)localStorage.setItem(key,JSON.stringify(next));
+  return next.length!==ids.length;
+ };
  const rid=r=>String(r?.id??r?.recordId??r?.pinId??"");
  const hidden=(r,ids)=>ids.includes(rid(r))||(place(r)&&ids.includes(place(r)));
  function tombstones(){const ids=read(key).map(String),all=[...read("situSnapRecords"),...read("situSnapVerifiedArchiveV1"),...read("situSnapVerifiedPinsV1")];for(const r of all){if(ids.includes(rid(r))&&place(r)&&!ids.includes(place(r)))ids.unshift(place(r))}if(ids.length!==read(key).length)localStorage.setItem(key,JSON.stringify(ids.slice(0,2000)));return ids}
