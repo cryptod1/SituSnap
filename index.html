@@ -2,7 +2,7 @@
 <!-- PHOENIX-CLEAN-2: recovered from Phoenix 26 with approved final wording/build gate -->
 <html lang="en"><head>
 <script id="ss-native-webview-detection">
-(function(){var ua=String(navigator.userAgent||"");if(/Android/i.test(ua)&&/\\bwv\\b/i.test(ua)){document.documentElement.classList.add("ss-native-webview")}})();
+(function(){var ua=String(navigator.userAgent||"");if(/Android/i.test(ua)&&/wv/i.test(ua)){document.documentElement.classList.add("ss-native-webview")}})();
 </script>
 <script id="ss-local-evidence-network-guard">
 (function(){const f=window.fetch.bind(window);const blocked=h=>h==="cloudinary.com"||h.endsWith(".cloudinary.com")||h==="api.github.com"||h==="cryptod1.github.io";window.fetch=function(input,init){const raw=typeof input==="string"?input:input instanceof URL?input.href:input?.url;const u=new URL(raw,location.href);if(blocked(u.hostname)||u.pathname.includes("/api/situ-vault"))return Promise.reject(new Error("Cloud transport disabled"));return f(input,init)}})();
