@@ -1,6 +1,9 @@
 <!doctype html>
 <!-- PHOENIX-CLEAN-2: recovered from Phoenix 26 with approved final wording/build gate -->
 <html lang="en"><head>
+<script id="ss-native-webview-detection">
+(function(){var ua=String(navigator.userAgent||"");if(/Android/i.test(ua)&&/\\bwv\\b/i.test(ua)){document.documentElement.classList.add("ss-native-webview")}})();
+</script>
 <script id="ss-local-evidence-network-guard">
 (function(){const f=window.fetch.bind(window);const blocked=h=>h==="cloudinary.com"||h.endsWith(".cloudinary.com")||h==="api.github.com"||h==="cryptod1.github.io";window.fetch=function(input,init){const raw=typeof input==="string"?input:input instanceof URL?input.href:input?.url;const u=new URL(raw,location.href);if(blocked(u.hostname)||u.pathname.includes("/api/situ-vault"))return Promise.reject(new Error("Cloud transport disabled"));return f(input,init)}})();
 </script>
@@ -788,6 +791,7 @@ body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))!important}
 #ssApprovedSiteSplash.ss-splash-away{opacity:0;visibility:hidden;pointer-events:none}
 #ssApprovedSiteSplash img{width:100%;height:100%;object-fit:cover;object-position:center;display:block}
 @media (prefers-reduced-motion:reduce){#ssApprovedSiteSplash{transition:none}}
+html.ss-native-webview #ssApprovedSiteSplash{display:none!important}
 </style>
 <style id="ss-postcode-split-style">
 #huntPostcode{display:none!important}
