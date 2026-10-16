@@ -1691,15 +1691,18 @@ function ssHidePostcodeChoices(){
 async function ssApplyPostcodeChoice(choice){
   const address=String(choice?.address||'').trim();
   const selectedUprn=String(choice?.uprn||'').trim();
-  const firstLine=address.split(',')[0].trim();
+  const addressParts=address.split(',').map(part=>part.trim()).filter(Boolean);
+  const firstLine=addressParts[0]||'';
   if(!firstLine)return;
 
-  const numberMatch=firstLine.match(/^([0-9]+[A-Za-z]?(?:\/[0-9]+[A-Za-z]?)?)\s+(.+)$/);
+  // Address choices can put the door number and street in separate comma
+  // fields, e.g. "1, Oaklands Rise, BRIDGEND, CF31 4SP".
+  const numberMatch=firstLine.match(/^([0-9]+[A-Za-z]?(?:\/[0-9]+[A-Za-z]?)?)(?:\s+(.+))?$/);
   const door=document.getElementById('doorNumber');
   const property=document.getElementById('manualAddress');
   if(numberMatch){
     if(door)door.value=numberMatch[1];
-    if(property)property.value=numberMatch[2];
+    if(property)property.value=(numberMatch[2]||addressParts[1]||'').trim();
   }else{
     if(door)door.value='';
     if(property)property.value=firstLine;
