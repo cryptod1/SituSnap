@@ -1,0 +1,27 @@
+name: SituSnap photo repair regression tests
+
+on:
+  push:
+    branches:
+      - release-candidate/repair-photo-id-delete-confirmation-v2
+    paths:
+      - "index.html"
+      - ".github/scripts/test_photo_repair.js"
+      - ".github/workflows/photo-repair-tests.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  photo-repair-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out candidate source
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Run photo repair regression tests
+        run: node .github/scripts/test_photo_repair.js

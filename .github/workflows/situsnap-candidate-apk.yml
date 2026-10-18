@@ -1,0 +1,124 @@
+name: SituSnap candidate APK (no release)
+
+on:
+  push:
+    branches:
+      - release-candidate/repair-photo-id-delete-confirmation-v2
+    paths:
+      - "index.html"
+      - ".github/scripts/make_android.py"
+      - ".github/workflows/situsnap-candidate-apk.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-candidate-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out candidate source
+        uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Generate Android project from candidate source
+        run: python3 .github/scripts/make_android.py
+
+      - name: Set candidate-only version and API level
+        run: |
+          set -e
+          sed -i "s/version '8.7.3'/version '8.13.2'/" build.gradle
+          sed -i "s/compileSdk 35/compileSdk 36/; s/targetSdk 35/targetSdk 36/; s/versionCode 17/versionCode 32/; s/versionName '1.1.1'/versionName '1.3.4-candidate'/" app/build.gradle
+          grep -q "version '8.13.2'" build.gradle
+          grep -q "compileSdk 36" app/build.gradle
+          grep -q "targetSdk 36" app/build.gradle
+          grep -q "versionCode 32" app/build.gradle
+          grep -q "versionName '1.3.4-candidate'" app/build.gradle
+
+      - name: Stage the exact candidate front page and logo
+        run: |
+          set -e
+          cp index.html app/src/main/assets/phoenix.html
+          cp situsnap-brand-mark.png app/src/main/assets/situsnap-brand-mark.png
+          cmp -s index.html app/src/main/assets/phoenix.html
+
+      - name: Restore signing key for installable test APK
+        env:
+          KEYSTORE_BASE64: ${{ secrets.SITUSNAP_KEYSTORE_BASE64 }}
+        run: |
+          set -e
+          test -n "$KEYSTORE_BASE64"
+          echo "$KEYSTORE_BASE64" | base64 --decode > situsnap-release.jks
+          test -s situsnap-release.jks
+          echo "Signing key restored for build; key material will not be uploaded as an artifact."
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.13"
+
+      - name: Build signed candidate APK only
+        env:
+          SITUSNAP_STORE_PASSWORD: ${{ secrets.SITUSNAP_KEYSTORE_PASSWORD }}
+          SITUSNAP_KEY_ALIAS: ${{ secrets.SITUSNAP_KEY_ALIAS }}
+          SITUSNAP_KEY_PASSWORD: ${{ secrets.SITUSNAP_KEY_PASSWORD }}
+        run: |
+          set -e
+          gradle assembleRelease
+
+      - name: Verify candidate APK identity, signature and bundled source
+        run: |
+          set -e
+          APK="app/build/outputs/apk/release/app-release.apk"
+          test -f "$APK"
+          BUILD_TOOLS=$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -1)
+          test -x "$BUILD_TOOLS/apksigner"
+          test -x "$BUILD_TOOLS/aapt"
+          "$BUILD_TOOLS/apksigner" verify --verbose --print-certs "$APK"
+          BADGING=$("$BUILD_TOOLS/aapt" dump badging "$APK")
+          echo "$BADGING" | grep -q "package: name='com.situsnap.app' versionCode='32' versionName='1.3.4-candidate'"
+          echo "$BADGING" | grep -q "sdkVersion:'26'"
+          echo "$BADGING" | grep -q "targetSdkVersion:'36'"
+          echo "$BADGING" | grep -q "launchable-activity: name='com.situsnap.app.SplashActivity'"
+          python3 - <<'PY'
+          import hashlib
+          import os
+          import sys
+          import zipfile
+          from pathlib import Path
+
+          source = Path("index.html").read_bytes()
+          staged = Path("app/src/main/assets/phoenix.html").read_bytes()
+          apk = Path("app/build/outputs/apk/release/app-release.apk")
+          if staged != source:
+              sys.exit("FAIL: staged app HTML differs from candidate index.html")
+          with zipfile.ZipFile(apk) as archive:
+              try:
+                  packaged = archive.read("assets/phoenix.html")
+              except KeyError:
+                  sys.exit("FAIL: APK is missing assets/phoenix.html")
+          if packaged != source:
+              sys.exit("FAIL: packaged APK HTML differs from candidate index.html")
+          digest = hashlib.sha256(source).hexdigest()
+          print(f"Candidate source and APK HTML SHA-256: {digest}")
+          print(f"Candidate commit: {os.environ.get('GITHUB_SHA', 'unknown')}")
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as summary:
+              summary.write("## SituSnap candidate APK verification\\n\\n")
+              summary.write(f"- Candidate commit: {os.environ.get('GITHUB_SHA', 'unknown')}\\n")
+              summary.write("- Package: com.situsnap.app\\n")
+              summary.write("- Version: 1.3.4-candidate (version code 32)\\n")
+              summary.write(f"- Candidate source / APK HTML SHA-256: {digest}\\n")
+          PY
+          sha256sum "$APK"
+          echo "Candidate APK identity, signature and source consistency verified."
+
+      - name: Upload candidate APK artifact (not a release)
+        uses: actions/upload-artifact@v4
+        with:
+          name: SituSnap-candidate-v1.3.4-code32
+          path: app/build/outputs/apk/release/app-release.apk
+          if-no-files-found: error
+          retention-days: 7
