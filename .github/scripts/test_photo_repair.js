@@ -80,8 +80,9 @@ assert(
   "canonical record ID must be resolved before saving the photo"
 );
 assert(
-  finish.includes("if(!photoTarget.existing){") && finish.includes("await ssDeleteCachedPhoto(recordId)"),
-  "failed-save cleanup must be restricted to a newly-created temporary photo"
+  finish.includes("await ssRestoreCachedPhotoPair(recordId,previousPhotoState.main") &&
+  finish.includes("await ssDeleteCachedPhoto(recordId)"),
+  "failed saves must restore an existing photo pair or clean up a new temporary photo"
 );
 
 const deletion = section("async function ssDeleteCachedPhoto(id){", "function ssConfirmRemoveVerified(");
