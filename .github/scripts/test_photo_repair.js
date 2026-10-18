@@ -93,6 +93,9 @@ assert.deepEqual(
 );
 
 const persist = section("function persistFoundRecord(recordIdOverride){", "function ssResolvePhotoRecordTarget(){");
+const photoUpload = section("async function ssUploadVerifiedPhoto(record){", "const SS_PHOTO_DB=");
+assert(photoUpload.includes('catch(e){console.warn("Local extra photo save failed",e);ssVaultStatus("PIN NOT SAVED — EXTRA PHOTO STORAGE FAILED");return {ok:false,reason:"extra_local_cache_failed"}}'),
+  "a selected extra photo that fails to save must fail the pin save instead of reporting success");
 assert(persist.includes("originalRecordsRaw=localStorage.getItem(\"situSnapRecords\")") &&
        persist.includes("originalArchiveRaw=localStorage.getItem(SS_VERIFIED_ARCHIVE)"),
   "persistence must snapshot both record and archive data before mutation");
