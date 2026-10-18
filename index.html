@@ -2287,8 +2287,20 @@ function persistFoundRecord(recordIdOverride){
   render();
   return true;
 }
+function ssResolvePhotoRecordId(){
+  if(editingRecordId!==null)return editingRecordId;
+  const postcode=(document.getElementById("postcode")?.value||"").trim();
+  const address=(document.getElementById("address")?.value||"").trim();
+  const norm=v=>String(v||"").trim().toUpperCase().replace(/\s+/g," ");
+  const existing=ssReadArray("situSnapRecords").find(r=>
+    r&&r.pinVerified===true&&norm(r.postcode)===norm(postcode)&&norm(r.address)===norm(address)
+  );
+  return existing?.id||Date.now();
+}
 async function finishFound(){
-  const recordId=editingRecordId!==null?editingRecordId:Date.now();
+  // Resolve the canonical record ID before writing either photo into IndexedDB.
+  // persistFoundRecord reuses an existing verified ID for the same postcode/address.
+  const recordId=ssResolvePhotoRecordId();
   const draft={id:recordId,localPhoto:false,localExtraPhoto:false};
   let photo;
   try{photo=await ssUploadVerifiedPhoto(draft)}
@@ -2502,17 +2514,24 @@ function useSituSnap(id){
   window.location.href="https://www.google.com/maps/dir/?api=1&destination="+encodeURIComponent(dest)+"&travelmode=driving";
 }
 async function ssDeleteCachedPhoto(id){
+  let db;
   try{
-    const db=await ssPhotoDb();
+    db=await ssPhotoDb();
     await new Promise((resolve,reject)=>{
       const tx=db.transaction("photos","readwrite");
       tx.objectStore("photos").delete(String(id));
       tx.objectStore("photos").delete(String(id)+"::extra");
-      tx.oncomplete=resolve;
-      tx.onerror=()=>reject(tx.error);
+      tx.oncomplete=()=>resolve(true);
+      tx.onerror=()=>reject(tx.error||new Error("Photo deletion transaction failed"));
+      tx.onabort=()=>reject(tx.error||new Error("Photo deletion transaction aborted"));
     });
-    db.close();
-  }catch(e){console.warn("Verified photo cache removal deferred",e)}
+    return true;
+  }catch(e){
+    console.warn("Verified photo cache removal failed",e);
+    return false;
+  }finally{
+    try{db?.close()}catch(_){}
+  }
 }
 
 function ssConfirmRemoveVerified(label){
@@ -2555,6 +2574,13 @@ async function ssRemoveVerifiedLocation(id){
   const confirmed=await ssConfirmRemoveVerified(label);
   if(!confirmed)return;
 
+  // Do not report removal while an offline copy of the photo may remain.
+  const photoDeleted=await ssDeleteCachedPhoto(sid);
+  if(!photoDeleted){
+    alert("LOCATION NOT REMOVED — the offline photo could not be confirmed deleted. Please retry after checking phone storage.");
+    return;
+  }
+
   const removed=ssReadArray(SS_REMOVED_VERIFIED).map(String).filter(x=>x!==sid);
   removed.unshift(sid);
   localStorage.setItem(SS_REMOVED_VERIFIED,JSON.stringify(removed.slice(0,1000)));
@@ -2580,7 +2606,6 @@ async function ssRemoveVerifiedLocation(id){
   });
   ssPutJSON(SS_SYNC_QUEUE,queue);
 
-  await ssDeleteCachedPhoto(sid);
   render();
   ssRenderVerifiedFirst(document.getElementById("huntPostcode")?.value||"");
 }
