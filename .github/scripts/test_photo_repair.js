@@ -144,7 +144,7 @@ async function executeDelete(initial, failKey = null, failTransaction = false) {
 
   const writes = [];
   const alerts = [];
-  const removal = vm.runInNewContext(
+  const removeRunner = vm.runInNewContext(
     `${removal}; ssRemoveVerifiedLocation`,
     {
       getRecords: () => [{ id: "rec-1", address: "1, Oaklands Rise", postcode: "CF31 4SP" }],
@@ -155,7 +155,7 @@ async function executeDelete(initial, failKey = null, failTransaction = false) {
       console: { warn() {} }
     }
   );
-  await removal("rec-1");
+  await removeRunner("rec-1");
   assert.equal(writes.length, 0, "failed photo deletion must not mutate saved removal state");
   assert.equal(alerts.length, 1);
   assert.match(alerts[0], /LOCATION NOT REMOVED/);
