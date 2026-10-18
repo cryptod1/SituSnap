@@ -2292,7 +2292,7 @@ function ssResolvePhotoRecordTarget(){
   const postcode=(document.getElementById("postcode")?.value||"").trim();
   const address=(document.getElementById("address")?.value||"").trim();
   const norm=v=>String(v||"").trim().toUpperCase().replace(/\s+/g," ");
-  const existing=ssReadArray("situSnapRecords").find(r=>
+  const existing=getRecords().find(r=>
     r&&r.pinVerified===true&&norm(r.postcode)===norm(postcode)&&norm(r.address)===norm(address)
   );
   return existing?{id:existing.id,existing:true}:{id:Date.now(),existing:false};
