@@ -984,7 +984,7 @@ async function ssUploadVerifiedPhoto(record){
   let extraSaved=lookupFailed?(record.localExtraPhoto===true):!!cachedExtra;
   if(extraFile){
     try{await ssCacheExtraPhotoBlob(id,extraFile);extraSaved=true}
-    catch(e){console.warn("Local extra photo save failed",e);ssVaultStatus("PIN SAVED ON PHONE · EXTRA PHOTO STORAGE FAILED")}
+    catch(e){console.warn("Local extra photo save failed",e);ssVaultStatus("PIN NOT SAVED — EXTRA PHOTO STORAGE FAILED");return {ok:false,reason:"extra_local_cache_failed"}}
   }
   record.localPhoto=true;
   record.localExtraPhoto=extraSaved;
@@ -2347,7 +2347,7 @@ async function finishFound(){
     const recovered=photoTarget.existing
       ?await ssRestoreCachedPhotoPair(recordId,previousPhotoState.main,previousPhotoState.extra,previousPhotoState.mainPresent,previousPhotoState.extraPresent)
       :await ssDeleteCachedPhoto(recordId);
-    let message="PIN NOT SAVED — the property photo could not be confirmed on this phone. Check storage or select the photo again, then retry.";
+    let message=photo?.reason==="extra_local_cache_failed"?"PIN NOT SAVED — the selected extra photo could not be saved on this phone. Retry or remove the extra photo selection.":"PIN NOT SAVED — the property photo could not be confirmed on this phone. Check storage or select the photo again, then retry.";
     if(!recovered)message+=" The previous photo could not be confirmed restored/cleaned up; check phone storage before retrying.";
     const note=document.getElementById("foundGpsNote");if(note)note.textContent=message;
     const status=document.getElementById("localSaveStatus");if(status)status.textContent=message;
