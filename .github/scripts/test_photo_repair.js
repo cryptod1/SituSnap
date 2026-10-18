@@ -106,6 +106,14 @@ assert(confirmHandler.includes('btn.textContent="SAVING PIN…"' ) &&
        confirmHandler.includes(".finally(()=>{") &&
        confirmHandler.includes("updateFoundButton()"),
   "verification button must stay locked until async save settles, preventing accidental concurrent save attempts");
+assert(confirmHandler.includes('btn.dataset.ssSaveInProgress="1"') &&
+       confirmHandler.indexOf('btn.dataset.ssSaveInProgress="1"') < confirmHandler.indexOf("watchPosition"),
+  "save lock must be acquired synchronously before starting asynchronous geolocation");
+assert(confirmHandler.includes('delete btn.dataset.ssSaveInProgress') &&
+       confirmHandler.indexOf("delete btn.dataset.ssSaveInProgress") > confirmHandler.indexOf("finishFound()"),
+  "save lock must only be released after the async finishFound operation settles");
+assert(!persist.includes('b.disabled=false'),
+  "persistence failure must not unlock the button before photo rollback/cleanup has completed");
 
 const finish = section("async function finishFound(){", "function ssConfirmRemoveVerified(");
 assert(
