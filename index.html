@@ -2474,7 +2474,7 @@ function confirmFoundFromDetails(){
   const note=document.getElementById("foundGpsNote");
   if(btn){btn.disabled=true;btn.textContent="📍 LOCKING LOCATION…"}
   if(note)note.textContent="Checking the phone location for the best available accuracy…";
-  const complete=()=>{if(btn){btn.disabled=false;btn.textContent="✓ PIN VERIFIED"}finishFound()};
+  const complete=()=>{if(btn){btn.disabled=true;btn.textContent="SAVING PIN…"}Promise.resolve().then(()=>finishFound()).catch(err=>{console.warn("Verified pin save failed",err)}).finally(()=>{if(btn){btn.disabled=false;btn.textContent="✓ PIN VERIFIED"}updateFoundButton()})};
   if(!navigator.geolocation){if(note)note.textContent="Phone location unavailable — confirming with the recorded details.";complete();return}
 
   let best=null,confirmWatch=null,finished=false;
