@@ -217,6 +217,63 @@ async function executeDelete(initial, failKey = null, failTransaction = false) {
   assert.equal(changedPhotos.get("rec-2"), "old-main");
   assert.equal(changedPhotos.get("rec-2::extra"), "old-extra");
 
+  // Run the actual persistence function with a simulated archive-verification failure.
+  const oldRecordsRaw = JSON.stringify([{
+    id: "existing-1", pinVerified: true, postcode: "CF31 4SP",
+    address: "1, Oaklands Rise", gps: { latitude: 51.5, longitude: -3.5 },
+    notes: "old saved note", localPhoto: true
+  }]);
+  const oldArchiveRaw = JSON.stringify([{
+    id: "existing-1", pinVerified: true, postcode: "CF31 4SP",
+    address: "1, Oaklands Rise", gps: { latitude: 51.5, longitude: -3.5 },
+    notes: "old archived note"
+  }]);
+  const storage = new Map([["situSnapRecords", oldRecordsRaw], ["archive-key", oldArchiveRaw]]);
+  const persistAlerts = [];
+  const persistDocument = {
+    getElementById(id) {
+      const values = {
+        postcode: "CF31 4SP", address: "1, Oaklands Rise", street: "Oaklands Rise",
+        notes: "new note", type: "Property / building", observedBy: "MGroup",
+        updateStatus: "Verified", result: "Location verified", localSource: "Field"
+      };
+      if (id === "photoCamera") return { files: [{ name: "photo.jpg" }] };
+      if (id === "photo1") return { files: [] };
+      if (id === "detailsFoundBtn") return { disabled: false, textContent: "" };
+      if (id in values) return { value: values[id] };
+      return { value: "" };
+    }
+  };
+  const persistRunner = vm.runInNewContext(
+    `${persist}; persistFoundRecord`,
+    {
+      document: persistDocument,
+      localStorage: {
+        getItem: key => storage.has(key) ? storage.get(key) : null,
+        setItem: (key, value) => storage.set(key, String(value)),
+        removeItem: key => storage.delete(key)
+      },
+      SS_VERIFIED_ARCHIVE: "archive-key",
+      editingRecordId: null,
+      gps: { latitude: 51.5, longitude: -3.5, accuracy: 8 },
+      target: null,
+      navigator: { onLine: false },
+      window: { __ssPhotoPreSavedId: "existing-1" },
+      alert: message => persistAlerts.push(message),
+      ssArchiveVerified: record => {
+        storage.set("archive-key", JSON.stringify([{ ...record, notes: "partially written archive" }]));
+        return false;
+      },
+      render() {},
+      console: { warn() {} },
+      Date
+    }
+  );
+  assert.equal(persistRunner("existing-1"), false, "archive verification failure must reject persistence");
+  assert.equal(storage.get("situSnapRecords"), oldRecordsRaw, "failed persistence must restore the exact prior record list");
+  assert.equal(storage.get("archive-key"), oldArchiveRaw, "failed archive verification must restore the exact prior archive bytes");
+  assert.match(persistAlerts[0], /previous saved record data was restored/);
+
   const writes = [];
   const alerts = [];
   const removeRunner = vm.runInNewContext(
@@ -238,6 +295,7 @@ async function executeDelete(initial, failKey = null, failTransaction = false) {
   console.log("PASS: deletion success, partial deletion, and transaction failure cases");
   console.log("PASS: failed deletion leaves the verified location and removal state untouched");
   console.log("PASS: failed save restores the previous main/extra photo pair");
+  console.log("PASS: archive verification failure restores exact prior record and archive data");
 })().catch(error => { console.error(error); process.exitCode = 1; });
 
 console.log("PASS: 4 photo-target resolution cases");
