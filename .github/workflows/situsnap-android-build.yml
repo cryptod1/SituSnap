@@ -68,6 +68,51 @@ jobs:
           cp index.html app/src/main/assets/phoenix.html
           cp situsnap-brand-mark.png app/src/main/assets/situsnap-brand-mark.png
 
+      - name: Test photo repair logic and Phoenix JavaScript syntax
+        run: |
+          set -euo pipefail
+          node .github/scripts/test_photo_repair.js
+          python3 - <<'PY'
+          from html.parser import HTMLParser
+          from pathlib import Path
+          import subprocess
+          import tempfile
+
+          class InlineScripts(HTMLParser):
+              def __init__(self):
+                  super().__init__()
+                  self.in_script = False
+                  self.external = False
+                  self.current = []
+                  self.scripts = []
+              def handle_starttag(self, tag, attrs):
+                  if tag == "script":
+                      self.in_script = True
+                      self.external = any(k == "src" for k, _ in attrs)
+                      self.current = []
+              def handle_data(self, data):
+                  if self.in_script and not self.external:
+                      self.current.append(data)
+              def handle_endtag(self, tag):
+                  if tag == "script" and self.in_script:
+                      if not self.external and "".join(self.current).strip():
+                          self.scripts.append("".join(self.current))
+                      self.in_script = False
+                      self.external = False
+                      self.current = []
+
+          parser = InlineScripts()
+          parser.feed(Path("index.html").read_text(encoding="utf-8"))
+          if not parser.scripts:
+              raise SystemExit("FAIL: no inline Phoenix scripts were found")
+          for index, source in enumerate(parser.scripts):
+              with tempfile.NamedTemporaryFile("w", suffix=".js", encoding="utf-8") as temp:
+                  temp.write(source)
+                  temp.flush()
+                  subprocess.run(["node", "--check", temp.name], check=True)
+          print(f"PASS: syntax checked {len(parser.scripts)} inline Phoenix scripts")
+          PY
+
       - name: Restore permanent signing key
         env:
           KEYSTORE_BASE64: ${{ secrets.SITUSNAP_KEYSTORE_BASE64 }}
