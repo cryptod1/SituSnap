@@ -2287,20 +2287,21 @@ function persistFoundRecord(recordIdOverride){
   render();
   return true;
 }
-function ssResolvePhotoRecordId(){
-  if(editingRecordId!==null)return editingRecordId;
+function ssResolvePhotoRecordTarget(){
+  if(editingRecordId!==null)return {id:editingRecordId,existing:true};
   const postcode=(document.getElementById("postcode")?.value||"").trim();
   const address=(document.getElementById("address")?.value||"").trim();
   const norm=v=>String(v||"").trim().toUpperCase().replace(/\s+/g," ");
   const existing=ssReadArray("situSnapRecords").find(r=>
     r&&r.pinVerified===true&&norm(r.postcode)===norm(postcode)&&norm(r.address)===norm(address)
   );
-  return existing?.id||Date.now();
+  return existing?{id:existing.id,existing:true}:{id:Date.now(),existing:false};
 }
 async function finishFound(){
   // Resolve the canonical record ID before writing either photo into IndexedDB.
   // persistFoundRecord reuses an existing verified ID for the same postcode/address.
-  const recordId=ssResolvePhotoRecordId();
+  const photoTarget=ssResolvePhotoRecordTarget();
+  const recordId=photoTarget.id;
   const draft={id:recordId,localPhoto:false,localExtraPhoto:false};
   let photo;
   try{photo=await ssUploadVerifiedPhoto(draft)}
@@ -2321,7 +2322,15 @@ async function finishFound(){
   const saved=persistFoundRecord(recordId);
   window.__ssPhotoPreSavedId="";
   if(!saved){
-    if(editingRecordId===null&&recordId!==window.__ssLastVerifiedRecord?.id)await ssDeleteCachedPhoto(recordId);
+    // Only clean up a newly-created temporary photo; never delete a prior record's photo.
+    if(!photoTarget.existing){
+      const cleaned=await ssDeleteCachedPhoto(recordId);
+      if(!cleaned){
+        const message="PIN NOT SAVED — the new photo could not be cleaned up from phone storage. Do not retry repeatedly; check storage first.";
+        const status=document.getElementById("localSaveStatus");if(status)status.textContent=message;
+        alert(message);
+      }
+    }
     return;
   }
 
@@ -2525,6 +2534,10 @@ async function ssDeleteCachedPhoto(id){
       tx.onerror=()=>reject(tx.error||new Error("Photo deletion transaction failed"));
       tx.onabort=()=>reject(tx.error||new Error("Photo deletion transaction aborted"));
     });
+    // Read back both keys; transaction completion alone is not our final check.
+    const main=await ssGetCachedPhoto(id);
+    const extra=await ssGetExtraCachedPhoto(id);
+    if(main||extra)throw new Error("Photo deletion read-back found a remaining cached blob");
     return true;
   }catch(e){
     console.warn("Verified photo cache removal failed",e);
