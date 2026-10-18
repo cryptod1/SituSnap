@@ -269,6 +269,7 @@ async function executeDelete(initial, failKey = null, failTransaction = false) {
         removeItem: key => storage.delete(key)
       },
       SS_VERIFIED_ARCHIVE: "archive-key",
+      getRecords: () => JSON.parse(storage.get("situSnapRecords") || "[]"),
       editingRecordId: null,
       gps: { latitude: 51.5, longitude: -3.5, accuracy: 8 },
       target: null,
