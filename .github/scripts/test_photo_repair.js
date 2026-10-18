@@ -40,9 +40,27 @@ function resolveTarget({ editing = null, postcode = "CF31 4SP", address = "1, Oa
 }
 
 assert.deepEqual(
-  JSON.parse(JSON.stringify(resolveTarget({ editing: "edit-42" }))),
+  JSON.parse(JSON.stringify(resolveTarget({
+    editing: "edit-42",
+    records: [{ id: "edit-42", pinVerified: true, postcode: "CF31 4SP", address: "1, Oaklands Rise" }]
+  }))),
   { id: "edit-42", existing: true },
   "editing an existing record must preserve its ID"
+);
+
+assert.deepEqual(
+  JSON.parse(JSON.stringify(resolveTarget({
+    editing: "stale-edit-id",
+    records: [{ id: "canonical-7", pinVerified: true, postcode: "CF31 4SP", address: "1, Oaklands Rise" }]
+  }))),
+  { id: "canonical-7", existing: true },
+  "a stale editing ID must fall back to the same canonical postcode/address match as persistFoundRecord"
+);
+
+assert.deepEqual(
+  JSON.parse(JSON.stringify(resolveTarget({ editing: "stale-edit-id" }))),
+  { id: 987654321, existing: false },
+  "a stale editing ID with no matching verified record must use a new ID, not the stale ID"
 );
 
 assert.deepEqual(
@@ -74,6 +92,15 @@ assert.deepEqual(
   "must not reuse a different address"
 );
 
+const persist = section("function persistFoundRecord(recordIdOverride){", "function ssResolvePhotoRecordTarget(){");
+assert(persist.includes("originalRecordsRaw=localStorage.getItem(\"situSnapRecords\")") &&
+       persist.includes("originalArchiveRaw=localStorage.getItem(SS_VERIFIED_ARCHIVE)"),
+  "persistence must snapshot both record and archive data before mutation");
+assert(persist.includes("Verified record persistence rollback failed") &&
+       persist.includes("localStorage.setItem(\"situSnapRecords\",originalRecordsRaw)"),
+  "failed record persistence must attempt to restore the previous record list");
+assert(persist.includes("localStorage.setItem(SS_VERIFIED_ARCHIVE,originalArchiveRaw)"),
+  "failed archive verification must restore the previous archive");
 const finish = section("async function finishFound(){", "function ssConfirmRemoveVerified(");
 assert(
   finish.indexOf("const photoTarget=ssResolvePhotoRecordTarget();") < finish.indexOf("await ssUploadVerifiedPhoto(draft)"),
@@ -83,6 +110,11 @@ assert(
   finish.includes("await ssRestoreCachedPhotoPair(recordId,previousPhotoState.main") &&
   finish.includes("await ssDeleteCachedPhoto(recordId)"),
   "failed saves must restore an existing photo pair or clean up a new temporary photo"
+);
+
+assert(
+  finish.indexOf("window.ssClearRemovedVerifiedPlace?.(") > finish.indexOf("const saved=persistFoundRecord(recordId);"),
+  "removed-place recovery marker must only be cleared after the record has saved successfully"
 );
 
 const deletion = section("async function ssDeleteCachedPhoto(id){", "function ssConfirmRemoveVerified(");
