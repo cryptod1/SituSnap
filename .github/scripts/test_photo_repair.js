@@ -330,7 +330,7 @@ async function executeDelete(initial, failKey = null, failTransaction = false) {
     ["learning-key", JSON.stringify([{pinId:"rec-1"}])],
     ["sync-key", JSON.stringify([{payload:{recordId:"rec-1"}}])]
   ]);
-  const storage = new Map(originalStorage);
+  const removalStorage = new Map(originalStorage);
   let photoRestoreCalled = false;
   const removeRunner = vm.runInNewContext(
     `${removal}; ssRemoveVerifiedLocation`,
@@ -347,20 +347,20 @@ async function executeDelete(initial, failKey = null, failTransaction = false) {
         assert.equal(mainPresent,true);assert.equal(extraPresent,true);
         return true;
       },
-      ssReadArray: key => JSON.parse(storage.get(key)||"[]"),
-      ssVerifiedArchive: () => JSON.parse(storage.get("archive-key")||"[]"),
-      ssVaultQueueRead: () => JSON.parse(storage.get("vault-key")||"[]"),
-      ssSafeJSON: key => JSON.parse(storage.get(key)||"[]"),
-      ssPutJSON: (key,value) => storage.set(key,JSON.stringify(value)),
+      ssReadArray: key => JSON.parse(removalStorage.get(key)||"[]"),
+      ssVerifiedArchive: () => JSON.parse(removalStorage.get("archive-key")||"[]"),
+      ssVaultQueueRead: () => JSON.parse(removalStorage.get("vault-key")||"[]"),
+      ssSafeJSON: key => JSON.parse(removalStorage.get(key)||"[]"),
+      ssPutJSON: (key,value) => removalStorage.set(key,JSON.stringify(value)),
       ssCanonPostcode: value => String(value||"").trim().toUpperCase(),
       ssCanonName: value => String(value||"").trim().toUpperCase(),
       SS_REMOVED_VERIFIED:"removed-key",SS_VERIFIED_ARCHIVE:"archive-key",
       SS_VAULT_QUEUE:"vault-key",SS_LEARNING_KEY:"learning-key",SS_SYNC_QUEUE:"sync-key",
       alert: message => alerts.push(message),
       localStorage: {
-        getItem: key => storage.has(key)?storage.get(key):null,
-        setItem: (key,value) => storage.set(key,String(value)),
-        removeItem: key => storage.delete(key)
+        getItem: key => removalStorage.has(key)?removalStorage.get(key):null,
+        setItem: (key,value) => removalStorage.set(key,String(value)),
+        removeItem: key => removalStorage.delete(key)
       },
       console: { warn() {} },
       render() {},
@@ -368,7 +368,7 @@ async function executeDelete(initial, failKey = null, failTransaction = false) {
     }
   );
   await removeRunner("rec-1");
-  assert.equal(JSON.stringify([...storage.entries()]),JSON.stringify([...originalStorage.entries()]),
+  assert.equal(JSON.stringify([...removalStorage.entries()]),JSON.stringify([...originalStorage.entries()]),
     "failed photo deletion must restore every affected localStorage value exactly");
   assert.equal(photoRestoreCalled,true,"failed photo deletion must attempt to restore the original photo pair");
   assert.equal(alerts.length,1);
