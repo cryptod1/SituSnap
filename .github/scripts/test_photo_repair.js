@@ -89,6 +89,13 @@ assert(deletion.includes("await ssGetCachedPhoto(id)") && deletion.includes("awa
   "deletion must read back both photo keys");
 assert(deletion.includes("return false;"), "deletion must report failure rather than swallowing it");
 
+const restore = section("async function ssRestoreCachedPhotoPair(id,", "function ssConfirmRemoveVerified(");
+assert(restore.includes("store.put(mainBlob,String(id))") && restore.includes('store.put(extraBlob,String(id)+"::extra")'),
+  "rollback must restore the previous main and extra photo blobs");
+assert(restore.includes("Photo restore read-back failed"), "rollback must verify restored photo presence");
+assert(finish.includes("previousPhotoState={main,extra,mainPresent:!!main,extraPresent:!!extra}"),
+  "existing photo state must be snapshotted before a save attempt");
+
 const removal = section("async function ssRemoveVerifiedLocation(id){", "function render(){");
 assert(
   removal.indexOf("await ssDeleteCachedPhoto(sid)") < removal.indexOf('localStorage.setItem("situSnapRecords"'),
@@ -142,6 +149,41 @@ async function executeDelete(initial, failKey = null, failTransaction = false) {
   const transactionFailure = await executeDelete([["rec-1", "main"]], null, true);
   assert.equal(transactionFailure.result, false, "transaction failure must be reported");
 
+  // Simulate a partially failed update and verify rollback restores old blobs.
+  const restoreSandbox = {
+    console: { warn() {} },
+    ssPhotoDb: null,
+    ssGetCachedPhoto: null,
+    ssGetExtraCachedPhoto: null
+  };
+  const restoreRunner = vm.runInNewContext(
+    `${restore}; async function run(){ return await ssRestoreCachedPhotoPair("rec-2", "old-main", "old-extra", true, true); }`,
+    restoreSandbox
+  );
+  const changedPhotos = new Map([["rec-2", "new-main"], ["rec-2::extra", "old-extra"]]);
+  const restoreDb = {
+    close() {},
+    transaction() {
+      const tx = {
+        error: new Error("simulated restore failure"),
+        objectStore() {
+          return {
+            delete(key) { changedPhotos.delete(key); },
+            put(value, key) { changedPhotos.set(key, value); }
+          };
+        }
+      };
+      queueMicrotask(() => tx.oncomplete?.());
+      return tx;
+    }
+  };
+  restoreSandbox.ssPhotoDb = async () => restoreDb;
+  restoreSandbox.ssGetCachedPhoto = async id => changedPhotos.get(String(id)) || null;
+  restoreSandbox.ssGetExtraCachedPhoto = async id => changedPhotos.get(String(id) + "::extra") || null;
+  assert.equal(await restoreSandbox.run(), true, "rollback should restore prior photo pair");
+  assert.equal(changedPhotos.get("rec-2"), "old-main");
+  assert.equal(changedPhotos.get("rec-2::extra"), "old-extra");
+
   const writes = [];
   const alerts = [];
   const removeRunner = vm.runInNewContext(
@@ -162,6 +204,7 @@ async function executeDelete(initial, failKey = null, failTransaction = false) {
 
   console.log("PASS: deletion success, partial deletion, and transaction failure cases");
   console.log("PASS: failed deletion leaves the verified location and removal state untouched");
+  console.log("PASS: failed save restores the previous main/extra photo pair");
 })().catch(error => { console.error(error); process.exitCode = 1; });
 
 console.log("PASS: 4 photo-target resolution cases");
