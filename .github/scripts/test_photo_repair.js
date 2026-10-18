@@ -99,6 +99,106 @@ assert(
   "failed photo deletion must stop the location-removal path"
 );
 
+
+// Exercise the actual deletion function with a small IndexedDB-shaped test double.
+const deletionFunction = vm.runInNewContext(
+  `(${deletion}; ssDeleteCachedPhoto)`,
+  { console: { warn() {} } }
+);
+async function runDeleteCase({ initial = [], failKey = null, failTransaction = false } = {}) {
+  const photos = new Map(initial);
+  const db = {
+    close() {},
+    transaction() {
+      const tx = {
+        error: new Error("simulated IndexedDB transaction failure"),
+        objectStore() {
+          return {
+            delete(key) {
+              if (key !== failKey && !failTransaction) photos.delete(key);
+            }
+          };
+        }
+      };
+      queueMicrotask(() => {
+        if (failTransaction) tx.onerror?.();
+        else tx.oncomplete?.();
+      });
+      return tx;
+    }
+  };
+  const fn = deletionFunction;
+  const sandboxResult = await fn.call({
+    ssPhotoDb: async () => db,
+    ssGetCachedPhoto: async id => photos.get(String(id)) || null,
+    ssGetExtraCachedPhoto: async id => photos.get(String(id) + "::extra") || null
+  }, "rec-1");
+  return { result: sandboxResult, photos };
+}
+
+// Bind the IndexedDB helpers lexically for the function body.
+const deleteSandbox = {
+  console: { warn() {} },
+  ssPhotoDb: null,
+  ssGetCachedPhoto: null,
+  ssGetExtraCachedPhoto: null
+};
+const deletionRunner = vm.runInNewContext(`async function run(){ return await ssDeleteCachedPhoto("rec-1"); }`, deleteSandbox);
+async function executeDelete(initial, failKey = null, failTransaction = false) {
+  const photos = new Map(initial);
+  const db = {
+    close() {},
+    transaction() {
+      const tx = {
+        error: new Error("simulated IndexedDB transaction failure"),
+        objectStore() {
+          return { delete(key) { if (key !== failKey && !failTransaction) photos.delete(key); } };
+        }
+      };
+      queueMicrotask(() => failTransaction ? tx.onerror?.() : tx.oncomplete?.());
+      return tx;
+    }
+  };
+  deleteSandbox.ssPhotoDb = async () => db;
+  deleteSandbox.ssGetCachedPhoto = async id => photos.get(String(id)) || null;
+  deleteSandbox.ssGetExtraCachedPhoto = async id => photos.get(String(id) + "::extra") || null;
+  const result = await deleteSandbox.run();
+  return { result, photos };
+}
+(async () => {
+  const success = await executeDelete([["rec-1", "main"], ["rec-1::extra", "extra"]]);
+  assert.equal(success.result, true, "deletion should succeed when both cached photos are gone");
+  assert.equal(success.photos.size, 0);
+
+  const partial = await executeDelete([["rec-1", "main"], ["rec-1::extra", "extra"]], "rec-1::extra");
+  assert.equal(partial.result, false, "read-back must catch a remaining extra photo");
+  assert.equal(partial.photos.has("rec-1::extra"), true);
+
+  const transactionFailure = await executeDelete([["rec-1", "main"]], null, true);
+  assert.equal(transactionFailure.result, false, "transaction failure must be reported");
+
+  const writes = [];
+  const alerts = [];
+  const removal = vm.runInNewContext(
+    `(${removal}; ssRemoveVerifiedLocation)`,
+    {
+      getRecords: () => [{ id: "rec-1", address: "1, Oaklands Rise", postcode: "CF31 4SP" }],
+      ssConfirmRemoveVerified: async () => true,
+      ssDeleteCachedPhoto: async () => false,
+      alert: message => alerts.push(message),
+      localStorage: { setItem: (...args) => writes.push(args) },
+      console: { warn() {} }
+    }
+  );
+  await removal("rec-1");
+  assert.equal(writes.length, 0, "failed photo deletion must not mutate saved removal state");
+  assert.equal(alerts.length, 1);
+  assert.match(alerts[0], /LOCATION NOT REMOVED/);
+
+  console.log("PASS: deletion success, partial deletion, and transaction failure cases");
+  console.log("PASS: failed deletion leaves the verified location and removal state untouched");
+})().catch(error => { console.error(error); process.exitCode = 1; });
+
 console.log("PASS: 4 photo-target resolution cases");
 console.log("PASS: photo save uses resolved ID before writing");
 console.log("PASS: failed-save cleanup protects existing photos");
