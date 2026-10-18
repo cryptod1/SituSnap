@@ -2302,12 +2302,29 @@ async function finishFound(){
   // persistFoundRecord reuses an existing verified ID for the same postcode/address.
   const photoTarget=ssResolvePhotoRecordTarget();
   const recordId=photoTarget.id;
+  let previousPhotoState=null;
+  if(photoTarget.existing){
+    try{
+      const main=await ssGetCachedPhoto(recordId);
+      const extra=await ssGetExtraCachedPhoto(recordId);
+      previousPhotoState={main,extra,mainPresent:!!main,extraPresent:!!extra};
+    }catch(err){
+      const message="PIN NOT SAVED — the existing offline photo could not be checked safely. Please retry when phone storage is available.";
+      const status=document.getElementById("localSaveStatus");if(status)status.textContent=message;
+      alert(message);
+      return;
+    }
+  }
   const draft={id:recordId,localPhoto:false,localExtraPhoto:false};
   let photo;
   try{photo=await ssUploadVerifiedPhoto(draft)}
   catch(err){console.warn("Verified photo storage failed",err)}
   if(!photo?.ok||draft.localPhoto!==true){
-    const message="PIN NOT SAVED — the property photo could not be confirmed on this phone. Check storage or select the photo again, then retry.";
+    const recovered=photoTarget.existing
+      ?await ssRestoreCachedPhotoPair(recordId,previousPhotoState.main,previousPhotoState.extra,previousPhotoState.mainPresent,previousPhotoState.extraPresent)
+      :await ssDeleteCachedPhoto(recordId);
+    let message="PIN NOT SAVED — the property photo could not be confirmed on this phone. Check storage or select the photo again, then retry.";
+    if(!recovered)message+=" The previous photo could not be confirmed restored/cleaned up; check phone storage before retrying.";
     const note=document.getElementById("foundGpsNote");if(note)note.textContent=message;
     const status=document.getElementById("localSaveStatus");if(status)status.textContent=message;
     alert(message);
@@ -2322,14 +2339,15 @@ async function finishFound(){
   const saved=persistFoundRecord(recordId);
   window.__ssPhotoPreSavedId="";
   if(!saved){
-    // Only clean up a newly-created temporary photo; never delete a prior record's photo.
-    if(!photoTarget.existing){
-      const cleaned=await ssDeleteCachedPhoto(recordId);
-      if(!cleaned){
-        const message="PIN NOT SAVED — the new photo could not be cleaned up from phone storage. Do not retry repeatedly; check storage first.";
-        const status=document.getElementById("localSaveStatus");if(status)status.textContent=message;
-        alert(message);
-      }
+    const recovered=photoTarget.existing
+      ?await ssRestoreCachedPhotoPair(recordId,previousPhotoState.main,previousPhotoState.extra,previousPhotoState.mainPresent,previousPhotoState.extraPresent)
+      :await ssDeleteCachedPhoto(recordId);
+    if(!recovered){
+      const message=photoTarget.existing
+        ?"PIN NOT SAVED — the previous offline photo could not be confirmed restored. Check phone storage before retrying."
+        :"PIN NOT SAVED — the new photo could not be cleaned up from phone storage. Do not retry repeatedly; check storage first.";
+      const status=document.getElementById("localSaveStatus");if(status)status.textContent=message;
+      alert(message);
     }
     return;
   }
@@ -2541,6 +2559,34 @@ async function ssDeleteCachedPhoto(id){
     return true;
   }catch(e){
     console.warn("Verified photo cache removal failed",e);
+    return false;
+  }finally{
+    try{db?.close()}catch(_){}
+  }
+}
+
+async function ssRestoreCachedPhotoPair(id,mainBlob,extraBlob,mainWasPresent,extraWasPresent){
+  let db;
+  try{
+    if((mainWasPresent&&!mainBlob)||(extraWasPresent&&!extraBlob))throw new Error("Previous cached photo snapshot is incomplete");
+    db=await ssPhotoDb();
+    await new Promise((resolve,reject)=>{
+      const tx=db.transaction("photos","readwrite");
+      const store=tx.objectStore("photos");
+      store.delete(String(id));
+      store.delete(String(id)+"::extra");
+      if(mainWasPresent)store.put(mainBlob,String(id));
+      if(extraWasPresent)store.put(extraBlob,String(id)+"::extra");
+      tx.oncomplete=()=>resolve(true);
+      tx.onerror=()=>reject(tx.error||new Error("Photo restore transaction failed"));
+      tx.onabort=()=>reject(tx.error||new Error("Photo restore transaction aborted"));
+    });
+    const main=await ssGetCachedPhoto(id);
+    const extra=await ssGetExtraCachedPhoto(id);
+    if(!!main!==!!mainWasPresent||!!extra!==!!extraWasPresent)throw new Error("Photo restore read-back failed");
+    return true;
+  }catch(e){
+    console.warn("Verified photo cache rollback failed",e);
     return false;
   }finally{
     try{db?.close()}catch(_){}
