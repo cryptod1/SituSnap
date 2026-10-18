@@ -2592,6 +2592,21 @@ async function ssDeleteCachedPhoto(id){
   }
 }
 
+async function ssCachedPhotoMatches(actual,expected){
+  if(actual===null||actual===undefined)return expected===null||expected===undefined;
+  if(expected===null||expected===undefined)return false;
+  try{
+    if(actual.size!==expected.size||actual.type!==expected.type)return false;
+    const [actualBytes,expectedBytes]=await Promise.all([actual.arrayBuffer(),expected.arrayBuffer()]);
+    if(actualBytes.byteLength!==expectedBytes.byteLength)return false;
+    const a=new Uint8Array(actualBytes),b=new Uint8Array(expectedBytes);
+    for(let i=0;i<a.length;i++)if(a[i]!==b[i])return false;
+    return true;
+  }catch(e){
+    console.warn("Cached photo byte comparison failed",e);
+    return false;
+  }
+}
 async function ssRestoreCachedPhotoPair(id,mainBlob,extraBlob,mainWasPresent,extraWasPresent){
   let db;
   try{
@@ -2610,7 +2625,9 @@ async function ssRestoreCachedPhotoPair(id,mainBlob,extraBlob,mainWasPresent,ext
     });
     const main=await ssGetCachedPhoto(id);
     const extra=await ssGetExtraCachedPhoto(id);
-    if(!!main!==!!mainWasPresent||!!extra!==!!extraWasPresent)throw new Error("Photo restore read-back failed");
+    const mainMatches=await ssCachedPhotoMatches(main,mainWasPresent?mainBlob:null);
+    const extraMatches=await ssCachedPhotoMatches(extra,extraWasPresent?extraBlob:null);
+    if(!mainMatches||!extraMatches)throw new Error("Photo restore byte-for-byte read-back failed");
     return true;
   }catch(e){
     console.warn("Verified photo cache rollback failed",e);
