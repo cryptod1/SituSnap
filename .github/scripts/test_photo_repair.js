@@ -115,6 +115,16 @@ assert(confirmHandler.includes('delete btn.dataset.ssSaveInProgress') &&
 assert(!persist.includes('b.disabled=false'),
   "persistence failure must not unlock the button before photo rollback/cleanup has completed");
 
+const finishFunction = section("async function finishFound(){", "\n\nfunction showNotFoundAck(){");
+assert(persist.includes("window.__ssExtraPhotoPreSavedId") &&
+       finishFunction.includes('window.__ssExtraPhotoPreSavedId=draft.localExtraPhoto===true?String(recordId):"";'),
+  "a successfully cached extra photo must be carried into the persisted record flag");
+assert(finishFunction.includes("return true;"),
+  "finishFound must report success only after the local record and required photo have saved");
+assert(confirmHandler.includes("saveSucceeded=result===true") &&
+       confirmHandler.includes('btn.textContent="↻ RETRY SAVE"'),
+  "the confirmation button must show success only when finishFound explicitly succeeds");
+
 const finish = section("async function finishFound(){", "function ssConfirmRemoveVerified(");
 assert(
   finish.indexOf("const photoTarget=ssResolvePhotoRecordTarget();") < finish.indexOf("await ssUploadVerifiedPhoto(draft)"),
