@@ -138,12 +138,19 @@ assert(finish.includes("previousPhotoState={main,extra,mainPresent:!!main,extraP
 
 const removal = section("async function ssRemoveVerifiedLocation(id){", "function render(){");
 assert(
-  removal.indexOf("await ssDeleteCachedPhoto(sid)") < removal.indexOf('localStorage.setItem("situSnapRecords"'),
-  "location removal must not mutate the saved record list before photo deletion is confirmed"
+  removal.includes("const storageBefore=new Map()") &&
+  removal.includes("for(const key of storageKeys)storageBefore.set(key,localStorage.getItem(key))"),
+  "removal must snapshot every affected localStorage value before changing state"
 );
 assert(
-  removal.includes("if(!photoDeleted)") && removal.includes("return;"),
-  "failed photo deletion must stop the location-removal path"
+  removal.includes("await ssDeleteCachedPhoto(sid)") &&
+  removal.includes("await ssRestoreCachedPhotoPair(sid,mainPhoto,extraPhoto,mainPresent,extraPresent)"),
+  "failed or partial photo deletion must attempt to restore the previous photo pair"
+);
+assert(
+  removal.includes("Verified location storage rollback failed") &&
+  removal.includes("LOCATION REMOVAL FAILED"),
+  "removal must explicitly report when rollback cannot be confirmed"
 );
 
 
@@ -296,23 +303,58 @@ async function executeDelete(initial, failKey = null, failTransaction = false) {
   assert.equal(storage.get("archive-key"), oldArchiveRaw, "failed archive verification must restore the exact prior archive bytes");
   assert.match(persistAlerts[0], /previous saved record data was restored/);
 
-  const writes = [];
   const alerts = [];
+  const originalStorage = new Map([
+    ["removed-key", JSON.stringify(["other-id"])],
+    ["situSnapRecords", JSON.stringify([{id:"rec-1",address:"1, Oaklands Rise",postcode:"CF31 4SP",pinVerified:true}])],
+    ["archive-key", JSON.stringify([{id:"rec-1",address:"1, Oaklands Rise",postcode:"CF31 4SP",pinVerified:true}])],
+    ["vault-key", JSON.stringify([{recordId:"rec-1"}])],
+    ["learning-key", JSON.stringify([{pinId:"rec-1"}])],
+    ["sync-key", JSON.stringify([{payload:{recordId:"rec-1"}}])]
+  ]);
+  const storage = new Map(originalStorage);
+  let photoRestoreCalled = false;
   const removeRunner = vm.runInNewContext(
     `${removal}; ssRemoveVerifiedLocation`,
     {
-      getRecords: () => [{ id: "rec-1", address: "1, Oaklands Rise", postcode: "CF31 4SP" }],
+      getRecords: () => [{ id: "rec-1", address: "1, Oaklands Rise", postcode: "CF31 4SP", pinVerified:true }],
       ssConfirmRemoveVerified: async () => true,
+      ssGetCachedPhoto: async () => new Blob(["original-main"],{type:"image/jpeg"}),
+      ssGetExtraCachedPhoto: async () => new Blob(["original-extra"],{type:"image/jpeg"}),
       ssDeleteCachedPhoto: async () => false,
+      ssRestoreCachedPhotoPair: async (id,main,extra,mainPresent,extraPresent) => {
+        photoRestoreCalled = true;
+        assert.equal(await main.text(),"original-main");
+        assert.equal(await extra.text(),"original-extra");
+        assert.equal(mainPresent,true);assert.equal(extraPresent,true);
+        return true;
+      },
+      ssReadArray: key => JSON.parse(storage.get(key)||"[]"),
+      ssVerifiedArchive: () => JSON.parse(storage.get("archive-key")||"[]"),
+      ssVaultQueueRead: () => JSON.parse(storage.get("vault-key")||"[]"),
+      ssSafeJSON: key => JSON.parse(storage.get(key)||"[]"),
+      ssPutJSON: (key,value) => storage.set(key,JSON.stringify(value)),
+      ssCanonPostcode: value => String(value||"").trim().toUpperCase(),
+      ssCanonName: value => String(value||"").trim().toUpperCase(),
+      SS_REMOVED_VERIFIED:"removed-key",SS_VERIFIED_ARCHIVE:"archive-key",
+      SS_VAULT_QUEUE:"vault-key",SS_LEARNING_KEY:"learning-key",SS_SYNC_QUEUE:"sync-key",
       alert: message => alerts.push(message),
-      localStorage: { setItem: (...args) => writes.push(args) },
-      console: { warn() {} }
+      localStorage: {
+        getItem: key => storage.has(key)?storage.get(key):null,
+        setItem: (key,value) => storage.set(key,String(value)),
+        removeItem: key => storage.delete(key)
+      },
+      console: { warn() {} },
+      render() {},
+      ssRenderVerifiedFirst() {}
     }
   );
   await removeRunner("rec-1");
-  assert.equal(writes.length, 0, "failed photo deletion must not mutate saved removal state");
-  assert.equal(alerts.length, 1);
-  assert.match(alerts[0], /LOCATION NOT REMOVED/);
+  assert.equal(JSON.stringify([...storage.entries()]),JSON.stringify([...originalStorage.entries()]),
+    "failed photo deletion must restore every affected localStorage value exactly");
+  assert.equal(photoRestoreCalled,true,"failed photo deletion must attempt to restore the original photo pair");
+  assert.equal(alerts.length,1);
+  assert.match(alerts[0], /previous saved data and photos were restored/);
 
   console.log("PASS: deletion success, partial deletion, and transaction failure cases");
   console.log("PASS: failed deletion leaves the verified location and removal state untouched");
