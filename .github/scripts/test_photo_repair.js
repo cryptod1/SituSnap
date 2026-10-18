@@ -100,42 +100,7 @@ assert(
 );
 
 
-// Exercise the actual deletion function with a small IndexedDB-shaped test double.
-const deletionFunction = vm.runInNewContext(
-  `(${deletion}; ssDeleteCachedPhoto)`,
-  { console: { warn() {} } }
-);
-async function runDeleteCase({ initial = [], failKey = null, failTransaction = false } = {}) {
-  const photos = new Map(initial);
-  const db = {
-    close() {},
-    transaction() {
-      const tx = {
-        error: new Error("simulated IndexedDB transaction failure"),
-        objectStore() {
-          return {
-            delete(key) {
-              if (key !== failKey && !failTransaction) photos.delete(key);
-            }
-          };
-        }
-      };
-      queueMicrotask(() => {
-        if (failTransaction) tx.onerror?.();
-        else tx.oncomplete?.();
-      });
-      return tx;
-    }
-  };
-  const fn = deletionFunction;
-  const sandboxResult = await fn.call({
-    ssPhotoDb: async () => db,
-    ssGetCachedPhoto: async id => photos.get(String(id)) || null,
-    ssGetExtraCachedPhoto: async id => photos.get(String(id) + "::extra") || null
-  }, "rec-1");
-  return { result: sandboxResult, photos };
-}
-
+// Exercise the actual deletion function with an IndexedDB-shaped test double.
 // Bind the IndexedDB helpers lexically for the function body.
 const deleteSandbox = {
   console: { warn() {} },
@@ -143,7 +108,7 @@ const deleteSandbox = {
   ssGetCachedPhoto: null,
   ssGetExtraCachedPhoto: null
 };
-const deletionRunner = vm.runInNewContext(`async function run(){ return await ssDeleteCachedPhoto("rec-1"); }`, deleteSandbox);
+const deletionRunner = vm.runInNewContext(`${deletion}; async function run(){ return await ssDeleteCachedPhoto("rec-1"); }`, deleteSandbox);
 async function executeDelete(initial, failKey = null, failTransaction = false) {
   const photos = new Map(initial);
   const db = {
@@ -180,7 +145,7 @@ async function executeDelete(initial, failKey = null, failTransaction = false) {
   const writes = [];
   const alerts = [];
   const removal = vm.runInNewContext(
-    `(${removal}; ssRemoveVerifiedLocation)`,
+    `${removal}; ssRemoveVerifiedLocation`,
     {
       getRecords: () => [{ id: "rec-1", address: "1, Oaklands Rise", postcode: "CF31 4SP" }],
       ssConfirmRemoveVerified: async () => true,
