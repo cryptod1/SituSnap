@@ -101,6 +101,12 @@ assert(persist.includes("Verified record persistence rollback failed") &&
   "failed record persistence must attempt to restore the previous record list");
 assert(persist.includes("localStorage.setItem(SS_VERIFIED_ARCHIVE,originalArchiveRaw)"),
   "failed archive verification must restore the previous archive");
+const confirmHandler = section("function confirmFoundFromDetails(){", "function isVerifiedSituSnap(r){");
+assert(confirmHandler.includes('btn.textContent="SAVING PIN…"' ) &&
+       confirmHandler.includes(".finally(()=>{") &&
+       confirmHandler.includes("updateFoundButton()"),
+  "verification button must stay locked until async save settles, preventing accidental concurrent save attempts");
+
 const finish = section("async function finishFound(){", "function ssConfirmRemoveVerified(");
 assert(
   finish.indexOf("const photoTarget=ssResolvePhotoRecordTarget();") < finish.indexOf("await ssUploadVerifiedPhoto(draft)"),
@@ -315,7 +321,7 @@ async function executeDelete(initial, failKey = null, failTransaction = false) {
   console.log("PASS: archive verification failure restores exact prior record and archive data");
 })().catch(error => { console.error(error); process.exitCode = 1; });
 
-console.log("PASS: 4 photo-target resolution cases");
+console.log("PASS: 6 photo-target resolution cases, including stale edit IDs");
 console.log("PASS: photo save uses resolved ID before writing");
 console.log("PASS: failed-save cleanup protects existing photos");
 console.log("PASS: deletion read-back checks main and extra photos");
