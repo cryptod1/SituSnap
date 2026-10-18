@@ -122,10 +122,11 @@ assert(deletion.includes("await ssGetCachedPhoto(id)") && deletion.includes("awa
   "deletion must read back both photo keys");
 assert(deletion.includes("return false;"), "deletion must report failure rather than swallowing it");
 
-const restore = section("async function ssRestoreCachedPhotoPair(id,", "function ssConfirmRemoveVerified(");
+const restore = section("async function ssCachedPhotoMatches(actual,expected){", "function ssConfirmRemoveVerified(");
 assert(restore.includes("store.put(mainBlob,String(id))") && restore.includes('store.put(extraBlob,String(id)+"::extra")'),
   "rollback must restore the previous main and extra photo blobs");
-assert(restore.includes("Photo restore read-back failed"), "rollback must verify restored photo presence");
+assert(restore.includes("Photo restore byte-for-byte read-back failed"), "rollback must verify restored photo bytes, not only entry presence");
+assert(restore.includes("actual.arrayBuffer()") && restore.includes("expected.arrayBuffer()"), "rollback verification must compare photo contents");
 assert(finish.includes("previousPhotoState={main,extra,mainPresent:!!main,extraPresent:!!extra}"),
   "existing photo state must be snapshotted before a save attempt");
 
@@ -187,13 +188,14 @@ async function executeDelete(initial, failKey = null, failTransaction = false) {
     console: { warn() {} },
     ssPhotoDb: null,
     ssGetCachedPhoto: null,
-    ssGetExtraCachedPhoto: null
+    ssGetExtraCachedPhoto: null,
+    Blob
   };
   const restoreRunner = vm.runInNewContext(
-    `${restore}; async function run(){ return await ssRestoreCachedPhotoPair("rec-2", "old-main", "old-extra", true, true); }`,
+    `${restore}; async function run(){ return await ssRestoreCachedPhotoPair("rec-2", new Blob(["old-main"], {type:"image/jpeg"}), new Blob(["old-extra"], {type:"image/jpeg"}), true, true); }`,
     restoreSandbox
   );
-  const changedPhotos = new Map([["rec-2", "new-main"], ["rec-2::extra", "old-extra"]]);
+  const changedPhotos = new Map([["rec-2", new Blob(["new-main"], {type:"image/jpeg"})], ["rec-2::extra", new Blob(["old-extra"], {type:"image/jpeg"})]]);
   const restoreDb = {
     close() {},
     transaction() {
@@ -214,8 +216,21 @@ async function executeDelete(initial, failKey = null, failTransaction = false) {
   restoreSandbox.ssGetCachedPhoto = async id => changedPhotos.get(String(id)) || null;
   restoreSandbox.ssGetExtraCachedPhoto = async id => changedPhotos.get(String(id) + "::extra") || null;
   assert.equal(await restoreSandbox.run(), true, "rollback should restore prior photo pair");
-  assert.equal(changedPhotos.get("rec-2"), "old-main");
-  assert.equal(changedPhotos.get("rec-2::extra"), "old-extra");
+  assert.equal(await changedPhotos.get("rec-2").text(), "old-main");
+  assert.equal(await changedPhotos.get("rec-2::extra").text(), "old-extra");
+
+  const mismatchSandbox = {
+    console: { warn() {} },
+    ssPhotoDb: async () => restoreDb,
+    ssGetCachedPhoto: async id => id === "rec-2" ? new Blob(["corrupt-main"], {type:"image/jpeg"}) : changedPhotos.get(String(id)) || null,
+    ssGetExtraCachedPhoto: async id => changedPhotos.get(String(id) + "::extra") || null,
+    Blob
+  };
+  const mismatchRunner = vm.runInNewContext(
+    `${restore}; async function run(){ return await ssRestoreCachedPhotoPair("rec-2", new Blob(["old-main"], {type:"image/jpeg"}), new Blob(["old-extra"], {type:"image/jpeg"}), true, true); }`,
+    mismatchSandbox
+  );
+  assert.equal(await mismatchSandbox.run(), false, "rollback must fail if read-back photo bytes differ");
 
   // Run the actual persistence function with a simulated archive-verification failure.
   const oldRecordsRaw = JSON.stringify([{
@@ -294,7 +309,8 @@ async function executeDelete(initial, failKey = null, failTransaction = false) {
 
   console.log("PASS: deletion success, partial deletion, and transaction failure cases");
   console.log("PASS: failed deletion leaves the verified location and removal state untouched");
-  console.log("PASS: failed save restores the previous main/extra photo pair");
+  console.log("PASS: failed save restores the previous main/extra photo pair byte-for-byte");
+  console.log("PASS: rollback rejects photo entries with mismatched bytes");
   console.log("PASS: archive verification failure restores exact prior record and archive data");
 })().catch(error => { console.error(error); process.exitCode = 1; });
 
