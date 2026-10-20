@@ -882,7 +882,7 @@ html.ss-native-webview #ssApprovedSiteSplash{display:none!important}
 <details class="details" id="recordDetails"><summary>HANDOVER NOTES</summary><div class="inside"><div class="form-grid">
 <div><label>Postcode given</label><input id="postcode" placeholder="Enter postcode" autocomplete="off" autocapitalize="characters" spellcheck="false" oninput="syncHuntPostcodeFromRecord();queuePostcodeLookup();render()"></div><div><label>First line of address</label><input id="address" placeholder="" autocomplete="off"></div><input type="hidden" id="street" value=""><div id="recordPostcodeChoices" class="hidden"><div id="recordStreetPickerMenu" class="hidden"></div><div id="streetLiveResults" class="hidden"></div><div id="streetMatchHint" class="hidden"></div></div>
 
-<input type="hidden" id="type" value="Property / building"><input type="hidden" id="updateStatus" value="New location found"><div><label>Observed by</label><select id="observedBy"><option>MGroup</option><option>Courier partner</option><option>Verified contributor</option><option>Utility partner</option><option>Emergency service</option><option>Professional survey</option><option>Public sector</option><option>Resident</option></select></div>
+<div class="full"><label for="type">Asset type</label><select id="type"><option value="Property / building">Property / building</option><option value="Inspection pit">Inspection pit (IP)</option><option value="Kerb edge">Kerb edge (KE)</option><option value="Inspection chamber">Inspection chamber (IC)</option><option value="Utility cabinet">Utility cabinet (UC)</option><option value="Pole">Pole (PL)</option><option value="Gate / access point">Gate / access point (GA)</option><option value="Hazard">Hazard (HZ)</option><option value="Inspection point">Inspection point (IN)</option><option value="Other / unknown">Other / unknown (OT)</option></select></div><div class="full"><label for="assetArea">Postcode area (optional, e.g. CF)</label><input id="assetArea" placeholder="Auto-filled from postcode when available" maxlength="2" autocapitalize="characters" autocomplete="off"></div><div class="full"><label for="companyAssetId">Existing company asset ID (if known)</label><input id="companyAssetId" placeholder="Leave blank if unknown" autocomplete="off"></div><div class="full"><label for="assetCode">SituSnap asset reference</label><input id="assetCode" readonly aria-readonly="true" value="" placeholder="Generated automatically"></div><input type="hidden" id="updateStatus" value="New location found"><div><label>Observed by</label><select id="observedBy"><option>MGroup</option><option>Courier partner</option><option>Verified contributor</option><option>Utility partner</option><option>Emergency service</option><option>Professional survey</option><option>Public sector</option><option>Resident</option></select></div>
 
 <input type="hidden" id="result" value="Location verified">
 <input type="hidden" id="accessDirections" value="">
@@ -2224,14 +2224,15 @@ function updateFoundButton(){
   const street=(document.getElementById("street")?.value||"").trim();
   const mainPhoto=!!(document.getElementById("photoCamera")?.files?.length||document.getElementById("photo1")?.files?.length);
   // Rural-first: street remains optional. A verified pin requires the main property/entrance photo.
-  const ready=!!(postcode&&address&&mainPhoto);
+  const isFieldLocation=document.getElementById("type")?.value!=="Property / building";
+  const ready=!!((postcode||isFieldLocation)&&address&&mainPhoto);
   btn.disabled=!ready;
   btn.textContent="✓ PIN VERIFIED";
   btn.style.opacity=ready?"1":".45";btn.style.filter=ready?"none":"saturate(.45)";btn.style.cursor=ready?"pointer":"not-allowed";
   if(note){
-    if(!postcode)note.textContent="Enter the postcode first.";
-    else if(!address)note.textContent="Enter the property number or name.";
-    else if(!mainPhoto)note.textContent="Add the property / entrance photo to verify the pin.";
+    if(!postcode&&!isFieldLocation)note.textContent="Enter the postcode for a property."; 
+    else if(!address)note.textContent="Describe the asset or location."; 
+    else if(!mainPhoto)note.textContent="Add the required asset / entrance photo to verify the pin."; 
     else note.textContent="Ready for confirmation.";
   }
   return ready;
@@ -2242,7 +2243,8 @@ function persistFoundRecord(recordIdOverride){
   const postcode=document.getElementById("postcode").value.trim();
   const address=document.getElementById("address").value.trim();
   const street=(document.getElementById("street")?.value||"").trim();
-  if(!postcode||!address){alert("Please complete the postcode and property number/name or location before confirming.");return false}
+  const isFieldLocation=document.getElementById("type")?.value!=="Property / building";
+  if((!postcode&&!isFieldLocation)||!address){alert("For a property, enter the postcode and address. For a field location, the postcode is optional but an asset description is required.");return false}
   const mainPhoto=!!(document.getElementById("photoCamera")?.files?.length||document.getElementById("photo1")?.files?.length);
   if(editingRecordId===null && !mainPhoto){alert("Please add the property / entrance photo before verifying the pin.");return false}
   const rs=getRecords();
@@ -2257,7 +2259,7 @@ function persistFoundRecord(recordIdOverride){
   const approach=accessDirections;
   const accessInfo="";
   const notes=document.getElementById("notes").value.trim();
-  const record={id:previous?.id||recordIdOverride||Date.now(),pinVerified:true,postcode,address,street,type:document.getElementById("type").value,observedBy:document.getElementById("observedBy").value,updateStatus:document.getElementById("updateStatus").value,result:document.getElementById("result").value,entrance,approach,accessInfo,visibility:"My Team",localSource:(document.getElementById("localSource")?.value||"Not applicable"),notes,
+  const record={id:previous?.id||recordIdOverride||Date.now(),pinVerified:true,postcode,address,street,type:document.getElementById("type").value,assetCode:(document.getElementById("assetCode")?.value||previous?.assetCode||"").trim(),companyAssetId:(document.getElementById("companyAssetId")?.value||previous?.companyAssetId||"").trim(),assetArea:(document.getElementById("assetArea")?.value||previous?.assetArea||"").trim(),observedBy:document.getElementById("observedBy").value,updateStatus:document.getElementById("updateStatus").value,result:document.getElementById("result").value,entrance,approach,accessInfo,visibility:"My Team",localSource:(document.getElementById("localSource")?.value||"Not applicable"),notes,
     lastMile:{vehicleApproach:approach||null,entrance:entrance||null,hazard:accessInfo||null,handoverNote:notes||null,source:"SituSnap field handover",fieldConfirmed:true},
     gps:gps||previous?.gps||null,target:target||previous?.target||null,localPhoto:previous?.localPhoto===true||!!window.__ssPhotoPreSavedId&&String(window.__ssPhotoPreSavedId)===String(previous?.id||recordIdOverride||""),localExtraPhoto:previous?.localExtraPhoto===true,photoUrl:previous?.photoUrl||"",photoPublicId:previous?.photoPublicId||"",verifiedAt:new Date().toISOString(),createdAt:previous?.createdAt||new Date().toISOString()};
   if(existingIndex>=0)rs.splice(existingIndex,1);
@@ -4386,3 +4388,104 @@ main{padding-bottom:calc(140px + env(safe-area-inset-bottom,0px))!important}body
  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",start,{once:true});else start();
 })();
 </script>
+
+
+<script id="ss-asset-reference-handover">
+(function(){
+  "use strict";
+  const byId=id=>document.getElementById(id);
+  const typeCodes={
+    "Property / building":"PR","Inspection pit":"IP","Kerb edge":"KE",
+    "Inspection chamber":"IC","Utility cabinet":"UC","Pole":"PL",
+    "Gate / access point":"GA","Hazard":"HZ","Inspection point":"IN","Other / unknown":"OT"
+  };
+  const areaFromPostcode=value=>{
+    const m=String(value||"").trim().toUpperCase().match(/^([A-Z]{1,2})/);
+    return m?m[1]:"";
+  };
+  const getLocalRecords=()=>{
+    try{return JSON.parse(localStorage.getItem("situSnapRecords")||"[]")}catch(_){return []}
+  };
+  function createReference(){
+    const type=byId("type")?.value||"Other / unknown";
+    const area=(byId("assetArea")?.value||areaFromPostcode(byId("postcode")?.value)||"UK").trim().toUpperCase().replace(/[^A-Z]/g,"").slice(0,2)||"UK";
+    const code=typeCodes[type]||"OT";
+    const date=new Date();
+    const day=String(date.getDate()).padStart(2,"0")+String(date.getMonth()+1).padStart(2,"0")+String(date.getFullYear()).slice(-2);
+    const used=new Set(getLocalRecords().map(r=>String(r?.assetCode||"").toUpperCase()));
+    let candidate="";
+    for(let i=0;i<30;i++){
+      const n=String(Math.floor(Math.random()*9000)+1000);
+      candidate=area+"-"+code+"-"+day+"-"+n;
+      if(!used.has(candidate))return candidate;
+    }
+    return area+"-"+code+"-"+day+"-"+String(Date.now()).slice(-6);
+  }
+  window.__ssAssetAutoNoteLine="";
+  window.__ssEditingAssetCode="";
+  function syncReference(){
+    const type=byId("type"),area=byId("assetArea"),company=byId("companyAssetId"),code=byId("assetCode"),notes=byId("notes"),postcode=byId("postcode");
+    if(!type||!area||!company||!code||!notes)return;
+    if(postcode && postcode.value.trim() && !area.dataset.userEdited){
+      const derived=areaFromPostcode(postcode.value);
+      if(derived)area.value=derived;
+    }
+    const oldLine=window.__ssAssetAutoNoteLine;
+    let noteText=String(notes.value||"");
+    if(oldLine && noteText.startsWith(oldLine))noteText=noteText.slice(oldLine.length).replace(/^\n?/,"");
+    let ref="";
+    if(company.value.trim()){
+      ref=company.value.trim();
+    }else if(window.__ssEditingAssetCode){
+      ref=window.__ssEditingAssetCode;
+    }else{
+      const current=String(code.value||"").trim();
+      const expectedPrefix=((area.value.trim().toUpperCase()||areaFromPostcode(postcode?.value)||"UK")+"-"+(typeCodes[type.value]||"OT")+"-");
+      ref=current.startsWith(expectedPrefix)?current:createReference();
+    }
+    code.value=ref;
+    const line="Asset reference: "+ref;
+    window.__ssAssetAutoNoteLine=line;
+    notes.value=line+(noteText.trim()?"\n"+noteText.trim():"");
+  }
+  // Keep the generated reference in the notes without erasing the colleague's own text.
+  byId("type")?.addEventListener("change",()=>{if(!window.__ssEditingAssetCode)syncReference();if(typeof window.updateFoundButton==="function")window.updateFoundButton()});
+  byId("assetArea")?.addEventListener("input",()=>{byId("assetArea").dataset.userEdited="1";if(!window.__ssEditingAssetCode)syncReference()});
+  byId("companyAssetId")?.addEventListener("input",()=>{if(!window.__ssEditingAssetCode)syncReference()});
+  byId("postcode")?.addEventListener("input",()=>{if(!window.__ssEditingAssetCode)syncReference()});
+  byId("assetArea")?.addEventListener("change",()=>{byId("assetArea").value=String(byId("assetArea").value||"").toUpperCase().replace(/[^A-Z]/g,"").slice(0,2)});
+  const originalEdit=window.editSituSnap;
+  if(typeof originalEdit==="function"){
+    window.editSituSnap=function(id){
+      originalEdit.apply(this,arguments);
+      const r=getLocalRecords().find(x=>String(x?.id)===String(id));
+      if(!r)return;
+      window.__ssEditingAssetCode=String(r.assetCode||"");
+      if(byId("assetCode"))byId("assetCode").value=String(r.assetCode||"");
+      if(byId("companyAssetId"))byId("companyAssetId").value=String(r.companyAssetId||"");
+      if(byId("assetArea")){byId("assetArea").value=String(r.assetArea||areaFromPostcode(r.postcode)||"");delete byId("assetArea").dataset.userEdited}
+      const notes=byId("notes");
+      if(notes){window.__ssAssetAutoNoteLine="";if(r.assetCode&&!String(notes.value||"").startsWith("Asset reference: "+r.assetCode))notes.value="Asset reference: "+r.assetCode+(notes.value.trim()?"\n"+notes.value.trim():"");window.__ssAssetAutoNoteLine="Asset reference: "+r.assetCode}
+    };
+  }
+  const originalClear=window.clearRecordForm;
+  if(typeof originalClear==="function"){
+    window.clearRecordForm=function(){
+      originalClear.apply(this,arguments);
+      window.__ssEditingAssetCode="";
+      if(byId("type"))byId("type").value="Property / building";
+      if(byId("companyAssetId"))byId("companyAssetId").value="";
+      if(byId("assetArea")){byId("assetArea").value="";delete byId("assetArea").dataset.userEdited}
+      if(byId("assetCode"))byId("assetCode").value="";
+      window.__ssAssetAutoNoteLine="";
+      syncReference();
+    };
+  }
+  const details=byId("recordDetails");
+  details?.addEventListener("toggle",()=>{if(details.open && !window.__ssEditingAssetCode)syncReference()});
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",()=>{if(details?.open&&!window.__ssEditingAssetCode)syncReference()},{once:true});
+  else if(details?.open&&!window.__ssEditingAssetCode)syncReference();
+  // Existing company IDs take priority; locally generated IDs are references, not a substitute for a database-issued global ID.
+})();
+</script>
+
