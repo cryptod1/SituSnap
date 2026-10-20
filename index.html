@@ -4458,14 +4458,16 @@ main{padding-bottom:calc(140px + env(safe-area-inset-bottom,0px))!important}body
   if(typeof originalEdit==="function"){
     window.editSituSnap=function(id){
       originalEdit.apply(this,arguments);
-      const r=getLocalRecords().find(x=>String(x?.id)===String(id));
-      if(!r)return;
+      let r=getLocalRecords().find(x=>String(x?.id)===String(id));
+      try{if(!r&&typeof getRecords==="function")r=getRecords().find(x=>String(x?.id)===String(id))}catch(_){}
+      if(!r){window.__ssEditingAssetCode="";syncReference();return}
       window.__ssEditingAssetCode=String(r.assetCode||"");
       if(byId("assetCode"))byId("assetCode").value=String(r.assetCode||"");
       if(byId("companyAssetId"))byId("companyAssetId").value=String(r.companyAssetId||"");
       if(byId("assetArea")){byId("assetArea").value=String(r.assetArea||areaFromPostcode(r.postcode)||"");delete byId("assetArea").dataset.userEdited}
       const notes=byId("notes");
-      if(notes){window.__ssAssetAutoNoteLine="";if(r.assetCode&&!String(notes.value||"").startsWith("Asset reference: "+r.assetCode))notes.value="Asset reference: "+r.assetCode+(notes.value.trim()?"\n"+notes.value.trim():"");window.__ssAssetAutoNoteLine="Asset reference: "+r.assetCode}
+      if(notes){window.__ssAssetAutoNoteLine="";if(r.assetCode&&!String(notes.value||"").startsWith("Asset reference: "+r.assetCode))notes.value="Asset reference: "+r.assetCode+(notes.value.trim()?"\n"+notes.value.trim():"");window.__ssAssetAutoNoteLine=r.assetCode?"Asset reference: "+r.assetCode:""}
+      if(!r.assetCode){window.__ssEditingAssetCode="";syncReference()}
     };
   }
   const originalClear=window.clearRecordForm;
