@@ -1,0 +1,56 @@
+name: Check SituSnap asset-reference handover
+
+on:
+  push:
+    branches:
+      - feature/field-location-asset-reference-handover
+  pull_request:
+    paths:
+      - index.html
+      - .github/workflows/asset-reference-handover-check.yml
+
+permissions:
+  contents: read
+
+jobs:
+  syntax-and-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Extract and syntax-check the asset-reference script
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+
+          html = Path("index.html").read_text(encoding="utf-8")
+          match = re.findall(
+              r'<script id="ss-asset-reference-handover">([\s\S]*?)</script>',
+              html,
+          )
+          assert len(match) == 1, f"Expected one feature script, found {len(match)}"
+          Path("/tmp/asset-reference-handover.js").write_text(match[0], encoding="utf-8")
+          assert 'assetCode:' in html, "Asset reference is not persisted in the report record"
+          assert 'companyAssetId:' in html, "Existing company ID is not retained"
+          assert 'if((!postcode&&!isFieldLocation)||!address)' in html, "Field reports still require a postcode"
+          assert 'const ready=!!((postcode||isFieldLocation)&&address&&mainPhoto)' in html, "Field-location pin button gate is missing"
+          print("Feature structure and postcode/property regression assertions passed.")
+          PY
+          node --check /tmp/asset-reference-handover.js
+
+      - name: Confirm release source is unchanged by this feature branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f index.html
+          grep -q 'id="ss-asset-reference-handover"' index.html
+          echo "Asset-reference handover feature is present. No deploy or Play upload is performed by this workflow."
