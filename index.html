@@ -4386,3 +4386,60 @@ main{padding-bottom:calc(140px + env(safe-area-inset-bottom,0px))!important}body
  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",start,{once:true});else start();
 })();
 </script>
+
+
+<!-- SituSnap in-house Android Back-button warning; candidate-only change. -->
+<style id="ss-back-exit-warning-style">
+#ssBackExitOverlay{position:fixed;inset:0;z-index:20000;display:none;align-items:center;justify-content:center;padding:22px;background:rgba(2,10,22,.78);backdrop-filter:blur(5px)}
+#ssBackExitOverlay.ss-visible{display:flex}
+#ssBackExitDialog{width:min(100%,390px);padding:22px;border-radius:18px;background:linear-gradient(145deg,#0b2a38,#082433);border:1px solid rgba(105,223,131,.72);box-shadow:0 22px 70px #0009;color:#f3f7fc;font-family:inherit}
+#ssBackExitDialog h2{margin:0 0 12px;font-size:20px;line-height:1.2}
+#ssBackExitDialog p{margin:0 0 20px;color:#d7e5ee;font-size:14px;line-height:1.55}
+#ssBackExitActions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+#ssBackExitActions button{min-height:48px;border-radius:11px;padding:10px;font-size:13px;font-weight:850}
+#ssBackContinue{background:#69df83;color:#071a33}
+#ssBackExit{background:#102f3c;color:#f3f7fc;border:1px solid rgba(174,189,202,.65)!important}
+@media(max-width:360px){#ssBackExitDialog{padding:18px}#ssBackExitActions{grid-template-columns:1fr}#ssBackExitActions button{min-height:46px}}
+</style>
+<script id="ss-back-exit-warning">
+(function(){
+  if(window.__ssBackExitWarningInstalled)return;
+  window.__ssBackExitWarningInstalled=true;
+  var overlay;
+  function hasUnfinishedWork(){
+    var d=document.getElementById('recordDetails');
+    if(!d||!d.open)return false;
+    var ids=['postcode','address','notes','accessDirections'];
+    if(ids.some(function(id){var el=document.getElementById(id);return el&&String(el.value||'').trim().length>0;}))return true;
+    return ['photoCamera','photo1','photo2','photo2Camera'].some(function(id){
+      var el=document.getElementById(id);return !!(el&&el.files&&el.files.length);
+    });
+  }
+  function closeWarning(){if(overlay)overlay.classList.remove('ss-visible');}
+  function showWarning(){
+    if(!overlay){
+      overlay=document.createElement('div');
+      overlay.id='ssBackExitOverlay';
+      overlay.setAttribute('role','presentation');
+      overlay.innerHTML='<section id="ssBackExitDialog" role="alertdialog" aria-modal="true" aria-labelledby="ssBackExitTitle" aria-describedby="ssBackExitMessage"><h2 id="ssBackExitTitle">Leave SituSnap?</h2><p id="ssBackExitMessage">Leaving SituSnap now may result in the loss of your unfinished work. Do you want to exit?</p><div id="ssBackExitActions"><button id="ssBackContinue" type="button">Continue Working</button><button id="ssBackExit" type="button">Exit SituSnap</button></div></section>';
+      document.body.appendChild(overlay);
+      overlay.querySelector('#ssBackContinue').addEventListener('click',function(){closeWarning();});
+      overlay.querySelector('#ssBackExit').addEventListener('click',function(){
+        var nativeBridge=window.SituSnapNative;
+        if(nativeBridge&&typeof nativeBridge.exitApp==='function'){nativeBridge.exitApp();return;}
+        closeWarning();
+        alert('Use your device Back button to exit SituSnap.');
+      });
+      overlay.addEventListener('click',function(e){if(e.target===overlay)closeWarning();});
+    }
+    overlay.classList.add('ss-visible');
+    var keep=overlay.querySelector('#ssBackContinue');
+    if(keep)keep.focus();
+  }
+  window.ssHandleNativeBack=function(){
+    if(overlay&&overlay.classList.contains('ss-visible'))return true;
+    if(hasUnfinishedWork()){showWarning();return true;}
+    return false;
+  };
+})();
+</script>
