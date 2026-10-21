@@ -48,7 +48,7 @@ jobs:
       - name: Create Android project
         run: python3 .github/scripts/make_android.py
 
-      # Candidate-only patch: does not alter the production branch or website deployment.
+      # Candidate-only patch: does not alter the production branch or website deployment. Build is versioned separately for safe in-place testing.
       - name: Add isolated Android Back-button confirmation
         run: python3 .github/scripts/patch_back_confirmation.py
 
