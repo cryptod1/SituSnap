@@ -4386,3 +4386,54 @@ main{padding-bottom:calc(140px + env(safe-area-inset-bottom,0px))!important}body
  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",start,{once:true});else start();
 })();
 </script>
+
+
+<style id="ss-back-exit-confirmation-style">
+#ssBackExitOverlay{position:fixed;inset:0;z-index:2147483000;display:none;align-items:center;justify-content:center;padding:22px;background:rgba(0,8,17,.82);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px)}
+#ssBackExitOverlay[aria-hidden="false"]{display:flex}
+#ssBackExitCard{width:min(100%,390px);box-sizing:border-box;padding:23px;border:1px solid rgba(49,223,104,.48);border-radius:20px;background:#07192b;color:#f4fbff;box-shadow:0 22px 70px rgba(0,0,0,.5);font-family:inherit}
+#ssBackExitCard h2{margin:0 0 12px;font-size:20px;line-height:1.25;font-weight:850;color:#fff}
+#ssBackExitCard p{margin:0 0 22px;font-size:15px;line-height:1.55;color:#d6e4ec}
+#ssBackExitActions{display:grid;grid-template-columns:1fr;gap:10px}
+#ssBackExitActions button{width:100%;min-height:48px;padding:12px 16px;border-radius:12px;font:800 14px/1.2 inherit;letter-spacing:.02em;cursor:pointer}
+#ssBackExitContinue{border:1px solid #31df68;background:#31df68;color:#07192b}
+#ssBackExitExit{border:1px solid #6b8291;background:#102b40;color:#f4fbff}
+</style>
+<div id="ssBackExitOverlay" aria-hidden="true">
+  <section id="ssBackExitCard" role="dialog" aria-modal="true" aria-labelledby="ssBackExitTitle" aria-describedby="ssBackExitMessage">
+    <h2 id="ssBackExitTitle">Leave SituSnap?</h2>
+    <p id="ssBackExitMessage">Leaving SituSnap now may result in the loss of your unfinished work. Do you want to exit?</p>
+    <div id="ssBackExitActions">
+      <button id="ssBackExitContinue" type="button">Continue Working</button>
+      <button id="ssBackExitExit" type="button">Exit SituSnap</button>
+    </div>
+  </section>
+</div>
+<script id="ss-back-exit-confirmation">
+(function(){
+  var overlay=document.getElementById('ssBackExitOverlay');
+  if(!overlay)return;
+  var continueButton=document.getElementById('ssBackExitContinue');
+  var exitButton=document.getElementById('ssBackExitExit');
+  function close(){
+    overlay.setAttribute('aria-hidden','true');
+    if(continueButton)continueButton.focus();
+  }
+  window.ssShowExitConfirm=function(){
+    overlay.setAttribute('aria-hidden','false');
+    if(continueButton)continueButton.focus();
+  };
+  if(continueButton)continueButton.addEventListener('click',close);
+  if(exitButton)exitButton.addEventListener('click',function(){
+    if(window.SituSnapNative&&typeof window.SituSnapNative.exitApp==='function'){
+      window.SituSnapNative.exitApp();
+    }else{
+      close();
+    }
+  });
+  overlay.addEventListener('click',function(event){if(event.target===overlay)close()});
+  document.addEventListener('keydown',function(event){
+    if(event.key==='Escape'&&overlay.getAttribute('aria-hidden')==='false'){event.preventDefault();close()}
+  });
+})();
+</script>
