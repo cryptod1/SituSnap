@@ -48,6 +48,9 @@ jobs:
       - name: Create Android project
         run: python3 .github/scripts/make_android.py
 
+      - name: Protect unfinished work on Android Back without a pop-up
+        run: python3 .github/scripts/patch_android_back.py
+
       - name: Apply release version and Android API level
         shell: bash
         run: |
