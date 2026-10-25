@@ -104,13 +104,13 @@ jobs:
                   packaged = archive.read("assets/phoenix.html")
               except KeyError:
                   sys.exit("FAIL: APK is missing assets/phoenix.html")
-          if packaged != source:
-              sys.exit("FAIL: packaged APK HTML differs from candidate index.html")
-          # Verify the native private-camera patch is actually present in the APK DEX.
-          dex_names = [name for name in archive.namelist() if name.endswith(".dex")]
-          if not dex_names:
-              sys.exit("FAIL: APK contains no DEX bytecode")
-          dex = b"".join(archive.read(name) for name in dex_names)
+              if packaged != source:
+                  sys.exit("FAIL: packaged APK HTML differs from candidate index.html")
+              # Verify the native private-camera patch is actually present in the APK DEX.
+              dex_names = [name for name in archive.namelist() if name.endswith(".dex")]
+              if not dex_names:
+                  sys.exit("FAIL: APK contains no DEX bytecode")
+              dex = b"".join(archive.read(name) for name in dex_names)
           required_native_markers = [
               b"androidx/core/content/FileProvider",
               b"situsnap-camera",
