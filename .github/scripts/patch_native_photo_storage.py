@@ -92,8 +92,8 @@ gradle.write_text(g, encoding="utf-8")
 # AndroidX is required by FileProvider and must be explicitly enabled for this generated project.
 gradle_properties = Path("gradle.properties")
 gp = gradle_properties.read_text(encoding="utf-8") if gradle_properties.exists() else ""
-if not re.search(r"(?m)^android\\.useAndroidX\\s*=\\s*true\\s*$", gp):
-    gp = gp.rstrip() + "\\nandroid.useAndroidX=true\\n"
+if not re.search(r"(?m)^android\.useAndroidX\s*=\s*true\s*$", gp):
+    gp = gp.rstrip() + "\nandroid.useAndroidX=true\n"
 gradle_properties.write_text(gp, encoding="utf-8")
 
 m = manifest.read_text(encoding="utf-8")
