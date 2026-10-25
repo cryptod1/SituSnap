@@ -1393,8 +1393,8 @@ async function lookupPostcodeOptions(){
   const manual=document.getElementById("manualAddress");
   const recordBox=document.getElementById("recordPostcodeChoices");
   if(p.length<5){box.classList.add("hidden");if(recordBox)recordBox.classList.remove("hidden");select.dataset.options="";const dl=document.getElementById("streetSuggestions");if(dl)dl.innerHTML="";if(manualWrap)manualWrap.classList.add("hidden");setRecordStreetPickerStatus("Start typing the postcode…");return}
-  // Keep property entry visible while background postcode lookup runs.
-  if(box)box.classList.add("hidden");
+  // Keep the destination chooser visible throughout the lookup, including slow or stalled requests.
+  if(box)box.classList.remove("hidden");
   if(manualWrap)manualWrap.classList.remove("hidden");
   select.disabled=false;
   select.innerHTML='<option value="">Finding locations…</option>';
@@ -1438,14 +1438,24 @@ async function lookupPostcodeOptions(){
         // Try POST first, then GET: some mobile networks/WebViews reject one
         // request style while allowing the other. Keep both requests on HTTPS.
         try{
-          const r=await fetch(endpoint,{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded;charset=UTF-8"},body:"data="+encodeURIComponent(query)});
+          const controller=new AbortController();
+          const timer=setTimeout(()=>controller.abort(),8000);
+          let r;
+          try{
+            r=await fetch(endpoint,{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded;charset=UTF-8"},body:"data="+encodeURIComponent(query),signal:controller.signal});
+          }finally{clearTimeout(timer)}
           if(!r.ok) throw new Error("POST HTTP "+r.status);
           const data=await r.json();
           if(!data||!Array.isArray(data.elements)) throw new Error("POST returned unexpected mapping data");
           return data;
         }catch(err){lastErr=err;}
         try{
-          const r=await fetch(endpoint+"?data="+encodeURIComponent(query),{method:"GET",headers:{"Accept":"application/json"}});
+          const controller=new AbortController();
+          const timer=setTimeout(()=>controller.abort(),8000);
+          let r;
+          try{
+            r=await fetch(endpoint+"?data="+encodeURIComponent(query),{method:"GET",headers:{"Accept":"application/json"},signal:controller.signal});
+          }finally{clearTimeout(timer)}
           if(!r.ok) throw new Error("GET HTTP "+r.status);
           const data=await r.json();
           if(!data||!Array.isArray(data.elements)) throw new Error("GET returned unexpected mapping data");
