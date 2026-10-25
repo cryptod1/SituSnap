@@ -11,7 +11,7 @@ if "window.ssHandleNativeBack" in source:
 import_anchor = "import android.webkit.WebViewClient;"
 if import_anchor not in source:
     raise SystemExit("Could not find WebViewClient import")
-source = source.replace(import_anchor, import_anchor + "\\nimport android.webkit.JavascriptInterface;", 1)
+source = source.replace(import_anchor, import_anchor + "\nimport android.webkit.JavascriptInterface;", 1)
 
 setup_anchor = "        setContentView(webView);"
 if setup_anchor not in source:
