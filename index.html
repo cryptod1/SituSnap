@@ -1447,9 +1447,9 @@ async function lookupPostcodeOptions(){
           select.dataset.options=JSON.stringify(resolverOptions);
           select.disabled=false;
           if(box)box.classList.remove("hidden");
+          setStreetPickerStatus("Address choices loaded from Breadcrumbs.");
           renderStreetPicker(unique,[],resolverOptions,p);
           renderRecordStreetPicker(unique,[],resolverOptions,p);
-          setStreetPickerStatus("Address choices loaded from Breadcrumbs.");
           clearTimeout(slowLookupNotice);
           return;
         }
