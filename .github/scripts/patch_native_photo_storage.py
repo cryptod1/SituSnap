@@ -10,6 +10,8 @@ if not main.is_file() or not gradle.is_file() or not manifest.is_file():
 s = main.read_text(encoding="utf-8")
 s = s.replace("import android.content.ContentValues;\n", "")
 s = s.replace("import android.provider.MediaStore;\n", "")
+# Keep only the camera intent constants, fully qualified, without restoring shared-gallery APIs.
+s = s.replace("camera.putExtra(MediaStore.EXTRA_OUTPUT, cameraOutputUri);", "camera.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, cameraOutputUri);")
 if "import androidx.core.content.FileProvider;" not in s:
     s = s.replace("import android.net.Uri;\n", "import android.net.Uri;\nimport android.os.Handler;\nimport android.os.Looper;\nimport java.io.File;\nimport androidx.core.content.FileProvider;\n")
 s = s.replace("    private Uri cameraOutputUri;\n", "    private Uri cameraOutputUri;\n    private File cameraOutputFile;\n")
