@@ -1170,7 +1170,23 @@ function renderStreetPicker(properties,streets,options,postcode){
 }
 function toggleStreetPicker(){
   const menu=document.getElementById("streetPickerMenu");
-  if(menu)menu.classList.toggle("hidden");
+  const trigger=document.getElementById("streetPickerTrigger");
+  const select=document.getElementById("streetChoice");
+  if(!menu||!trigger)return;
+  // Recover the option list if another status update cleared the custom menu.
+  if(!menu.children.length&&select?.dataset.options){
+    let options=[];try{options=JSON.parse(select.dataset.options)||[]}catch(e){}
+    if(options.length){
+      menu.innerHTML='<div class="street-picker-heading">Available destinations</div>'+
+        options.map((o,i)=>'<button type="button" class="street-picker-item" onclick="chooseStreetOption('+i+')">'+esc(o.label)+'</button>').join('');
+    }else{
+      menu.innerHTML='<div class="street-picker-empty">No mapped destination found for this postcode — enter it below.</div>';
+    }
+  }
+  const opening=menu.classList.contains("hidden");
+  menu.classList.toggle("hidden",!opening);
+  menu.style.display=opening?"block":"none";
+  trigger.setAttribute("aria-expanded",opening?"true":"false");
 }
 function chooseStreetOption(index){
   const select=document.getElementById("streetChoice");
@@ -1187,7 +1203,7 @@ function chooseStreetOption(index){
 document.addEventListener("click",e=>{
   const picker=e.target.closest?.(".street-picker");
   if(!picker){
-    const m=document.getElementById("streetPickerMenu");if(m)m.classList.add("hidden");
+    const m=document.getElementById("streetPickerMenu");if(m){m.classList.add("hidden");m.style.display="none"}
     const rm=document.getElementById("recordStreetPickerMenu");if(rm)rm.classList.add("hidden");
     const lr=document.getElementById("streetLiveResults");if(lr)lr.classList.add("hidden");
     const mm=document.getElementById("mainStreetResults");if(mm)mm.classList.add("hidden");
