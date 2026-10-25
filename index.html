@@ -1413,7 +1413,11 @@ async function lookupPostcodeOptions(){
     }
   },2000);
   try{
-    const pr=await fetch("https://api.postcodes.io/postcodes/"+encodeURIComponent(p));
+    const postcodeController=new AbortController();
+    const postcodeTimer=setTimeout(()=>postcodeController.abort(),5000);
+    let pr;
+    try{pr=await fetch("https://api.postcodes.io/postcodes/"+encodeURIComponent(p),{signal:postcodeController.signal});}
+    finally{clearTimeout(postcodeTimer)}
     const pd=await pr.json();
     if(!pr.ok||!pd.result) throw new Error("Postcode not found");
     const lat=Number(pd.result.latitude), lon=Number(pd.result.longitude);
@@ -1439,7 +1443,7 @@ async function lookupPostcodeOptions(){
         // request style while allowing the other. Keep both requests on HTTPS.
         try{
           const controller=new AbortController();
-          const timer=setTimeout(()=>controller.abort(),8000);
+          const timer=setTimeout(()=>controller.abort(),3000);
           let r;
           try{
             r=await fetch(endpoint,{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded;charset=UTF-8"},body:"data="+encodeURIComponent(query),signal:controller.signal});
@@ -1451,7 +1455,7 @@ async function lookupPostcodeOptions(){
         }catch(err){lastErr=err;}
         try{
           const controller=new AbortController();
-          const timer=setTimeout(()=>controller.abort(),8000);
+          const timer=setTimeout(()=>controller.abort(),3000);
           let r;
           try{
             r=await fetch(endpoint+"?data="+encodeURIComponent(query),{method:"GET",headers:{"Accept":"application/json"},signal:controller.signal});
