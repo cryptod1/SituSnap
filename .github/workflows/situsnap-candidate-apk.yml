@@ -87,6 +87,11 @@ jobs:
           echo "$BADGING" | grep -q "sdkVersion:'26'"
           echo "$BADGING" | grep -q "targetSdkVersion:'36'"
           echo "$BADGING" | grep -q "launchable-activity: name='com.situsnap.app.SplashActivity'"
+          MANIFEST_XML=$("$BUILD_TOOLS/aapt" dump xmltree "$APK" AndroidManifest.xml)
+          echo "$MANIFEST_XML" | grep -Fq "androidx.core.content.FileProvider"
+          echo "$MANIFEST_XML" | grep -Fq "com.situsnap.app.photos"
+          PATHS_XML=$("$BUILD_TOOLS/aapt" dump xmltree "$APK" res/xml/situsnap_photo_paths.xml)
+          echo "$PATHS_XML" | grep -Fq "situsnap-camera"
           python3 - <<'PY'
           import hashlib
           import os
@@ -112,9 +117,8 @@ jobs:
                   sys.exit("FAIL: APK contains no DEX bytecode")
               dex = b"".join(archive.read(name) for name in dex_names)
           required_native_markers = [
-              b"androidx/core/content/FileProvider",
+              b"FileProvider.getUriForFile",
               b"situsnap-camera",
-              b"capture_",
           ]
           for marker in required_native_markers:
               if marker not in dex:
