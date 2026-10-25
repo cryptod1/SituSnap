@@ -1514,10 +1514,16 @@ async function lookupPostcodeOptions(){
     if(manualWrap)manualWrap.classList.remove("hidden");
   }catch(e){
     clearTimeout(slowLookupNotice);
+    // Keep the chooser visible on lookup failure so the user sees why alternatives are missing.
+    if(box)box.classList.remove("hidden");
     select.innerHTML='<option value="">Automatic street lookup unavailable</option>';
     select.disabled=true;
+    const trigger=document.getElementById("streetPickerTrigger");
+    const menu=document.getElementById("streetPickerMenu");
+    if(trigger)trigger.textContent="Street lookup unavailable — enter the property below";
+    if(menu){menu.innerHTML='<div class="street-picker-empty">Automatic destinations could not be loaded. You can still enter the property manually.</div>';menu.classList.add("hidden")}
     const dl=document.getElementById("streetSuggestions");if(dl)dl.innerHTML="";
-    setStreetPickerStatus("Street service is temporarily unavailable — postcode-only hunt is still fine");
+    setStreetPickerStatus("Street service is temporarily unavailable — enter the property manually");
     if(recordBox)recordBox.classList.add("hidden");
     if(manualWrap)manualWrap.classList.remove("hidden");
   }
