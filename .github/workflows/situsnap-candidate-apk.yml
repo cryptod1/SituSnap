@@ -1,4 +1,4 @@
-name: SituSnap candidate APK (no release)
+name: SituSnap candidate APK (no release; verify private camera patch)
 
 on:
   push:
@@ -106,6 +106,22 @@ jobs:
                   sys.exit("FAIL: APK is missing assets/phoenix.html")
           if packaged != source:
               sys.exit("FAIL: packaged APK HTML differs from candidate index.html")
+          # Verify the native private-camera patch is actually present in the APK DEX.
+          dex_names = [name for name in archive.namelist() if name.endswith(".dex")]
+          if not dex_names:
+              sys.exit("FAIL: APK contains no DEX bytecode")
+          dex = b"".join(archive.read(name) for name in dex_names)
+          required_native_markers = [
+              b"androidx/core/content/FileProvider",
+              b"situsnap-camera",
+              b"capture_",
+          ]
+          for marker in required_native_markers:
+              if marker not in dex:
+                  sys.exit(f"FAIL: APK DEX is missing private-camera marker: {marker.decode()}")
+          if b"MediaStore$Images$Media" in dex or b"ContentValues" in dex:
+              sys.exit("FAIL: APK DEX still contains legacy shared-gallery camera insertion markers")
+          print("PASS: APK DEX contains private FileProvider/cache markers and no legacy gallery-insert markers")
           digest = hashlib.sha256(source).hexdigest()
           print(f"Candidate source and APK HTML SHA-256: {digest}")
           print(f"Candidate commit: {os.environ.get('GITHUB_SHA', 'unknown')}")
