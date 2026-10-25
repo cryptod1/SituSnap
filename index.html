@@ -137,6 +137,14 @@
 .property-split{display:grid;grid-template-columns:minmax(105px,24%) minmax(0,1fr);gap:10px;align-items:start}.property-split>div{min-width:0;display:flex;flex-direction:column}.property-split .property-label{display:block;min-height:36px;box-sizing:border-box;padding:0 4px 7px;font-size:10px;font-weight:950;color:#43566f;letter-spacing:.25px;line-height:14px;white-space:normal;overflow:visible}.property-split input,.property-split #doorNumber,.property-split #manualAddress{box-sizing:border-box;width:100%!important;min-width:0;height:52px!important;min-height:52px!important;padding:11px 12px!important;background:#fff!important;color:#111827!important;-webkit-text-fill-color:#111827!important;border:1px solid #cbd5e1!important;border-radius:10px!important;font-size:16px!important}.property-split #doorNumber{padding-left:12px!important}@media(max-width:360px){.property-split{grid-template-columns:92px minmax(0,1fr);gap:8px}.property-split .property-label{font-size:9px;letter-spacing:0}}
 
 
+/* Professional native destination selector: consistent with SituSnap's dark-green interface */
+.postcode-destination-picker{position:relative}
+#streetChoice{display:block;width:100%;min-height:54px;padding:13px 46px 13px 14px;margin:0;appearance:none;-webkit-appearance:none;border:1px solid rgba(105,223,131,.55);border-radius:12px;background-color:#0d3525;background-image:linear-gradient(45deg,transparent 50%,#69df83 50%),linear-gradient(135deg,#69df83 50%,transparent 50%);background-position:calc(100% - 19px) 23px,calc(100% - 13px) 23px;background-size:6px 6px,6px 6px;background-repeat:no-repeat;color:#f3f7fc;-webkit-text-fill-color:#f3f7fc;font:600 16px/1.35 Inter,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;box-shadow:0 5px 16px rgba(0,0,0,.16)}
+#streetChoice:focus{outline:3px solid rgba(105,223,131,.2);border-color:#69df83}
+#streetChoice:disabled{opacity:.7}
+#streetChoice option{background:#0d3525;color:#f3f7fc}
+@media(max-width:380px){#streetChoice{font-size:15px;min-height:52px;padding-left:12px}}
+
 /* SituSnap custom dark-green location picker */
 .street-picker{position:relative;width:100%}.street-picker-trigger{width:100%;min-height:52px;padding:11px 44px 11px 12px;border:1px solid rgba(126,177,235,.25);border-radius:10px;background:#0d3525;color:#f3f7fc;text-align:left;font:inherit;font-size:16px;position:relative}.street-picker-trigger:after{content:"⌄";position:absolute;right:14px;top:50%;transform:translateY(-50%);color:#69df83;font-weight:900}.street-picker-menu{position:absolute;z-index:60;left:0;right:0;top:calc(100% + 6px);max-height:58vh;overflow:auto;background:#0d3525;border:1px solid rgba(105,223,131,.45);border-radius:14px;box-shadow:0 18px 40px rgba(0,0,0,.45);padding:6px}.street-picker-menu.hidden{display:none}.street-picker-heading{padding:9px 11px 5px;color:#9ee9ad;font-size:10px;font-weight:900;letter-spacing:.6px;text-transform:uppercase}.street-picker-item{display:block;width:100%;text-align:left;padding:12px 11px;border:0;border-bottom:1px solid rgba(255,255,255,.09);background:#0d3525;color:#f3f7fc;font:inherit;font-size:15px}.street-picker-item:last-child{border-bottom:0}.street-picker-item:active,.street-picker-item:hover{background:#145a35}.street-picker-empty{padding:12px;color:#aebed2;font-size:13px}.previous-edit-hint{font-size:9px;color:#9ee9ad;margin-top:7px;font-weight:800}.record-editing{outline:2px solid rgba(105,223,131,.55)}
 
@@ -858,7 +866,7 @@ html.ss-native-webview #ssApprovedSiteSplash{display:none!important}
 
   <div id="postcodeChoices" class="postcode-choices hidden">
     <label for="streetChoice">DESTINATIONS FOR THIS POSTCODE</label>
-    <div class="street-picker">
+    <div class="street-picker postcode-destination-picker">
       <select id="streetChoice" aria-label="Choose destination" onchange="syncSelectedAddress()"><option value="">Finding destinations…</option></select>
       <button type="button" id="streetPickerTrigger" class="street-picker-trigger hidden" aria-hidden="true" tabindex="-1">Choose destination…</button>
       <div id="streetPickerMenu" class="street-picker-menu hidden" aria-hidden="true"></div>
@@ -2169,18 +2177,37 @@ function syncSelectedAddress(){
   const choice=document.getElementById("streetChoice");
   if(!choice || !choice.dataset.options || choice.value==="") return;
   try{
-    const selected=JSON.parse(choice.dataset.options)[Number(choice.value)]||null;
-    if(selected){
-      document.getElementById("address").value=selected.label||"";
-      const pc=document.getElementById("huntPostcode").value.trim().toUpperCase();
-      document.getElementById("postcode").value=pc;
-      // For a mapped property, resolve the property name against Breadcrumbs/EPC rather than
-      // sending the whole display label as though it were the house name.
-      // V1.0.5q: selecting a suggestion only fills the form.
-      // Do not launch Breadcrumbs until FIND DESTINATION is explicitly pressed.
-      const resolverName=(selected.kind==="property" ? (selected.house||selected.label) : selected.label)||"";
+    const options=JSON.parse(choice.dataset.options)||[];
+    const selected=options[Number(choice.value)]||null;
+    if(!selected)return;
+
+    const numberField=document.getElementById("doorNumber");
+    const propertyField=document.getElementById("manualAddress");
+    const pc=(document.getElementById("huntPostcode")?.value||"").trim().toUpperCase();
+    const house=String(selected.house||"").trim();
+    const road=String(selected.road||"").trim();
+    const numberMatch=house.match(/^([0-9]+[A-Za-z]?(?:\/[0-9]+[A-Za-z]?)?)$/);
+
+    // Apply the chosen result to the fields colleagues can actually see and edit.
+    // A numbered property becomes NUMBER + STREET; a named property stays in the name field.
+    if(selected.kind==="property" && numberMatch){
+      if(numberField)numberField.value=numberMatch[1];
+      if(propertyField)propertyField.value=road||selected.label||house;
+    }else{
+      if(numberField)numberField.value="";
+      if(propertyField)propertyField.value=(selected.kind==="property"?(house||selected.label):road||selected.label)||selected.label||"";
     }
-  }catch(e){}
+
+    const address=document.getElementById("address");
+    const postcode=document.getElementById("postcode");
+    if(postcode)postcode.value=pc;
+    if(address)address.value=propertyField?.value||selected.label||"";
+
+    // Fill only; the colleague still explicitly chooses CHECK DESTINATION to run a lookup.
+    if(typeof syncManualAddress==="function")syncManualAddress();
+    if(typeof bcQueueFromSimpleInputs==="function")bcQueueFromSimpleInputs();
+    if(typeof render==="function")render();
+  }catch(e){console.warn("Could not apply selected postcode destination",e)}
 }
 function triggerCelebration(){
   document.getElementById("situSnapSuccessOverlay")?.remove();
