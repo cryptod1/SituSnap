@@ -117,7 +117,7 @@ jobs:
                   sys.exit("FAIL: APK contains no DEX bytecode")
               dex = b"".join(archive.read(name) for name in dex_names)
           required_native_markers = [
-              b"FileProvider.getUriForFile",
+              b"androidx/core/content/FileProvider",
               b"situsnap-camera",
           ]
           for marker in required_native_markers:
