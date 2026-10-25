@@ -1472,6 +1472,11 @@ async function lookupPostcodeOptions(){
     const options=[...exactProperties,...nearbyStreets];
     if(!options.length){
       clearTimeout(slowLookupNotice);
+      if(box)box.classList.remove("hidden");
+      const trigger=document.getElementById("streetPickerTrigger");
+      const menu=document.getElementById("streetPickerMenu");
+      if(trigger)trigger.textContent="No mapped destination found — enter the property below";
+      if(menu){menu.innerHTML='<div class="street-picker-empty">No mapped destination found for this postcode — enter it below.</div>';menu.classList.add("hidden")}
       select.innerHTML='<option value="">No precise mapped location found</option>';
       select.disabled=true;
       setStreetPickerStatus("No mapped destination found — enter the destination name below");
@@ -1501,6 +1506,7 @@ async function lookupPostcodeOptions(){
     } else {
       autoFillStreetFromProperty();
     }
+    if(box)box.classList.remove("hidden");
     renderStreetPicker(exactProperties,nearbyStreets,options,canonicalPc);
     const mainTyped=(document.getElementById("manualAddress")?.value||"").trim();if(mainTyped.length>=2)showMainStreetMatches(mainStreetNames(),mainTyped);
     clearTimeout(slowLookupNotice);
