@@ -1437,33 +1437,33 @@ async function lookupPostcodeOptions(){
         "https://overpass-api.de/api/interpreter",
         "https://maps.mail.ru/osm/tools/overpass/api/interpreter"
       ];
-      // Race independent HTTPS endpoints and both supported request styles.
-      // The old sequential fallback could take over 30 seconds on a phone
-      // before reaching the manual-entry fallback.
-      const controllers=[];
-      const attempts=endpoints.flatMap(endpoint=>[
-        {url:endpoint,method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded;charset=UTF-8"},body:"data="+encodeURIComponent(query)},
-        {url:endpoint+"?data="+encodeURIComponent(query),method:"GET",headers:{"Accept":"application/json"}}
-      ]);
-      const requests=attempts.map(async attempt=>{
-        const controller=new AbortController();
-        controllers.push(controller);
-        const timer=setTimeout(()=>controller.abort(),8000);
-        try{
-          const r=await fetch(attempt.url,{method:attempt.method,headers:attempt.headers,body:attempt.body,signal:controller.signal});
-          if(!r.ok)throw new Error(attempt.method+" HTTP "+r.status);
-          const data=await r.json();
-          if(!data||!Array.isArray(data.elements))throw new Error(attempt.method+" returned unexpected mapping data");
-          return data;
-        }finally{clearTimeout(timer)}
-      });
+      // Run independent endpoint/request-style attempts concurrently instead of
+      // waiting through POST then GET on each server in sequence.
+      const attempts=[];
+      for(const endpoint of endpoints){
+        for(const method of ["POST","GET"]){
+          attempts.push((async()=>{
+            const controller=new AbortController();
+            const timer=setTimeout(()=>controller.abort(),8000);
+            try{
+              const url=method==="GET"?endpoint+"?data="+encodeURIComponent(query):endpoint;
+              const options=method==="GET"
+                ? {method:"GET",headers:{"Accept":"application/json"},signal:controller.signal}
+                : {method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded;charset=UTF-8","Accept":"application/json"},body:"data="+encodeURIComponent(query),signal:controller.signal};
+              const r=await fetch(url,options);
+              if(!r.ok) throw new Error(method+" HTTP "+r.status+" from "+endpoint);
+              const data=await r.json();
+              if(!data||!Array.isArray(data.elements)) throw new Error(method+" returned unexpected mapping data");
+              return data;
+            }finally{clearTimeout(timer)}
+          })());
+        }
+      }
       try{
-        return await Promise.any(requests);
+        return await Promise.any(attempts);
       }catch(err){
         console.warn("SituSnap street lookup failed on all Overpass request methods",err);
         throw new Error("Street lookup unavailable");
-      }finally{
-        controllers.forEach(controller=>{try{controller.abort()}catch(_){}});
       }
     }
 
