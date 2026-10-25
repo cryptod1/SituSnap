@@ -63,7 +63,8 @@
 .find input#huntPostcode{padding:9px 10px;min-height:44px;font-size:14px}
 .find button{min-height:44px;padding:0 13px;border-radius:10px;font-size:12px}
 #targetBox{display:none !important}
-#postcodeChoices{display:none!important}.postcode-choices{margin-top:8px;padding:9px 10px;border-radius:12px;background:rgba(255,255,255,.96);border:1px solid rgba(105,223,131,.45)}
+/* Keep the destination alternatives visible when the postcode lookup has results. */
+.postcode-choices{margin-top:8px;padding:9px 10px;border-radius:12px;background:rgba(255,255,255,.96);border:1px solid rgba(105,223,131,.45)}
 .postcode-choices label{display:block;font-size:9px;font-weight:900;letter-spacing:.5px;color:#31506b;margin-bottom:5px}
 
 
@@ -135,6 +136,14 @@
 #manualAddress:focus{outline:3px solid rgba(105,223,131,.22)!important}
 .property-split{display:grid;grid-template-columns:minmax(105px,24%) minmax(0,1fr);gap:10px;align-items:start}.property-split>div{min-width:0;display:flex;flex-direction:column}.property-split .property-label{display:block;min-height:36px;box-sizing:border-box;padding:0 4px 7px;font-size:10px;font-weight:950;color:#43566f;letter-spacing:.25px;line-height:14px;white-space:normal;overflow:visible}.property-split input,.property-split #doorNumber,.property-split #manualAddress{box-sizing:border-box;width:100%!important;min-width:0;height:52px!important;min-height:52px!important;padding:11px 12px!important;background:#fff!important;color:#111827!important;-webkit-text-fill-color:#111827!important;border:1px solid #cbd5e1!important;border-radius:10px!important;font-size:16px!important}.property-split #doorNumber{padding-left:12px!important}@media(max-width:360px){.property-split{grid-template-columns:92px minmax(0,1fr);gap:8px}.property-split .property-label{font-size:9px;letter-spacing:0}}
 
+
+/* Professional native destination selector: consistent with SituSnap's dark-green interface */
+.postcode-destination-picker{position:relative}
+#streetChoice{display:block;width:100%;min-height:54px;padding:13px 46px 13px 14px;margin:0;appearance:none;-webkit-appearance:none;border:1px solid rgba(105,223,131,.55);border-radius:12px;background-color:#0d3525;background-image:linear-gradient(45deg,transparent 50%,#69df83 50%),linear-gradient(135deg,#69df83 50%,transparent 50%);background-position:calc(100% - 19px) 23px,calc(100% - 13px) 23px;background-size:6px 6px,6px 6px;background-repeat:no-repeat;color:#f3f7fc;-webkit-text-fill-color:#f3f7fc;font:600 16px/1.35 Inter,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;box-shadow:0 5px 16px rgba(0,0,0,.16)}
+#streetChoice:focus{outline:3px solid rgba(105,223,131,.2);border-color:#69df83}
+#streetChoice:disabled{opacity:.7}
+#streetChoice option{background:#0d3525;color:#f3f7fc}
+@media(max-width:380px){#streetChoice{font-size:15px;min-height:52px;padding-left:12px}}
 
 /* SituSnap custom dark-green location picker */
 .street-picker{position:relative;width:100%}.street-picker-trigger{width:100%;min-height:52px;padding:11px 44px 11px 12px;border:1px solid rgba(126,177,235,.25);border-radius:10px;background:#0d3525;color:#f3f7fc;text-align:left;font:inherit;font-size:16px;position:relative}.street-picker-trigger:after{content:"⌄";position:absolute;right:14px;top:50%;transform:translateY(-50%);color:#69df83;font-weight:900}.street-picker-menu{position:absolute;z-index:60;left:0;right:0;top:calc(100% + 6px);max-height:58vh;overflow:auto;background:#0d3525;border:1px solid rgba(105,223,131,.45);border-radius:14px;box-shadow:0 18px 40px rgba(0,0,0,.45);padding:6px}.street-picker-menu.hidden{display:none}.street-picker-heading{padding:9px 11px 5px;color:#9ee9ad;font-size:10px;font-weight:900;letter-spacing:.6px;text-transform:uppercase}.street-picker-item{display:block;width:100%;text-align:left;padding:12px 11px;border:0;border-bottom:1px solid rgba(255,255,255,.09);background:#0d3525;color:#f3f7fc;font:inherit;font-size:15px}.street-picker-item:last-child{border-bottom:0}.street-picker-item:active,.street-picker-item:hover{background:#145a35}.street-picker-empty{padding:12px;color:#aebed2;font-size:13px}.previous-edit-hint{font-size:9px;color:#9ee9ad;margin-top:7px;font-weight:800}.record-editing{outline:2px solid rgba(105,223,131,.55)}
@@ -857,10 +866,10 @@ html.ss-native-webview #ssApprovedSiteSplash{display:none!important}
 
   <div id="postcodeChoices" class="postcode-choices hidden">
     <label for="streetChoice">DESTINATIONS FOR THIS POSTCODE</label>
-    <div class="street-picker">
-      <button type="button" id="streetPickerTrigger" class="street-picker-trigger" onclick="toggleStreetPicker()">Looking up locations…</button>
-      <div id="streetPickerMenu" class="street-picker-menu hidden"></div>
-      <select id="streetChoice" class="hidden" onchange="syncSelectedAddress()"><option value="">Looking up locations…</option></select>
+    <div class="street-picker postcode-destination-picker">
+      <select id="streetChoice" aria-label="Choose destination" onchange="syncSelectedAddress()"><option value="">Finding destinations…</option></select>
+      <button type="button" id="streetPickerTrigger" class="street-picker-trigger hidden" aria-hidden="true" tabindex="-1">Choose destination…</button>
+      <div id="streetPickerMenu" class="street-picker-menu hidden" aria-hidden="true"></div>
     </div>
   </div>
 </div>
@@ -1169,7 +1178,23 @@ function renderStreetPicker(properties,streets,options,postcode){
 }
 function toggleStreetPicker(){
   const menu=document.getElementById("streetPickerMenu");
-  if(menu)menu.classList.toggle("hidden");
+  const trigger=document.getElementById("streetPickerTrigger");
+  const select=document.getElementById("streetChoice");
+  if(!menu||!trigger)return;
+  // Recover the option list if another status update cleared the custom menu.
+  if(!menu.children.length&&select?.dataset.options){
+    let options=[];try{options=JSON.parse(select.dataset.options)||[]}catch(e){}
+    if(options.length){
+      menu.innerHTML='<div class="street-picker-heading">Available destinations</div>'+
+        options.map((o,i)=>'<button type="button" class="street-picker-item" onclick="chooseStreetOption('+i+')">'+esc(o.label)+'</button>').join('');
+    }else{
+      menu.innerHTML='<div class="street-picker-empty">No mapped destination found for this postcode — enter it below.</div>';
+    }
+  }
+  const opening=menu.classList.contains("hidden");
+  menu.classList.toggle("hidden",!opening);
+  menu.style.display=opening?"block":"none";
+  trigger.setAttribute("aria-expanded",opening?"true":"false");
 }
 function chooseStreetOption(index){
   const select=document.getElementById("streetChoice");
@@ -1186,7 +1211,7 @@ function chooseStreetOption(index){
 document.addEventListener("click",e=>{
   const picker=e.target.closest?.(".street-picker");
   if(!picker){
-    const m=document.getElementById("streetPickerMenu");if(m)m.classList.add("hidden");
+    const m=document.getElementById("streetPickerMenu");if(m){m.classList.add("hidden");m.style.display="none"}
     const rm=document.getElementById("recordStreetPickerMenu");if(rm)rm.classList.add("hidden");
     const lr=document.getElementById("streetLiveResults");if(lr)lr.classList.add("hidden");
     const mm=document.getElementById("mainStreetResults");if(mm)mm.classList.add("hidden");
@@ -1392,8 +1417,8 @@ async function lookupPostcodeOptions(){
   const manual=document.getElementById("manualAddress");
   const recordBox=document.getElementById("recordPostcodeChoices");
   if(p.length<5){box.classList.add("hidden");if(recordBox)recordBox.classList.remove("hidden");select.dataset.options="";const dl=document.getElementById("streetSuggestions");if(dl)dl.innerHTML="";if(manualWrap)manualWrap.classList.add("hidden");setRecordStreetPickerStatus("Start typing the postcode…");return}
-  // Keep property entry visible while background postcode lookup runs.
-  if(box)box.classList.add("hidden");
+  // Keep the destination chooser visible throughout the lookup, including slow or stalled requests.
+  if(box)box.classList.remove("hidden");
   if(manualWrap)manualWrap.classList.remove("hidden");
   select.disabled=false;
   select.innerHTML='<option value="">Finding locations…</option>';
@@ -1412,7 +1437,55 @@ async function lookupPostcodeOptions(){
     }
   },2000);
   try{
-    const pr=await fetch("https://api.postcodes.io/postcodes/"+encodeURIComponent(p));
+    // Prefer SituSnap's existing Breadcrumbs resolver for authoritative postcode
+    // address choices before relying on public mapping services.
+    try{
+      const resolverController=new AbortController();
+      const resolverTimer=setTimeout(()=>resolverController.abort(),8000);
+      let resolverResponse;
+      try{
+        resolverResponse=await fetch(BREADCRUMBS_RESOLVER_URL,{
+          method:"POST",
+          headers:{"Content-Type":"application/json"},
+          body:JSON.stringify({property:"",doorNumber:"",postcode:p}),
+          signal:resolverController.signal
+        });
+      }finally{clearTimeout(resolverTimer)}
+      if(resolverResponse.ok){
+        const resolverData=await resolverResponse.json().catch(()=>null);
+        const choices=resolverData?.mode==="postcode-address-choices"&&Array.isArray(resolverData.choices)?resolverData.choices:[];
+        const mapped=choices.map(choice=>{
+          const parts=String(choice?.address||"").split(",").map(v=>v.trim()).filter(Boolean);
+          const first=parts[0]||"";
+          const m=first.match(/^([0-9]+[A-Za-z]?(?:\/[0-9]+[A-Za-z]?)?)(?:\s+(.+))?$/);
+          const house=m?m[1]:first;
+          const road=m?(m[2]||parts[1]||""):(parts.length>1?parts[1]:"");
+          return {label:first,house,road,kind:"property",uprn:String(choice?.uprn||""),distance:0};
+        }).filter(o=>o.label);
+        if(mapped.length){
+          const unique=[...new Map(mapped.map(o=>[o.label.toLowerCase(),o])).values()].slice(0,50);
+          const resolverOptions=[...unique];
+          let html='<option value="">Choose a street or property…</option>';
+          unique.forEach((o,i)=>html+='<option value="'+i+'">'+esc(o.label)+'</option>');
+          select.innerHTML=html;
+          select.dataset.options=JSON.stringify(resolverOptions);
+          select.disabled=false;
+          if(box)box.classList.remove("hidden");
+          setStreetPickerStatus("Address choices loaded from Breadcrumbs.");
+          renderStreetPicker(unique,[],resolverOptions,p);
+          renderRecordStreetPicker(unique,[],resolverOptions,p);
+          clearTimeout(slowLookupNotice);
+          return;
+        }
+      }
+    }catch(resolverError){
+      console.warn("Breadcrumbs postcode choices unavailable; trying mapping fallback",resolverError);
+    }
+    const postcodeController=new AbortController();
+    const postcodeTimer=setTimeout(()=>postcodeController.abort(),5000);
+    let pr;
+    try{pr=await fetch("https://api.postcodes.io/postcodes/"+encodeURIComponent(p),{signal:postcodeController.signal});}
+    finally{clearTimeout(postcodeTimer)}
     const pd=await pr.json();
     if(!pr.ok||!pd.result) throw new Error("Postcode not found");
     const lat=Number(pd.result.latitude), lon=Number(pd.result.longitude);
@@ -1430,17 +1503,36 @@ async function lookupPostcodeOptions(){
     async function fetchOverpass(query){
       const endpoints=[
         "https://overpass-api.de/api/interpreter",
-        "https://overpass.kumi.systems/api/interpreter"
+        "https://maps.mail.ru/osm/tools/overpass/api/interpreter"
       ];
-      let lastErr=null;
+      // Run independent endpoint/request-style attempts concurrently instead of
+      // waiting through POST then GET on each server in sequence.
+      const attempts=[];
       for(const endpoint of endpoints){
-        try{
-          const r=await fetch(endpoint,{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded;charset=UTF-8"},body:"data="+encodeURIComponent(query)});
-          if(!r.ok) throw new Error("HTTP "+r.status);
-          return await r.json();
-        }catch(err){lastErr=err;}
+        for(const method of ["POST","GET"]){
+          attempts.push((async()=>{
+            const controller=new AbortController();
+            const timer=setTimeout(()=>controller.abort(),8000);
+            try{
+              const url=method==="GET"?endpoint+"?data="+encodeURIComponent(query):endpoint;
+              const options=method==="GET"
+                ? {method:"GET",headers:{"Accept":"application/json"},signal:controller.signal}
+                : {method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded;charset=UTF-8","Accept":"application/json"},body:"data="+encodeURIComponent(query),signal:controller.signal};
+              const r=await fetch(url,options);
+              if(!r.ok) throw new Error(method+" HTTP "+r.status+" from "+endpoint);
+              const data=await r.json();
+              if(!data||!Array.isArray(data.elements)) throw new Error(method+" returned unexpected mapping data");
+              return data;
+            }finally{clearTimeout(timer)}
+          })());
+        }
       }
-      throw lastErr||new Error("Street lookup unavailable");
+      try{
+        return await Promise.any(attempts);
+      }catch(err){
+        console.warn("SituSnap street lookup failed on all Overpass request methods",err);
+        throw new Error("Street lookup unavailable");
+      }
     }
 
     const od=await fetchOverpass(q);
@@ -1471,6 +1563,11 @@ async function lookupPostcodeOptions(){
     const options=[...exactProperties,...nearbyStreets];
     if(!options.length){
       clearTimeout(slowLookupNotice);
+      if(box)box.classList.remove("hidden");
+      const trigger=document.getElementById("streetPickerTrigger");
+      const menu=document.getElementById("streetPickerMenu");
+      if(trigger)trigger.textContent="No mapped destination found — enter the property below";
+      if(menu){menu.innerHTML='<div class="street-picker-empty">No mapped destination found for this postcode — enter it below.</div>';menu.classList.add("hidden")}
       select.innerHTML='<option value="">No precise mapped location found</option>';
       select.disabled=true;
       setStreetPickerStatus("No mapped destination found — enter the destination name below");
@@ -1500,6 +1597,7 @@ async function lookupPostcodeOptions(){
     } else {
       autoFillStreetFromProperty();
     }
+    if(box)box.classList.remove("hidden");
     renderStreetPicker(exactProperties,nearbyStreets,options,canonicalPc);
     const mainTyped=(document.getElementById("manualAddress")?.value||"").trim();if(mainTyped.length>=2)showMainStreetMatches(mainStreetNames(),mainTyped);
     clearTimeout(slowLookupNotice);
@@ -1507,10 +1605,16 @@ async function lookupPostcodeOptions(){
     if(manualWrap)manualWrap.classList.remove("hidden");
   }catch(e){
     clearTimeout(slowLookupNotice);
+    // Keep the chooser visible on lookup failure so the user sees why alternatives are missing.
+    if(box)box.classList.remove("hidden");
     select.innerHTML='<option value="">Automatic street lookup unavailable</option>';
     select.disabled=true;
+    const trigger=document.getElementById("streetPickerTrigger");
+    const menu=document.getElementById("streetPickerMenu");
+    if(trigger)trigger.textContent="Street lookup unavailable — enter the property below";
+    if(menu){menu.innerHTML='<div class="street-picker-empty">Automatic destinations could not be loaded. You can still enter the property manually.</div>';menu.classList.add("hidden")}
     const dl=document.getElementById("streetSuggestions");if(dl)dl.innerHTML="";
-    setStreetPickerStatus("Street service is temporarily unavailable — postcode-only hunt is still fine");
+    setStreetPickerStatus("Street service is temporarily unavailable — enter the property manually");
     if(recordBox)recordBox.classList.add("hidden");
     if(manualWrap)manualWrap.classList.remove("hidden");
   }
@@ -2073,18 +2177,37 @@ function syncSelectedAddress(){
   const choice=document.getElementById("streetChoice");
   if(!choice || !choice.dataset.options || choice.value==="") return;
   try{
-    const selected=JSON.parse(choice.dataset.options)[Number(choice.value)]||null;
-    if(selected){
-      document.getElementById("address").value=selected.label||"";
-      const pc=document.getElementById("huntPostcode").value.trim().toUpperCase();
-      document.getElementById("postcode").value=pc;
-      // For a mapped property, resolve the property name against Breadcrumbs/EPC rather than
-      // sending the whole display label as though it were the house name.
-      // V1.0.5q: selecting a suggestion only fills the form.
-      // Do not launch Breadcrumbs until FIND DESTINATION is explicitly pressed.
-      const resolverName=(selected.kind==="property" ? (selected.house||selected.label) : selected.label)||"";
+    const options=JSON.parse(choice.dataset.options)||[];
+    const selected=options[Number(choice.value)]||null;
+    if(!selected)return;
+
+    const numberField=document.getElementById("doorNumber");
+    const propertyField=document.getElementById("manualAddress");
+    const pc=(document.getElementById("huntPostcode")?.value||"").trim().toUpperCase();
+    const house=String(selected.house||"").trim();
+    const road=String(selected.road||"").trim();
+    const numberMatch=house.match(/^([0-9]+[A-Za-z]?(?:\/[0-9]+[A-Za-z]?)?)$/);
+
+    // Apply the chosen result to the fields colleagues can actually see and edit.
+    // A numbered property becomes NUMBER + STREET; a named property stays in the name field.
+    if(selected.kind==="property" && numberMatch){
+      if(numberField)numberField.value=numberMatch[1];
+      if(propertyField)propertyField.value=road||selected.label||house;
+    }else{
+      if(numberField)numberField.value="";
+      if(propertyField)propertyField.value=(selected.kind==="property"?(house||selected.label):road||selected.label)||selected.label||"";
     }
-  }catch(e){}
+
+    const address=document.getElementById("address");
+    const postcode=document.getElementById("postcode");
+    if(postcode)postcode.value=pc;
+    if(address)address.value=propertyField?.value||selected.label||"";
+
+    // Fill only; the colleague still explicitly chooses CHECK DESTINATION to run a lookup.
+    if(typeof syncManualAddress==="function")syncManualAddress();
+    if(typeof bcQueueFromSimpleInputs==="function")bcQueueFromSimpleInputs();
+    if(typeof render==="function")render();
+  }catch(e){console.warn("Could not apply selected postcode destination",e)}
 }
 function triggerCelebration(){
   document.getElementById("situSnapSuccessOverlay")?.remove();
