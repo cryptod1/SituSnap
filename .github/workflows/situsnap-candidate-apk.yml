@@ -90,8 +90,8 @@ jobs:
           MANIFEST_XML=$("$BUILD_TOOLS/aapt" dump xmltree "$APK" AndroidManifest.xml)
           echo "$MANIFEST_XML" | grep -Fq "androidx.core.content.FileProvider"
           echo "$MANIFEST_XML" | grep -Fq "com.situsnap.app.photos"
-          PATHS_XML=$("$BUILD_TOOLS/aapt" dump xmltree "$APK" res/xml/situsnap_photo_paths.xml)
-          echo "$PATHS_XML" | grep -Fq "situsnap-camera"
+          RESOURCES=$("$BUILD_TOOLS/aapt" dump resources "$APK")
+          echo "$RESOURCES" | grep -Fq "com.situsnap.app:xml/situsnap_photo_paths"
           python3 - <<'PY'
           import hashlib
           import os
