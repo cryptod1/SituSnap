@@ -1,4 +1,4 @@
-name: SituSnap candidate APK (no release; verify private camera patch)
+name: SituSnap candidate APK (no release; verify private camera patch and build fixes)
 
 on:
   push:
