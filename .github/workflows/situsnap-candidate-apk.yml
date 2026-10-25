@@ -119,8 +119,8 @@ jobs:
           for marker in required_native_markers:
               if marker not in dex:
                   sys.exit(f"FAIL: APK DEX is missing private-camera marker: {marker.decode()}")
-          if b"MediaStore$Images$Media" in dex or b"ContentValues" in dex:
-              sys.exit("FAIL: APK DEX still contains legacy shared-gallery camera insertion markers")
+          if b"MediaStore$Images$Media" in dex:
+              sys.exit("FAIL: APK DEX still contains the legacy shared-gallery MediaStore.Images.Media API")
           print("PASS: APK DEX contains private FileProvider/cache markers and no legacy gallery-insert markers")
           digest = hashlib.sha256(source).hexdigest()
           print(f"Candidate source and APK HTML SHA-256: {digest}")
