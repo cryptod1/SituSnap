@@ -3,10 +3,11 @@ name: SituSnap candidate APK (no release)
 on:
   push:
     branches:
-      - release-candidate/repair-photo-id-delete-confirmation-v2
+      - release-candidate/native-private-photo-capture
     paths:
       - "index.html"
       - ".github/scripts/make_android.py"
+      - ".github/scripts/patch_native_photo_storage.py"
       - ".github/workflows/situsnap-candidate-apk.yml"
   workflow_dispatch:
 
@@ -27,6 +28,9 @@ jobs:
 
       - name: Generate Android project from candidate source
         run: python3 .github/scripts/make_android.py
+
+      - name: Patch native camera to app-private temporary storage
+        run: python3 .github/scripts/patch_native_photo_storage.py
 
       - name: Set candidate-only version and API level
         run: |
