@@ -1413,6 +1413,50 @@ async function lookupPostcodeOptions(){
     }
   },2000);
   try{
+    // Prefer SituSnap's existing Breadcrumbs resolver for authoritative postcode
+    // address choices before relying on public mapping services.
+    try{
+      const resolverController=new AbortController();
+      const resolverTimer=setTimeout(()=>resolverController.abort(),8000);
+      let resolverResponse;
+      try{
+        resolverResponse=await fetch(BREADCRUMBS_RESOLVER_URL,{
+          method:"POST",
+          headers:{"Content-Type":"application/json"},
+          body:JSON.stringify({property:"",doorNumber:"",postcode:p}),
+          signal:resolverController.signal
+        });
+      }finally{clearTimeout(resolverTimer)}
+      if(resolverResponse.ok){
+        const resolverData=await resolverResponse.json().catch(()=>null);
+        const choices=resolverData?.mode==="postcode-address-choices"&&Array.isArray(resolverData.choices)?resolverData.choices:[];
+        const mapped=choices.map(choice=>{
+          const parts=String(choice?.address||"").split(",").map(v=>v.trim()).filter(Boolean);
+          const first=parts[0]||"";
+          const m=first.match(/^([0-9]+[A-Za-z]?(?:\/[0-9]+[A-Za-z]?)?)(?:\s+(.+))?$/);
+          const house=m?m[1]:first;
+          const road=m?(m[2]||parts[1]||""):(parts.length>1?parts[1]:"");
+          return {label:first,house,road,kind:"property",uprn:String(choice?.uprn||""),distance:0};
+        }).filter(o=>o.label);
+        if(mapped.length){
+          const unique=[...new Map(mapped.map(o=>[o.label.toLowerCase(),o])).values()].slice(0,50);
+          const resolverOptions=[...unique];
+          let html='<option value="">Choose a street or property…</option>';
+          unique.forEach((o,i)=>html+='<option value="'+i+'">'+esc(o.label)+'</option>');
+          select.innerHTML=html;
+          select.dataset.options=JSON.stringify(resolverOptions);
+          select.disabled=false;
+          if(box)box.classList.remove("hidden");
+          renderStreetPicker(unique,[],resolverOptions,canonicalPostcodeForChoices(p));
+          renderRecordStreetPicker(unique,[],resolverOptions,p);
+          setStreetPickerStatus("Address choices loaded from Breadcrumbs.");
+          clearTimeout(slowLookupNotice);
+          return;
+        }
+      }
+    }catch(resolverError){
+      console.warn("Breadcrumbs postcode choices unavailable; trying mapping fallback",resolverError);
+    }
     const postcodeController=new AbortController();
     const postcodeTimer=setTimeout(()=>postcodeController.abort(),5000);
     let pr;
