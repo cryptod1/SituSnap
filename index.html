@@ -859,9 +859,9 @@ html.ss-native-webview #ssApprovedSiteSplash{display:none!important}
   <div id="postcodeChoices" class="postcode-choices hidden">
     <label for="streetChoice">DESTINATIONS FOR THIS POSTCODE</label>
     <div class="street-picker">
-      <button type="button" id="streetPickerTrigger" class="street-picker-trigger" onclick="toggleStreetPicker()">Looking up locations…</button>
-      <div id="streetPickerMenu" class="street-picker-menu hidden"></div>
-      <select id="streetChoice" class="hidden" onchange="syncSelectedAddress()"><option value="">Looking up locations…</option></select>
+      <select id="streetChoice" aria-label="Choose destination" onchange="syncSelectedAddress()"><option value="">Finding destinations…</option></select>
+      <button type="button" id="streetPickerTrigger" class="street-picker-trigger hidden" aria-hidden="true" tabindex="-1">Choose destination…</button>
+      <div id="streetPickerMenu" class="street-picker-menu hidden" aria-hidden="true"></div>
     </div>
   </div>
 </div>
