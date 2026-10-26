@@ -1784,7 +1784,7 @@ function ssRenderPostcodeChoices(choices){
     btn.type='button';
     btn.textContent=address;
     btn.style.cssText='width:100%;text-align:left;padding:12px;border:1px solid #31566a;border-radius:10px;background:#0b3042;color:#fff;font-weight:850;line-height:1.25';
-    btn.addEventListener('click',()=>ssApplyPostcodeChoice(choice));
+    btn.addEventListener('click',()=>ssNavigatePostcodeChoice(choice));
     list.appendChild(btn);
   }
   panel.classList.toggle('hidden',!list.children.length);
@@ -1809,6 +1809,34 @@ async function ssLoadUnifiedPostcodeChoices(postcode){
     if(dropdown && choices.length)dropdown.open=true;
   }catch(_){
     if(generation===ssUnifiedChoicesGeneration && count)count.textContent='Enter address manually if needed';
+  }
+}
+
+
+async function ssNavigatePostcodeChoice(choice){
+  // One tap on a postcode result attempts verification and routes only if a confirmed pin is returned.
+  ssApplyPostcodeChoice(choice);
+  const pc=(document.getElementById('huntPostcode')?.value||'').trim().toUpperCase();
+  const property=bcPropertyInput();
+  if(!property||!isCompleteUkPostcode(pc))return;
+  const check=document.getElementById('ssCheckDestinationBtn');
+  if(check)check.hidden=false;
+  const count=document.getElementById('ssUnifiedDestinationCount');
+  if(count)count.textContent='Verifying selected address…';
+  try{
+    const result=await bcResolve(property,pc,choice?.uprn,true);
+    const returnedUprn=String(result?.uprn||'').trim();
+    const selectedUprn=String(choice?.uprn||'').trim();
+    const uprnMatches=!selectedUprn||(returnedUprn&&returnedUprn===selectedUprn);
+    const lat=Number(result?.latitude),lon=Number(result?.longitude);
+    if(result?.verified===true&&uprnMatches&&Number.isFinite(lat)&&Number.isFinite(lon)&&Math.abs(lat)>0&&Math.abs(lon)>0){
+      if(count)count.textContent='Destination verified — opening pin…';
+      window.location.href='https://www.google.com/maps/dir/?api=1&destination='+lat+','+lon+'&travelmode=driving';
+      return;
+    }
+    if(count)count.textContent='Not verified — use CHECK DESTINATION';
+  }catch(_){
+    if(count)count.textContent='Could not verify — use CHECK DESTINATION';
   }
 }
 
