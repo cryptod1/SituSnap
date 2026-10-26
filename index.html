@@ -63,7 +63,7 @@
 .find input#huntPostcode{padding:9px 10px;min-height:44px;font-size:14px}
 .find button{min-height:44px;padding:0 13px;border-radius:10px;font-size:12px}
 #targetBox{display:none !important}
-#postcodeChoices{display:none!important}.postcode-choices{margin-top:8px;padding:9px 10px;border-radius:12px;background:rgba(255,255,255,.96);border:1px solid rgba(105,223,131,.45)}
+#postcodeChoices.hidden{display:none!important}.postcode-choices{margin-top:8px;padding:9px 10px;border-radius:12px;background:rgba(255,255,255,.96);border:1px solid rgba(105,223,131,.45)}
 .postcode-choices label{display:block;font-size:9px;font-weight:900;letter-spacing:.5px;color:#31506b;margin-bottom:5px}
 
 
@@ -1606,7 +1606,7 @@ function queuePostcodeLookup(){
   // V1.0.5j: never auto-start Breadcrumbs when a postcode completes.
   // FIND DESTINATION owns resolver order: local SituSnap pin first, Breadcrumbs only if needed.
   // Mapping suggestions still load quietly in the background.
-  postcodeTimer=setTimeout(lookupPostcodeOptions,450);
+  postcodeTimer=setTimeout(()=>{lookupPostcodeOptions();ssLoadUnifiedPostcodeChoices(raw);},450);
 }
 function bcPropertyInput(){
   const number=(document.getElementById("doorNumber")?.value||"").trim();
@@ -1728,15 +1728,14 @@ function ssHidePostcodeChoices(){
   if(list)list.innerHTML='';
 }
 
-async function ssApplyPostcodeChoice(choice){
+function ssApplyPostcodeChoice(choice){
   const address=String(choice?.address||'').trim();
-  const selectedUprn=String(choice?.uprn||'').trim();
   const addressParts=address.split(',').map(part=>part.trim()).filter(Boolean);
   const firstLine=addressParts[0]||'';
   if(!firstLine)return;
 
-  // Address choices can put the door number and street in separate comma
-  // fields, e.g. "1, Oaklands Rise, BRIDGEND, CF31 4SP".
+  // Selection only fills the form. CHECK DESTINATION is the sole action
+  // that may verify a destination or enable navigation.
   const numberMatch=firstLine.match(/^([0-9]+[A-Za-z]?(?:\/[0-9]+[A-Za-z]?)?)(?:\s+(.+))?$/);
   const door=document.getElementById('doorNumber');
   const property=document.getElementById('manualAddress');
@@ -1748,39 +1747,16 @@ async function ssApplyPostcodeChoice(choice){
     if(property)property.value=firstLine;
   }
   syncManualAddress();
-  ssHidePostcodeChoices();
-
-  // A selected authoritative postcode choice gets one direct production
-  // verification pass. Discovery itself never verifies a pin.
-  const pc=(document.getElementById('huntPostcode')?.value||'').trim().toUpperCase();
-  const selectedProperty=bcPropertyInput();
-  const myFindGeneration=++ssFindGeneration;
-  window.__ssLocalVerifiedLocked=false;
   ssPendingNavigation=null;
-  ssShowFindResult('Checking destination…',[selectedProperty,pc].filter(Boolean).join(' · '),false,'BREADCRUMBS');
-
-  const result=await bcResolve(selectedProperty,pc,undefined,true);
-  if(myFindGeneration!==ssFindGeneration)return;
-
-  const returnedUprn=String(result?.uprn||'').trim();
-  const uprnMatches=!selectedUprn || (returnedUprn && returnedUprn===selectedUprn);
-  if(result?.verified===true && uprnMatches &&
-     Number.isFinite(Number(result.latitude)) && Number.isFinite(Number(result.longitude))){
-    ssPendingNavigation={
-      latitude:Number(result.latitude),
-      longitude:Number(result.longitude),
-      query:result.address||address||[selectedProperty,pc].join(', ')
-    };
-    ssShowFindResult('✓ DESTINATION VERIFIED',
-      result.address||address||[selectedProperty,pc].join(' · '),true,'BREADCRUMBS');
-    return;
-  }
-
-  ssShowFindResult('DESTINATION NOT VERIFIED',
-    'No confirmed pin is available yet. Use Record Without Sat Nav when you reach the property.',
-    false,'SITUSNAP');
+  window.__ssLocalVerifiedLocked=false;
+  const nav=document.getElementById('ssNavigateBtn');
+  if(nav)nav.classList.add('hidden');
+  const check=document.getElementById('ssCheckDestinationBtn');
+  if(check)check.hidden=false;
+  const result=document.getElementById('ssFindResult');
+  if(result)result.classList.add('hidden');
+  // Keep the postcode list available so another address can be chosen.
 }
-
 function ssRenderPostcodeChoices(choices){
   const panel=document.getElementById('bcPostcodeChoicePanel');
   const list=document.getElementById('bcPostcodeChoiceList');
@@ -1797,6 +1773,28 @@ function ssRenderPostcodeChoices(choices){
     list.appendChild(btn);
   }
   panel.classList.toggle('hidden',!list.children.length);
+}
+
+
+let ssUnifiedChoicesGeneration=0;
+async function ssLoadUnifiedPostcodeChoices(postcode){
+  const generation=++ssUnifiedChoicesGeneration;
+  const pc=String(postcode||'').trim().toUpperCase();
+  const count=document.getElementById('ssUnifiedDestinationCount');
+  if(!isCompleteUkPostcode(normalisePc(pc)))return;
+  if(count)count.textContent='Loading addresses…';
+  try{
+    const choices=await ssFindPostcodeChoices(pc);
+    if(generation!==ssUnifiedChoicesGeneration ||
+       normalisePc(document.getElementById('huntPostcode')?.value)!==normalisePc(pc))return;
+    ssRenderPostcodeChoices(choices);
+    const verified=ssVerifiedForPostcode(pc);
+    if(count)count.textContent=(verified.length+choices.length)+' address'+(verified.length+choices.length===1?'':'es')+' available';
+    const dropdown=document.getElementById('ssUnifiedDestinationDropdown');
+    if(dropdown && choices.length)dropdown.open=true;
+  }catch(_){
+    if(generation===ssUnifiedChoicesGeneration && count)count.textContent='Enter address manually if needed';
+  }
 }
 
 async function ssFindPostcodeChoices(postcode){
