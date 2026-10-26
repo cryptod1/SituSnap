@@ -1573,9 +1573,24 @@ function ssRenderVerifiedFirst(postcode){
   if(!rows.length){panel.classList.add("hidden");list.innerHTML="";return}
   list.innerHTML=rows.map(r=>{
     const label=[r.address,r.street].filter(Boolean).join(" · ");
-    return `<button type="button" onclick='ssChooseVerifiedFirst(${JSON.stringify(String(r.id))})' style="width:100%;margin-top:6px;padding:12px;border-radius:10px;border:0;background:#145a35;color:#fff;font-weight:900;text-align:left">✓ ${esc(label||"Verified property")}<br><span style="font-size:11px;font-weight:700;opacity:.86">${esc(r.postcode||"")} · ROUTE TO VERIFIED PIN →</span></button>${(r.photoUrl||r.localPhoto)?`<button type="button" onclick='ssViewVerifiedPhoto(${JSON.stringify(String(r.id))})' style="width:100%;margin-top:5px;padding:9px;border-radius:9px;border:1px solid #145a35;background:#fff;color:#145a35;font-weight:900">📷 VIEW VERIFIED PHOTO</button>`:""}`;
+    return `<button type="button" onclick='ssNavigateVerifiedFirst(${JSON.stringify(String(r.id))})' style="width:100%;margin-top:6px;padding:12px;border-radius:10px;border:0;background:#145a35;color:#fff;font-weight:900;text-align:left">✓ ${esc(label||"Verified property")}<br><span style="font-size:11px;font-weight:700;opacity:.86">${esc(r.postcode||"")} · ROUTE TO VERIFIED PIN →</span></button>${(r.photoUrl||r.localPhoto)?`<button type="button" onclick='ssViewVerifiedPhoto(${JSON.stringify(String(r.id))})' style="width:100%;margin-top:5px;padding:9px;border-radius:9px;border:1px solid #145a35;background:#fff;color:#145a35;font-weight:900">📷 VIEW VERIFIED PHOTO</button>`:""}`;
   }).join("");
   panel.classList.remove("hidden");
+}
+function ssNavigateVerifiedFirst(id){
+  const r=getRecords().find(x=>String(x.id)===String(id));
+  if(!r||!isVerifiedSituSnap(r))return;
+  const lat=Number(r.gps?.latitude ?? r.gps?.lat ?? r.latitude ?? r.lat);
+  const lon=Number(r.gps?.longitude ?? r.gps?.lon ?? r.longitude ?? r.lon);
+  const query=[r.address,r.street,r.postcode].filter(Boolean).join(', ');
+  // Verified property rows are a direct route action; no need to scroll to the result card.
+  if(Number.isFinite(lat)&&Number.isFinite(lon)&&Math.abs(lat)>0&&Math.abs(lon)>0){
+    window.location.href=`https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}&travelmode=driving`;
+    return;
+  }
+  if(query){
+    window.location.href="https://www.google.com/maps/dir/?api=1&destination="+encodeURIComponent(query)+"&travelmode=driving";
+  }
 }
 function ssChooseVerifiedFirst(id){
   const r=getRecords().find(x=>String(x.id)===String(id));
