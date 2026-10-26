@@ -165,15 +165,14 @@ if not manifest.is_file():
     raise SystemExit("FAIL: Android manifest is missing")
 manifest_source = manifest.read_text(encoding="utf-8")
 if 'android:enableOnBackInvokedCallback="false"' not in manifest_source:
-    import re
-    manifest_source, manifest_count = re.subn(
-        r'<application\b',
+    marker = "<application"
+    if marker not in manifest_source:
+        raise SystemExit("FAIL: Android application element not found in manifest")
+    manifest_source = manifest_source.replace(
+        marker,
         '<application android:enableOnBackInvokedCallback="false"',
-        manifest_source,
-        count=1,
+        1,
     )
-    if manifest_count != 1:
-        raise SystemExit("FAIL: could not route Android Back through confirmation handler")
     manifest.write_text(manifest_source, encoding="utf-8")
 
 main.write_text(source, encoding="utf-8")
