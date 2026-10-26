@@ -167,7 +167,7 @@ manifest_source = manifest.read_text(encoding="utf-8")
 if 'android:enableOnBackInvokedCallback="false"' not in manifest_source:
     import re
     manifest_source, manifest_count = re.subn(
-        r'<application\\b',
+        r'<application\b',
         '<application android:enableOnBackInvokedCallback="false"',
         manifest_source,
         count=1,
