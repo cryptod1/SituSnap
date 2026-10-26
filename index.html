@@ -803,6 +803,24 @@ html.ss-native-webview #ssApprovedSiteSplash{display:none!important}
 .ss-postcode-space{height:2px;border-radius:2px;background:rgba(169,186,208,.55)}
 .ss-postcode-hint{margin-top:6px!important;line-height:1.35!important;font-size:10px!important;color:#a9bad0!important}
 </style>
+
+<style id="ss-unified-destination-dropdown">
+/* Candidate-only: one large, high-contrast destination drawer for field use. */
+.ss-unified-destinations{margin-top:10px;border:1px solid #31566a;border-radius:15px;background:#082433;color:#fff;overflow:hidden}
+.ss-unified-destinations>summary{list-style:none;cursor:pointer;display:flex;flex-direction:column;gap:5px;justify-content:center;min-height:58px;padding:12px 15px;font-size:14px;font-weight:1000;letter-spacing:.25px;background:#0a2b3d}
+.ss-unified-destinations>summary::-webkit-details-marker{display:none}
+.ss-unified-destinations>summary:after{content:"⌄";float:right;color:#31df68;font-size:22px;line-height:18px;align-self:flex-end;margin-top:-24px}
+.ss-unified-destinations[open]>summary:after{content:"⌃"}
+#ssUnifiedDestinationCount{font-size:12px;font-weight:750;letter-spacing:0;color:#b9cbd7}
+.ss-unified-destinations-body{padding:10px;display:grid;gap:9px}
+.ss-unified-section-label{font-size:11px;font-weight:1000;letter-spacing:.5px;color:#31df68}
+#verifiedFirstPanel,#postcodeChoices,#bcPostcodeChoicePanel{margin:0!important}
+#postcodeChoices label{font-size:11px!important}
+#verifiedFirstList button,#bcPostcodeChoiceList button{min-height:52px!important;font-size:14px!important;line-height:1.35!important}
+#ssCheckDestinationBtn[hidden]{display:none!important}
+@media(max-width:380px){.ss-unified-destinations>summary{min-height:62px;padding:12px;font-size:13px}}
+</style>
+
 </head>
 <body>
 <div id="ssApprovedSiteSplash" aria-hidden="true"><img src="/situsnap-approved-splash.png" alt="" fetchpriority="high"></div>
@@ -816,10 +834,7 @@ html.ss-native-webview #ssApprovedSiteSplash{display:none!important}
 <div class="ss-find-card">
   <div class="ss-field ss-postcode-control" style="margin-top:0"><label class="ss-postcode-label">POSTCODE</label><div class="ss-postcode-split" role="group" aria-label="Postcode"><input id="postcodeOutward" aria-label="Postcode area" placeholder="" autocomplete="off" autocapitalize="characters" spellcheck="false" inputmode="text" maxlength="8"><span aria-hidden="true" class="ss-postcode-space"></span><input id="postcodeInward" aria-label="Last three postcode characters" placeholder="" autocomplete="off" autocapitalize="characters" spellcheck="false" inputmode="text" maxlength="8"></div><div class="small-note ss-postcode-hint">Enter the postcode area, then the last three characters. You can paste a full postcode.</div><input type="hidden" id="huntPostcode" aria-hidden="true" tabindex="-1" oninput="queuePostcodeLookup();syncRecordPostcode();bcQueueFromSimpleInputs()"></div>
 
-  <div id="verifiedFirstPanel" class="hidden" style="padding:10px;background:#eef8f1;border:1px solid #b9dfc4">
-    <div style="font-weight:950;color:#145a35;margin-bottom:6px">✓ PREVIOUSLY VERIFIED</div>
-    <div id="verifiedFirstList"></div>
-  </div>
+
 
   <div class="ss-address-row">
     <div class="ss-field">
@@ -833,7 +848,31 @@ html.ss-native-webview #ssApprovedSiteSplash{display:none!important}
     </div>
   </div>
 
-  <button class="ss-find-primary" type="button" onclick="ssFindDestination()">CHECK DESTINATION</button>
+  <details id="ssUnifiedDestinationDropdown" class="ss-unified-destinations">
+    <summary><span>DESTINATIONS FOR THIS POSTCODE</span><span id="ssUnifiedDestinationCount">Choose a destination</span></summary>
+    <div class="ss-unified-destinations-body">
+      <div class="ss-unified-section-label">✓ PREVIOUSLY VERIFIED</div>
+        <div id="verifiedFirstPanel" class="hidden" style="padding:10px;background:#eef8f1;border:1px solid #b9dfc4">
+    <div style="font-weight:950;color:#145a35;margin-bottom:6px">✓ PREVIOUSLY VERIFIED</div>
+    <div id="verifiedFirstList"></div>
+  </div>
+        <div id="postcodeChoices" class="postcode-choices hidden">
+    <label for="streetChoice">DESTINATIONS FOR THIS POSTCODE</label>
+    <div class="street-picker">
+      <button type="button" id="streetPickerTrigger" class="street-picker-trigger" onclick="toggleStreetPicker()">Looking up locations…</button>
+      <div id="streetPickerMenu" class="street-picker-menu hidden"></div>
+      <select id="streetChoice" class="hidden" onchange="syncSelectedAddress()"><option value="">Looking up locations…</option></select>
+    </div>
+  </div>
+        <div id="bcPostcodeChoicePanel" class="hidden" style="margin-top:10px;padding:13px;border-radius:13px;background:#082433;border:1px solid #31566a;color:#fff">
+    <div style="font-size:10px;font-weight:950;letter-spacing:.7px;color:#69df83">BREADCRUMBS</div>
+    <div style="font-size:17px;font-weight:1000;margin-top:3px">SELECT DESTINATION</div>
+    <div id="bcPostcodeChoiceList" style="margin-top:9px;display:grid;gap:7px"></div>
+  </div>
+    </div>
+  </details>
+
+  <button id="ssCheckDestinationBtn" class="ss-find-primary" type="button" onclick="ssFindDestination()">CHECK DESTINATION</button>
   <div id="ssFindResult" class="hidden" style="margin-top:10px;padding:13px;border-radius:13px;background:#eaf6ee;border:1px solid #b9dfc4;color:#163b28">
     <div id="ssFindResultKicker" style="font-size:10px;font-weight:950;letter-spacing:.7px;color:#28734a">DESTINATION</div>
     <div id="ssFindResultTitle" style="font-size:18px;font-weight:1000;margin-top:3px">Checking…</div>
@@ -843,11 +882,7 @@ html.ss-native-webview #ssApprovedSiteSplash{display:none!important}
     <button id="googleMapsBtn" type="button" onclick="googleMapsNow()" disabled style="width:100%;min-height:48px;margin-top:9px;border:0;border-radius:11px;background:#52606d;color:#fff;font-weight:950">GOOGLE MAPS — UNVERIFIED</button>
   </div>
 
-  <div id="bcPostcodeChoicePanel" class="hidden" style="margin-top:10px;padding:13px;border-radius:13px;background:#082433;border:1px solid #31566a;color:#fff">
-    <div style="font-size:10px;font-weight:950;letter-spacing:.7px;color:#69df83">BREADCRUMBS</div>
-    <div style="font-size:17px;font-weight:1000;margin-top:3px">SELECT DESTINATION</div>
-    <div id="bcPostcodeChoiceList" style="margin-top:9px;display:grid;gap:7px"></div>
-  </div>
+
 
   <!-- Existing engine controls stay in the DOM because current resolver code updates them. -->
   <div class="ss-engine-hidden" aria-hidden="true">
@@ -855,14 +890,7 @@ html.ss-native-webview #ssApprovedSiteSplash{display:none!important}
     <div id="bcQuickStatus">Enter property name</div>
   </div>
 
-  <div id="postcodeChoices" class="postcode-choices hidden">
-    <label for="streetChoice">DESTINATIONS FOR THIS POSTCODE</label>
-    <div class="street-picker">
-      <button type="button" id="streetPickerTrigger" class="street-picker-trigger" onclick="toggleStreetPicker()">Looking up locations…</button>
-      <div id="streetPickerMenu" class="street-picker-menu hidden"></div>
-      <select id="streetChoice" class="hidden" onchange="syncSelectedAddress()"><option value="">Looking up locations…</option></select>
-    </div>
-  </div>
+
 </div>
 
 
@@ -1538,6 +1566,10 @@ function ssRenderVerifiedFirst(postcode){
   if(!panel||!list)return;
   if(!isCompleteUkPostcode(normalisePc(postcode))){panel.classList.add("hidden");list.innerHTML="";return}
   const rows=ssVerifiedForPostcode(postcode);
+  const count=document.getElementById("ssUnifiedDestinationCount");
+  if(count)count.textContent=rows.length ? rows.length+" previously verified location"+(rows.length===1?"":"s") : "Choose a destination";
+  const sectionLabel=document.querySelector(".ss-unified-section-label");
+  if(sectionLabel)sectionLabel.textContent=rows.length ? "✓ PREVIOUSLY VERIFIED ("+rows.length+")" : "PREVIOUSLY VERIFIED";
   if(!rows.length){panel.classList.add("hidden");list.innerHTML="";return}
   list.innerHTML=rows.map(r=>{
     const label=[r.address,r.street].filter(Boolean).join(" · ");
@@ -1663,8 +1695,16 @@ function ssShowFindResult(title,text,canNavigate=false,kicker='DESTINATION'){
   document.getElementById('ssFindResultText').textContent=text||'';
   const nav=document.getElementById('ssNavigateBtn');
   nav.classList.toggle('hidden',!canNavigate);
+  if(!canNavigate){
+    const check=document.getElementById('ssCheckDestinationBtn');
+    if(check)check.hidden=false;
+  }
   const fieldRecord=document.getElementById('ssRecordWithoutSatNavBtn');
   if(fieldRecord)fieldRecord.classList.toggle('hidden',canNavigate);
+  const check=document.getElementById('ssCheckDestinationBtn');
+  if(check)check.hidden=!!canNavigate;
+  const count=document.getElementById('ssUnifiedDestinationCount');
+  if(count && canNavigate)count.textContent='Current destination verified';
   box.classList.remove('hidden');
 }
 
