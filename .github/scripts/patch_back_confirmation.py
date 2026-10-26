@@ -115,8 +115,8 @@ import re
 gradle_file = Path("app/build.gradle")
 gradle_source = gradle_file.read_text(encoding="utf-8")
 gradle_source, app_id_count = re.subn(
-    r"(applicationId\\s+['\"]com\\.situsnap\\.app['\"])",
-    r"\\1\\n        applicationIdSuffix '.candidate'",
+    r"(applicationId\s+['\"]com\.situsnap\.app['\"])",
+    r"\1\n        applicationIdSuffix '.candidate'",
     gradle_source,
     count=1,
 )
@@ -128,8 +128,8 @@ strings_file = Path("app/src/main/res/values/strings.xml")
 if strings_file.is_file():
     strings_source = strings_file.read_text(encoding="utf-8")
     strings_source, label_count = re.subn(
-        r'(<string\\b[^>]*\\bname=["\']app_name["\'][^>]*>).*?(</string>)',
-        r"\\1SituSnap Test\\2",
+        r'(<string\b[^>]*\bname=["\']app_name["\'][^>]*>).*?(</string>)',
+        r"\1SituSnap Test\2",
         strings_source,
         count=1,
     )
