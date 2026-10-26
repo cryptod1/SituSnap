@@ -4218,7 +4218,30 @@ function addBoundaryChoice(){const btn=document.getElementById("detailsFoundBtn"
 addBoundaryChoice();document.addEventListener("DOMContentLoaded",addBoundaryChoice);
 const originalFinish=window.finishFound;if(typeof originalFinish==="function")window.finishFound=function(){const note=document.getElementById("foundGpsNote"),block=m=>{if(note)note.textContent=m;alert(m);return false},fix=typeof gps!=="undefined"&&gps?gps:null,captured=Date.parse(fix?.capturedAt||"");if(!fix||!Number.isFinite(captured)||Date.now()-captured>60000||Date.now()<captured-30000)return block("Location check failed. Turn on phone Location and try again at the site.");if(!Number.isFinite(Number(fix.accuracy))||Number(fix.accuracy)>50)return block("GPS is too weak to verify this pin. Wait for accuracy of 50 m or better, then retry.");const point=exactSitePoint(),fieldRecordedWithoutSatNav=window.ssRecordWithoutSatNavActive===true;if(!point&&!fieldRecordedWithoutSatNav)return block("Check Destination and select the actual property or site location, or choose Record Without Sat Nav when you are at the property.");const landmark=document.getElementById("ssVisitBoundary")?.value==="landmark";if(point){const limit=landmark?1609.344:250,dist=distanceM({lat:Number(fix.latitude),lon:Number(fix.longitude)},point);if(!Number.isFinite(dist)||dist>limit)return block("You are outside this pin visit boundary. Photos and the pin were not saved. Return to the site or choose the nearby-landmark option.")}const type=document.getElementById("type");if(type)type.value=point&&landmark?"Landmark / access point":"Property / building";return originalFinish.apply(this,arguments)};
 })();
-</script></body></html>
+</script>
+<script id="ss-destination-edit-reset">
+(function(){
+  function start(){
+    const ids=["postcodeOutward","postcodeInward","doorNumber","manualAddress"];
+    ids.map(id=>document.getElementById(id)).filter(Boolean).forEach(el=>{
+      el.addEventListener("input",()=>{
+        window.ssPendingNavigation=null;
+        const result=document.getElementById("ssFindResult");
+        if(result)result.classList.add("hidden");
+        const check=document.getElementById("ssCheckDestinationBtn");
+        if(check)check.hidden=false;
+        const count=document.getElementById("ssUnifiedDestinationCount");
+        if(count && !document.getElementById("ssUnifiedDestinationDropdown")?.open){
+          count.textContent="Choose a destination";
+        }
+      });
+    });
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",start,{once:true});else start();
+})();
+</script>
+
+</body></html>
 <script>
 /* Keep a removed verified place suppressed in every on-phone recovery store. */
 (function(){
