@@ -48,6 +48,10 @@ jobs:
       - name: Create Android project
         run: python3 .github/scripts/make_android.py
 
+      # Candidate-only patch: does not alter the production branch or website deployment. Build is versioned separately for safe in-place testing.
+      - name: Add isolated Android Back-button confirmation
+        run: python3 .github/scripts/patch_back_confirmation.py
+
       - name: Apply release version and Android API level
         shell: bash
         run: |
@@ -112,7 +116,7 @@ jobs:
           echo "$CERT_OUTPUT" | grep -qi "certificate SHA-256 digest: eae5c5e8260276a79bc89151617085f6d3d5cf2ba9efa244e60d1de908a2efa2"
           jarsigner -verify -verbose -certs "$AAB" >/dev/null
           BADGING=$("$BUILD_TOOLS/aapt" dump badging "$APK")
-          echo "$BADGING" | grep -q "package: name='com.situsnap.app' versionCode='${versionCode}' versionName='${versionName}'"
+          echo "$BADGING" | grep -q "package: name='com.situsnap.app.candidate' versionCode='${versionCode}' versionName='${versionName}'"
           echo "$BADGING" | grep -q "sdkVersion:'26'"
           echo "$BADGING" | grep -q "targetSdkVersion:'36'"
           echo "$BADGING" | grep -q "launchable-activity: name='com.situsnap.app.SplashActivity'"
