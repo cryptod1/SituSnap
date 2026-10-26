@@ -52,9 +52,11 @@ jobs:
       - name: Patch native camera to app-private temporary storage
         run: python3 .github/scripts/patch_native_photo_storage.py
 
-      # Candidate-only patch for the Back warning. Keep dropdown UX from the base branch.
+      # Candidate-only report warning. Use a native Android dialog for reliable visibility.
       - name: Add isolated Android Back-button confirmation
-        run: python3 .github/scripts/patch_back_confirmation.py
+        run: |
+          python3 .github/scripts/patch_back_confirmation.py
+          python3 .github/scripts/patch_native_back_dialog.py
 
       - name: Apply release version and Android API level
         shell: bash
