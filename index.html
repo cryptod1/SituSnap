@@ -4225,15 +4225,13 @@ const originalFinish=window.finishFound;if(typeof originalFinish==="function")wi
     const ids=["postcodeOutward","postcodeInward","doorNumber","manualAddress"];
     ids.map(id=>document.getElementById(id)).filter(Boolean).forEach(el=>{
       el.addEventListener("input",()=>{
-        window.ssPendingNavigation=null;
+        try{ssPendingNavigation=null}catch(_){}
         const result=document.getElementById("ssFindResult");
         if(result)result.classList.add("hidden");
         const check=document.getElementById("ssCheckDestinationBtn");
         if(check)check.hidden=false;
         const count=document.getElementById("ssUnifiedDestinationCount");
-        if(count && !document.getElementById("ssUnifiedDestinationDropdown")?.open){
-          count.textContent="Choose a destination";
-        }
+        if(count)count.textContent="Choose a destination";
       });
     });
   }
