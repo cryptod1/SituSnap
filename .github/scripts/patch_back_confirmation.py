@@ -101,6 +101,10 @@ if 'id="ssBackExitOverlay"' not in page:
   function hasUnfinishedReport(){
     var details=document.getElementById('recordDetails');
     if(!details||!details.open)return false;
+    // Opening the report form means the colleague is actively working in it.
+    // Warn even when the fields are still blank or the destination is held in the
+    // separate postcode chooser rather than the handover fields below.
+    return true;
     var fields=['postcode','address','notes','accessDirections','houseNumber','houseName','street'];
     if(fields.some(function(id){var el=document.getElementById(id);return !!(el&&String(el.value||'').trim())}))return true;
     return ['photoCamera','photo1','photo2Camera','photo2'].some(function(id){var el=document.getElementById(id);return !!(el&&el.files&&el.files.length>0)});
@@ -153,6 +157,25 @@ if strings_file.is_file():
     if label_count == 1:
         strings_file.write_text(strings_source, encoding="utf-8")
 
+
+# Android 13+ predictive-back can bypass the legacy WebView Activity callback.
+# Route Back through onBackPressed() so the report-warning bridge is invoked.
+manifest = Path("app/src/main/AndroidManifest.xml")
+if not manifest.is_file():
+    raise SystemExit("FAIL: Android manifest is missing")
+manifest_source = manifest.read_text(encoding="utf-8")
+if 'android:enableOnBackInvokedCallback="false"' not in manifest_source:
+    import re
+    manifest_source, manifest_count = re.subn(
+        r'<application\\b',
+        '<application android:enableOnBackInvokedCallback="false"',
+        manifest_source,
+        count=1,
+    )
+    if manifest_count != 1:
+        raise SystemExit("FAIL: could not route Android Back through confirmation handler")
+    manifest.write_text(manifest_source, encoding="utf-8")
+
 main.write_text(source, encoding="utf-8")
 html.write_text(page, encoding="utf-8")
-print("PASS: report-aware Back handler and agreed warning wording installed; isolated test candidate version is 1.3.6")
+print("PASS: Android Back routed through report warning; open report always prompts; isolated test candidate version is 1.3.6")
