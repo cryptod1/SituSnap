@@ -104,12 +104,10 @@ new_show = """  function hasUnfinishedReport(){
     return true;
   };"""
 page = replace_once(page, old_show, new_show, "exit-confirmation JavaScript handler")
-page = replace_once(page, "if(window.ssShowExitConfirm) { window.ssShowExitConfirm(); }", "if(window.ssHandleNativeBack) { window.ssHandleNativeBack(); }", "legacy JavaScript callback")
 
-# The candidate version is deliberately distinct from the previous test APK.
-for old, new in (("1.3.4", "1.3.5"), ("SituSnap-1.3.4", "SituSnap-1.3.5")):
-    page = page.replace(old, new)
+# Keep this test build distinct from the previous candidate.
+page = page.replace("1.3.4", "1.3.5")
 
 main.write_text(source, encoding="utf-8")
 html.write_text(page, encoding="utf-8")
-print("PASS: Back checks unfinished report before WebView navigation; dialog uses agreed wording; candidate version is 1.3.5")
+print("PASS: report-aware Back handler and agreed warning wording installed; candidate version is 1.3.5")
