@@ -63,7 +63,7 @@
 .find input#huntPostcode{padding:9px 10px;min-height:44px;font-size:14px}
 .find button{min-height:44px;padding:0 13px;border-radius:10px;font-size:12px}
 #targetBox{display:none !important}
-#postcodeChoices{display:none!important}.postcode-choices{margin-top:8px;padding:9px 10px;border-radius:12px;background:rgba(255,255,255,.96);border:1px solid rgba(105,223,131,.45)}
+#postcodeChoices.hidden{display:none!important}.postcode-choices{margin-top:8px;padding:9px 10px;border-radius:12px;background:rgba(255,255,255,.96);border:1px solid rgba(105,223,131,.45)}
 .postcode-choices label{display:block;font-size:9px;font-weight:900;letter-spacing:.5px;color:#31506b;margin-bottom:5px}
 
 
@@ -803,6 +803,24 @@ html.ss-native-webview #ssApprovedSiteSplash{display:none!important}
 .ss-postcode-space{height:2px;border-radius:2px;background:rgba(169,186,208,.55)}
 .ss-postcode-hint{margin-top:6px!important;line-height:1.35!important;font-size:10px!important;color:#a9bad0!important}
 </style>
+
+<style id="ss-unified-destination-dropdown">
+/* Candidate-only: one large, high-contrast destination drawer for field use. */
+.ss-unified-destinations{margin-top:10px;border:1px solid #31566a;border-radius:15px;background:#082433;color:#fff;overflow:hidden}
+.ss-unified-destinations>summary{list-style:none;cursor:pointer;display:flex;flex-direction:column;gap:5px;justify-content:center;min-height:58px;padding:12px 15px;font-size:14px;font-weight:1000;letter-spacing:.25px;background:#0a2b3d}
+.ss-unified-destinations>summary::-webkit-details-marker{display:none}
+.ss-unified-destinations>summary:after{content:"⌄";float:right;color:#31df68;font-size:22px;line-height:18px;align-self:flex-end;margin-top:-24px}
+.ss-unified-destinations[open]>summary:after{content:"⌃"}
+#ssUnifiedDestinationCount{font-size:12px;font-weight:750;letter-spacing:0;color:#b9cbd7}
+.ss-unified-destinations-body{padding:10px;display:grid;gap:9px}
+.ss-unified-section-label{font-size:11px;font-weight:1000;letter-spacing:.5px;color:#31df68}
+#verifiedFirstPanel,#postcodeChoices,#bcPostcodeChoicePanel{margin:0!important}
+#postcodeChoices label{font-size:11px!important}
+#verifiedFirstList button,#bcPostcodeChoiceList button{min-height:52px!important;font-size:14px!important;line-height:1.35!important}
+#ssCheckDestinationBtn[hidden]{display:none!important}
+@media(max-width:380px){.ss-unified-destinations>summary{min-height:62px;padding:12px;font-size:13px}}
+</style>
+
 </head>
 <body>
 <div id="ssApprovedSiteSplash" aria-hidden="true"><img src="/situsnap-approved-splash.png" alt="" fetchpriority="high"></div>
@@ -816,10 +834,7 @@ html.ss-native-webview #ssApprovedSiteSplash{display:none!important}
 <div class="ss-find-card">
   <div class="ss-field ss-postcode-control" style="margin-top:0"><label class="ss-postcode-label">POSTCODE</label><div class="ss-postcode-split" role="group" aria-label="Postcode"><input id="postcodeOutward" aria-label="Postcode area" placeholder="" autocomplete="off" autocapitalize="characters" spellcheck="false" inputmode="text" maxlength="8"><span aria-hidden="true" class="ss-postcode-space"></span><input id="postcodeInward" aria-label="Last three postcode characters" placeholder="" autocomplete="off" autocapitalize="characters" spellcheck="false" inputmode="text" maxlength="8"></div><div class="small-note ss-postcode-hint">Enter the postcode area, then the last three characters. You can paste a full postcode.</div><input type="hidden" id="huntPostcode" aria-hidden="true" tabindex="-1" oninput="queuePostcodeLookup();syncRecordPostcode();bcQueueFromSimpleInputs()"></div>
 
-  <div id="verifiedFirstPanel" class="hidden" style="padding:10px;background:#eef8f1;border:1px solid #b9dfc4">
-    <div style="font-weight:950;color:#145a35;margin-bottom:6px">✓ PREVIOUSLY VERIFIED</div>
-    <div id="verifiedFirstList"></div>
-  </div>
+
 
   <div class="ss-address-row">
     <div class="ss-field">
@@ -833,7 +848,31 @@ html.ss-native-webview #ssApprovedSiteSplash{display:none!important}
     </div>
   </div>
 
-  <button class="ss-find-primary" type="button" onclick="ssFindDestination()">CHECK DESTINATION</button>
+  <details id="ssUnifiedDestinationDropdown" class="ss-unified-destinations">
+    <summary aria-label="Open postcode destination choices"><span>DESTINATIONS FOR THIS POSTCODE</span><span id="ssUnifiedDestinationCount">Choose a destination</span></summary>
+    <div class="ss-unified-destinations-body">
+      <div class="ss-unified-section-label">✓ PREVIOUSLY VERIFIED</div>
+        <div id="verifiedFirstPanel" class="hidden" style="padding:10px;background:#eef8f1;border:1px solid #b9dfc4">
+    <div style="font-weight:950;color:#145a35;margin-bottom:6px">✓ PREVIOUSLY VERIFIED</div>
+    <div id="verifiedFirstList"></div>
+  </div>
+        <div id="postcodeChoices" class="postcode-choices hidden">
+    <label for="streetChoice">DESTINATIONS FOR THIS POSTCODE</label>
+    <div class="street-picker">
+      <button type="button" id="streetPickerTrigger" class="street-picker-trigger" onclick="toggleStreetPicker()">Looking up locations…</button>
+      <div id="streetPickerMenu" class="street-picker-menu hidden"></div>
+      <select id="streetChoice" class="hidden" onchange="syncSelectedAddress()"><option value="">Looking up locations…</option></select>
+    </div>
+  </div>
+        <div id="bcPostcodeChoicePanel" class="hidden" style="margin-top:10px;padding:13px;border-radius:13px;background:#082433;border:1px solid #31566a;color:#fff">
+    <div style="font-size:10px;font-weight:950;letter-spacing:.7px;color:#69df83">BREADCRUMBS</div>
+    <div style="font-size:17px;font-weight:1000;margin-top:3px">SELECT DESTINATION</div>
+    <div id="bcPostcodeChoiceList" style="margin-top:9px;display:grid;gap:7px"></div>
+  </div>
+    </div>
+  </details>
+
+  <button id="ssCheckDestinationBtn" class="ss-find-primary" type="button" onclick="ssFindDestination()">CHECK DESTINATION</button>
   <div id="ssFindResult" class="hidden" style="margin-top:10px;padding:13px;border-radius:13px;background:#eaf6ee;border:1px solid #b9dfc4;color:#163b28">
     <div id="ssFindResultKicker" style="font-size:10px;font-weight:950;letter-spacing:.7px;color:#28734a">DESTINATION</div>
     <div id="ssFindResultTitle" style="font-size:18px;font-weight:1000;margin-top:3px">Checking…</div>
@@ -843,11 +882,7 @@ html.ss-native-webview #ssApprovedSiteSplash{display:none!important}
     <button id="googleMapsBtn" type="button" onclick="googleMapsNow()" disabled style="width:100%;min-height:48px;margin-top:9px;border:0;border-radius:11px;background:#52606d;color:#fff;font-weight:950">GOOGLE MAPS — UNVERIFIED</button>
   </div>
 
-  <div id="bcPostcodeChoicePanel" class="hidden" style="margin-top:10px;padding:13px;border-radius:13px;background:#082433;border:1px solid #31566a;color:#fff">
-    <div style="font-size:10px;font-weight:950;letter-spacing:.7px;color:#69df83">BREADCRUMBS</div>
-    <div style="font-size:17px;font-weight:1000;margin-top:3px">SELECT DESTINATION</div>
-    <div id="bcPostcodeChoiceList" style="margin-top:9px;display:grid;gap:7px"></div>
-  </div>
+
 
   <!-- Existing engine controls stay in the DOM because current resolver code updates them. -->
   <div class="ss-engine-hidden" aria-hidden="true">
@@ -855,14 +890,7 @@ html.ss-native-webview #ssApprovedSiteSplash{display:none!important}
     <div id="bcQuickStatus">Enter property name</div>
   </div>
 
-  <div id="postcodeChoices" class="postcode-choices hidden">
-    <label for="streetChoice">DESTINATIONS FOR THIS POSTCODE</label>
-    <div class="street-picker">
-      <button type="button" id="streetPickerTrigger" class="street-picker-trigger" onclick="toggleStreetPicker()">Looking up locations…</button>
-      <div id="streetPickerMenu" class="street-picker-menu hidden"></div>
-      <select id="streetChoice" class="hidden" onchange="syncSelectedAddress()"><option value="">Looking up locations…</option></select>
-    </div>
-  </div>
+
 </div>
 
 
@@ -1538,12 +1566,31 @@ function ssRenderVerifiedFirst(postcode){
   if(!panel||!list)return;
   if(!isCompleteUkPostcode(normalisePc(postcode))){panel.classList.add("hidden");list.innerHTML="";return}
   const rows=ssVerifiedForPostcode(postcode);
+  const count=document.getElementById("ssUnifiedDestinationCount");
+  if(count)count.textContent=rows.length ? rows.length+" previously verified location"+(rows.length===1?"":"s") : "Choose a destination";
+  const sectionLabel=document.querySelector(".ss-unified-section-label");
+  if(sectionLabel)sectionLabel.textContent=rows.length ? "✓ PREVIOUSLY VERIFIED ("+rows.length+")" : "PREVIOUSLY VERIFIED";
   if(!rows.length){panel.classList.add("hidden");list.innerHTML="";return}
   list.innerHTML=rows.map(r=>{
     const label=[r.address,r.street].filter(Boolean).join(" · ");
-    return `<button type="button" onclick='ssChooseVerifiedFirst(${JSON.stringify(String(r.id))})' style="width:100%;margin-top:6px;padding:12px;border-radius:10px;border:0;background:#145a35;color:#fff;font-weight:900;text-align:left">✓ ${esc(label||"Verified property")}<br><span style="font-size:11px;font-weight:700;opacity:.86">${esc(r.postcode||"")} · ROUTE TO VERIFIED PIN →</span></button>${(r.photoUrl||r.localPhoto)?`<button type="button" onclick='ssViewVerifiedPhoto(${JSON.stringify(String(r.id))})' style="width:100%;margin-top:5px;padding:9px;border-radius:9px;border:1px solid #145a35;background:#fff;color:#145a35;font-weight:900">📷 VIEW VERIFIED PHOTO</button>`:""}`;
+    return `<button type="button" onclick='ssNavigateVerifiedFirst(${JSON.stringify(String(r.id))})' style="width:100%;margin-top:6px;padding:12px;border-radius:10px;border:0;background:#145a35;color:#fff;font-weight:900;text-align:left">✓ ${esc(label||"Verified property")}<br><span style="font-size:11px;font-weight:700;opacity:.86">${esc(r.postcode||"")} · ROUTE TO VERIFIED PIN →</span></button>${(r.photoUrl||r.localPhoto)?`<button type="button" onclick='ssViewVerifiedPhoto(${JSON.stringify(String(r.id))})' style="width:100%;margin-top:5px;padding:9px;border-radius:9px;border:1px solid #145a35;background:#fff;color:#145a35;font-weight:900">📷 VIEW VERIFIED PHOTO</button>`:""}`;
   }).join("");
   panel.classList.remove("hidden");
+}
+function ssNavigateVerifiedFirst(id){
+  const r=getRecords().find(x=>String(x.id)===String(id));
+  if(!r||!isVerifiedSituSnap(r))return;
+  const lat=Number(r.gps?.latitude ?? r.gps?.lat ?? r.latitude ?? r.lat);
+  const lon=Number(r.gps?.longitude ?? r.gps?.lon ?? r.longitude ?? r.lon);
+  const query=[r.address,r.street,r.postcode].filter(Boolean).join(', ');
+  // Verified property rows are a direct route action; no need to scroll to the result card.
+  if(Number.isFinite(lat)&&Number.isFinite(lon)&&Math.abs(lat)>0&&Math.abs(lon)>0){
+    window.location.href=`https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}&travelmode=driving`;
+    return;
+  }
+  if(query){
+    window.location.href="https://www.google.com/maps/dir/?api=1&destination="+encodeURIComponent(query)+"&travelmode=driving";
+  }
 }
 function ssChooseVerifiedFirst(id){
   const r=getRecords().find(x=>String(x.id)===String(id));
@@ -1574,7 +1621,7 @@ function queuePostcodeLookup(){
   // V1.0.5j: never auto-start Breadcrumbs when a postcode completes.
   // FIND DESTINATION owns resolver order: local SituSnap pin first, Breadcrumbs only if needed.
   // Mapping suggestions still load quietly in the background.
-  postcodeTimer=setTimeout(lookupPostcodeOptions,450);
+  postcodeTimer=setTimeout(()=>{lookupPostcodeOptions();ssLoadUnifiedPostcodeChoices(raw);},450);
 }
 function bcPropertyInput(){
   const number=(document.getElementById("doorNumber")?.value||"").trim();
@@ -1663,8 +1710,16 @@ function ssShowFindResult(title,text,canNavigate=false,kicker='DESTINATION'){
   document.getElementById('ssFindResultText').textContent=text||'';
   const nav=document.getElementById('ssNavigateBtn');
   nav.classList.toggle('hidden',!canNavigate);
+  if(!canNavigate){
+    const check=document.getElementById('ssCheckDestinationBtn');
+    if(check)check.hidden=false;
+  }
   const fieldRecord=document.getElementById('ssRecordWithoutSatNavBtn');
   if(fieldRecord)fieldRecord.classList.toggle('hidden',canNavigate);
+  const check=document.getElementById('ssCheckDestinationBtn');
+  if(check)check.hidden=!!canNavigate;
+  const count=document.getElementById('ssUnifiedDestinationCount');
+  if(count && canNavigate)count.textContent='Current destination verified';
   box.classList.remove('hidden');
 }
 
@@ -1688,15 +1743,14 @@ function ssHidePostcodeChoices(){
   if(list)list.innerHTML='';
 }
 
-async function ssApplyPostcodeChoice(choice){
+function ssApplyPostcodeChoice(choice){
   const address=String(choice?.address||'').trim();
-  const selectedUprn=String(choice?.uprn||'').trim();
   const addressParts=address.split(',').map(part=>part.trim()).filter(Boolean);
   const firstLine=addressParts[0]||'';
   if(!firstLine)return;
 
-  // Address choices can put the door number and street in separate comma
-  // fields, e.g. "1, Oaklands Rise, BRIDGEND, CF31 4SP".
+  // Selection only fills the form. CHECK DESTINATION is the sole action
+  // that may verify a destination or enable navigation.
   const numberMatch=firstLine.match(/^([0-9]+[A-Za-z]?(?:\/[0-9]+[A-Za-z]?)?)(?:\s+(.+))?$/);
   const door=document.getElementById('doorNumber');
   const property=document.getElementById('manualAddress');
@@ -1708,39 +1762,16 @@ async function ssApplyPostcodeChoice(choice){
     if(property)property.value=firstLine;
   }
   syncManualAddress();
-  ssHidePostcodeChoices();
-
-  // A selected authoritative postcode choice gets one direct production
-  // verification pass. Discovery itself never verifies a pin.
-  const pc=(document.getElementById('huntPostcode')?.value||'').trim().toUpperCase();
-  const selectedProperty=bcPropertyInput();
-  const myFindGeneration=++ssFindGeneration;
-  window.__ssLocalVerifiedLocked=false;
   ssPendingNavigation=null;
-  ssShowFindResult('Checking destination…',[selectedProperty,pc].filter(Boolean).join(' · '),false,'BREADCRUMBS');
-
-  const result=await bcResolve(selectedProperty,pc,undefined,true);
-  if(myFindGeneration!==ssFindGeneration)return;
-
-  const returnedUprn=String(result?.uprn||'').trim();
-  const uprnMatches=!selectedUprn || (returnedUprn && returnedUprn===selectedUprn);
-  if(result?.verified===true && uprnMatches &&
-     Number.isFinite(Number(result.latitude)) && Number.isFinite(Number(result.longitude))){
-    ssPendingNavigation={
-      latitude:Number(result.latitude),
-      longitude:Number(result.longitude),
-      query:result.address||address||[selectedProperty,pc].join(', ')
-    };
-    ssShowFindResult('✓ DESTINATION VERIFIED',
-      result.address||address||[selectedProperty,pc].join(' · '),true,'BREADCRUMBS');
-    return;
-  }
-
-  ssShowFindResult('DESTINATION NOT VERIFIED',
-    'No confirmed pin is available yet. Use Record Without Sat Nav when you reach the property.',
-    false,'SITUSNAP');
+  window.__ssLocalVerifiedLocked=false;
+  const nav=document.getElementById('ssNavigateBtn');
+  if(nav)nav.classList.add('hidden');
+  const check=document.getElementById('ssCheckDestinationBtn');
+  if(check)check.hidden=false;
+  const result=document.getElementById('ssFindResult');
+  if(result)result.classList.add('hidden');
+  // Keep the postcode list available so another address can be chosen.
 }
-
 function ssRenderPostcodeChoices(choices){
   const panel=document.getElementById('bcPostcodeChoicePanel');
   const list=document.getElementById('bcPostcodeChoiceList');
@@ -1753,10 +1784,60 @@ function ssRenderPostcodeChoices(choices){
     btn.type='button';
     btn.textContent=address;
     btn.style.cssText='width:100%;text-align:left;padding:12px;border:1px solid #31566a;border-radius:10px;background:#0b3042;color:#fff;font-weight:850;line-height:1.25';
-    btn.addEventListener('click',()=>ssApplyPostcodeChoice(choice));
+    btn.addEventListener('click',()=>ssNavigatePostcodeChoice(choice));
     list.appendChild(btn);
   }
   panel.classList.toggle('hidden',!list.children.length);
+}
+
+
+let ssUnifiedChoicesGeneration=0;
+async function ssLoadUnifiedPostcodeChoices(postcode){
+  const generation=++ssUnifiedChoicesGeneration;
+  const pc=String(postcode||'').trim().toUpperCase();
+  const count=document.getElementById('ssUnifiedDestinationCount');
+  if(!isCompleteUkPostcode(normalisePc(pc)))return;
+  if(count)count.textContent='Loading addresses…';
+  try{
+    const choices=await ssFindPostcodeChoices(pc);
+    if(generation!==ssUnifiedChoicesGeneration ||
+       normalisePc(document.getElementById('huntPostcode')?.value)!==normalisePc(pc))return;
+    ssRenderPostcodeChoices(choices);
+    const verified=ssVerifiedForPostcode(pc);
+    if(count)count.textContent=(verified.length+choices.length)+' address'+(verified.length+choices.length===1?'':'es')+' available';
+    const dropdown=document.getElementById('ssUnifiedDestinationDropdown');
+    if(dropdown && choices.length)dropdown.open=true;
+  }catch(_){
+    if(generation===ssUnifiedChoicesGeneration && count)count.textContent='Enter address manually if needed';
+  }
+}
+
+
+async function ssNavigatePostcodeChoice(choice){
+  // One tap on a postcode result attempts verification and routes only if a confirmed pin is returned.
+  ssApplyPostcodeChoice(choice);
+  const pc=(document.getElementById('huntPostcode')?.value||'').trim().toUpperCase();
+  const property=bcPropertyInput();
+  if(!property||!isCompleteUkPostcode(pc))return;
+  const check=document.getElementById('ssCheckDestinationBtn');
+  if(check)check.hidden=false;
+  const count=document.getElementById('ssUnifiedDestinationCount');
+  if(count)count.textContent='Verifying selected address…';
+  try{
+    const result=await bcResolve(property,pc,choice?.uprn,true);
+    const returnedUprn=String(result?.uprn||'').trim();
+    const selectedUprn=String(choice?.uprn||'').trim();
+    const uprnMatches=!selectedUprn||(returnedUprn&&returnedUprn===selectedUprn);
+    const lat=Number(result?.latitude),lon=Number(result?.longitude);
+    if(result?.verified===true&&uprnMatches&&Number.isFinite(lat)&&Number.isFinite(lon)&&Math.abs(lat)>0&&Math.abs(lon)>0){
+      if(count)count.textContent='Destination verified — opening pin…';
+      window.location.href='https://www.google.com/maps/dir/?api=1&destination='+lat+','+lon+'&travelmode=driving';
+      return;
+    }
+    if(count)count.textContent='Not verified — use CHECK DESTINATION';
+  }catch(_){
+    if(count)count.textContent='Could not verify — use CHECK DESTINATION';
+  }
 }
 
 async function ssFindPostcodeChoices(postcode){
@@ -4178,7 +4259,28 @@ function addBoundaryChoice(){const btn=document.getElementById("detailsFoundBtn"
 addBoundaryChoice();document.addEventListener("DOMContentLoaded",addBoundaryChoice);
 const originalFinish=window.finishFound;if(typeof originalFinish==="function")window.finishFound=function(){const note=document.getElementById("foundGpsNote"),block=m=>{if(note)note.textContent=m;alert(m);return false},fix=typeof gps!=="undefined"&&gps?gps:null,captured=Date.parse(fix?.capturedAt||"");if(!fix||!Number.isFinite(captured)||Date.now()-captured>60000||Date.now()<captured-30000)return block("Location check failed. Turn on phone Location and try again at the site.");if(!Number.isFinite(Number(fix.accuracy))||Number(fix.accuracy)>50)return block("GPS is too weak to verify this pin. Wait for accuracy of 50 m or better, then retry.");const point=exactSitePoint(),fieldRecordedWithoutSatNav=window.ssRecordWithoutSatNavActive===true;if(!point&&!fieldRecordedWithoutSatNav)return block("Check Destination and select the actual property or site location, or choose Record Without Sat Nav when you are at the property.");const landmark=document.getElementById("ssVisitBoundary")?.value==="landmark";if(point){const limit=landmark?1609.344:250,dist=distanceM({lat:Number(fix.latitude),lon:Number(fix.longitude)},point);if(!Number.isFinite(dist)||dist>limit)return block("You are outside this pin visit boundary. Photos and the pin were not saved. Return to the site or choose the nearby-landmark option.")}const type=document.getElementById("type");if(type)type.value=point&&landmark?"Landmark / access point":"Property / building";return originalFinish.apply(this,arguments)};
 })();
-</script></body></html>
+</script>
+<script id="ss-destination-edit-reset">
+(function(){
+  function start(){
+    const ids=["postcodeOutward","postcodeInward","doorNumber","manualAddress"];
+    ids.map(id=>document.getElementById(id)).filter(Boolean).forEach(el=>{
+      el.addEventListener("input",()=>{
+        try{ssPendingNavigation=null}catch(_){}
+        const result=document.getElementById("ssFindResult");
+        if(result)result.classList.add("hidden");
+        const check=document.getElementById("ssCheckDestinationBtn");
+        if(check)check.hidden=false;
+        const count=document.getElementById("ssUnifiedDestinationCount");
+        if(count)count.textContent="Choose a destination";
+      });
+    });
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",start,{once:true});else start();
+})();
+</script>
+
+</body></html>
 <script>
 /* Keep a removed verified place suppressed in every on-phone recovery store. */
 (function(){
