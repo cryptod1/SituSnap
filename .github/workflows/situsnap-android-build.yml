@@ -48,6 +48,10 @@ jobs:
       - name: Create Android project
         run: python3 .github/scripts/make_android.py
 
+      # Candidate-only native photo fix: avoid shared MediaStore/Gallery camera files.
+      - name: Patch native camera to app-private temporary storage
+        run: python3 .github/scripts/patch_native_photo_storage.py
+
       # Candidate-only patch for the Back warning. Keep dropdown UX from the base branch.
       - name: Add isolated Android Back-button confirmation
         run: python3 .github/scripts/patch_back_confirmation.py
@@ -165,6 +169,32 @@ jobs:
           PY
           echo "SIGNED APK AND AAB VERIFIED"
           echo "PACKAGE, VERSION, SDK, LAUNCHER AND HTML VERIFIED"
+
+      - name: Verify private camera implementation is packaged
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK="app/build/outputs/apk/release/app-release.apk"
+          MANIFEST=$("$BUILD_TOOLS/aapt" dump xmltree "$APK" AndroidManifest.xml)
+          echo "$MANIFEST" | grep -Fq 'androidx.core.content.FileProvider'
+          echo "$MANIFEST" | grep -Fq 'com.situsnap.app.candidate.photos'
+          RESOURCES=$("$BUILD_TOOLS/aapt" dump resources "$APK")
+          echo "$RESOURCES" | grep -Fq 'xml/situsnap_photo_paths'
+          python3 - <<'PY'
+          import sys, zipfile
+          apk = "app/build/outputs/apk/release/app-release.apk"
+          with zipfile.ZipFile(apk) as archive:
+              dex_names = [n for n in archive.namelist() if n.endswith('.dex')]
+              if not dex_names:
+                  sys.exit('FAIL: no DEX bytecode found')
+              dex = b''.join(archive.read(n) for n in dex_names)
+          for marker in (b'androidx/core/content/FileProvider', b'situsnap-camera'):
+              if marker not in dex:
+                  sys.exit('FAIL: private camera marker missing: ' + marker.decode())
+          if b'MediaStore$Images$Media' in dex:
+              sys.exit('FAIL: legacy shared-gallery MediaStore API remains in DEX')
+          print('PASS: private FileProvider/cache markers are packaged; legacy gallery insert marker absent')
+          PY
 
       - uses: actions/upload-artifact@v4
         with:
