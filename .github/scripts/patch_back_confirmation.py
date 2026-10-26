@@ -106,8 +106,36 @@ new_show = """  function hasUnfinishedReport(){
 page = replace_once(page, old_show, new_show, "exit-confirmation JavaScript handler")
 
 # Keep this test build distinct from the previous candidate.
-page = page.replace("1.3.4", "1.3.5")
+page = page.replace("1.3.4", "1.3.6")
+
+
+# Give the test candidate its own Android package so it installs alongside
+# the Play-signed production app and cannot overwrite or remove production data.
+import re
+gradle_file = Path("app/build.gradle")
+gradle_source = gradle_file.read_text(encoding="utf-8")
+gradle_source, app_id_count = re.subn(
+    r"(applicationId\\s+['\"]com\\.situsnap\\.app['\"])",
+    r"\\1\\n        applicationIdSuffix '.candidate'",
+    gradle_source,
+    count=1,
+)
+if app_id_count != 1:
+    raise SystemExit("FAIL: could not isolate candidate Android package")
+gradle_file.write_text(gradle_source, encoding="utf-8")
+
+strings_file = Path("app/src/main/res/values/strings.xml")
+if strings_file.is_file():
+    strings_source = strings_file.read_text(encoding="utf-8")
+    strings_source, label_count = re.subn(
+        r'(<string\\b[^>]*\\bname=["\']app_name["\'][^>]*>).*?(</string>)',
+        r"\\1SituSnap Test\\2",
+        strings_source,
+        count=1,
+    )
+    if label_count == 1:
+        strings_file.write_text(strings_source, encoding="utf-8")
 
 main.write_text(source, encoding="utf-8")
 html.write_text(page, encoding="utf-8")
-print("PASS: report-aware Back handler and agreed warning wording installed; candidate version is 1.3.5")
+print("PASS: report-aware Back handler and agreed warning wording installed; isolated test candidate version is 1.3.6")
