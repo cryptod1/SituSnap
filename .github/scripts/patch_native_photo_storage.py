@@ -121,6 +121,17 @@ if not re.search(r"(?m)^android\\.useAndroidX\\s*=\\s*true\\s*$", gp):
 gradle_properties.write_text(gp, encoding="utf-8")
 
 m = manifest.read_text(encoding="utf-8")
+# Android 11+ package visibility can hide camera apps from resolveActivity().
+# Declare the exact camera action so the native private-capture path can find
+# an installed camera app instead of silently falling through to the file picker.
+camera_query = '<intent><action android:name="android.media.action.IMAGE_CAPTURE" /></intent>'
+if "android.media.action.IMAGE_CAPTURE" not in m:
+    if "</queries>" in m:
+        m = replace_once(m, "</queries>", camera_query + "\\n</queries>", "camera visibility query")
+    elif "<application" in m:
+        m = replace_once(m, "<application", "<queries>" + camera_query + "</queries>\\n<application", "manifest application opening")
+    else:
+        raise SystemExit("FAIL: manifest application opening tag not found for camera visibility query")
 provider = '''<provider
     android:name="androidx.core.content.FileProvider"
     android:authorities="${applicationId}.photos"
@@ -155,6 +166,7 @@ checks = {
     "FileProvider paths resource": "situsnap_photo_paths" in m,
     "AndroidX dependency": "androidx.core:core:" in g,
     "private paths XML exists": paths.is_file(),
+    "camera visibility query": "android.media.action.IMAGE_CAPTURE" in m,
 }
 failed = [name for name, ok in checks.items() if not ok]
 if failed:
