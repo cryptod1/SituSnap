@@ -7,15 +7,30 @@ on:
         description: Name for the APK and AAB build artifact
         required: true
         type: string
+      candidate:
+        description: Apply candidate-only package, photo and Back-button patches
+        required: false
+        default: false
+        type: boolean
     secrets:
       SITUSNAP_KEYSTORE_BASE64:
-        required: true
+        required: false
       SITUSNAP_KEYSTORE_PASSWORD:
-        required: true
+        required: false
       SITUSNAP_KEY_ALIAS:
-        required: true
+        required: false
       SITUSNAP_KEY_PASSWORD:
-        required: true
+        required: false
+      SITUSNAP_CANDIDATE_KEYSTORE_BASE64:
+        required: false
+      SITUSNAP_CANDIDATE_KEYSTORE_PASSWORD:
+        required: false
+      SITUSNAP_CANDIDATE_KEY_ALIAS:
+        required: false
+      SITUSNAP_CANDIDATE_KEY_PASSWORD:
+        required: false
+      SITUSNAP_CANDIDATE_CERT_SHA256:
+        required: false
 
 permissions:
   contents: read
@@ -29,6 +44,25 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
+
+      - name: Reject candidate mode on production release tags
+        if: ${{ startsWith(github.ref, 'refs/tags/v') && inputs.candidate }}
+        shell: bash
+        run: |
+          echo "FAIL: candidate-only build mode is forbidden for production release tags." >&2
+          exit 1
+
+      - name: Validate production signing credentials
+        if: ${{ !inputs.candidate }}
+        shell: bash
+        env:
+          PROD_KEYSTORE: ${{ secrets.SITUSNAP_KEYSTORE_BASE64 }}
+          PROD_STORE_PASSWORD: ${{ secrets.SITUSNAP_KEYSTORE_PASSWORD }}
+          PROD_KEY_ALIAS: ${{ secrets.SITUSNAP_KEY_ALIAS }}
+          PROD_KEY_PASSWORD: ${{ secrets.SITUSNAP_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          test -n "$PROD_KEYSTORE" && test -n "$PROD_STORE_PASSWORD" && test -n "$PROD_KEY_ALIAS" && test -n "$PROD_KEY_PASSWORD"
 
       - name: Ensure release tags point to main and match the version
         if: startsWith(github.ref, 'refs/tags/v')
@@ -47,6 +81,45 @@ jobs:
 
       - name: Create Android project
         run: python3 .github/scripts/make_android.py
+
+      - name: Isolate candidate package identity
+        if: inputs.candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          gradle = Path("app/build.gradle")
+          source = gradle.read_text(encoding="utf-8")
+          old = "applicationId 'com.situsnap.app'"
+          new = "applicationId 'com.situsnap.app.candidate126'"
+          if source.count(old) != 1:
+              raise SystemExit("FAIL: expected exactly one base applicationId; refusing to patch")
+          gradle.write_text(source.replace(old, new, 1), encoding="utf-8")
+          manifest = Path("app/src/main/AndroidManifest.xml")
+          source = manifest.read_text(encoding="utf-8")
+          old_label = 'android:label="SituSnap"'
+          new_label = 'android:label="SituSnap Test"'
+          if source.count(old_label) != 1:
+              raise SystemExit("FAIL: expected exactly one app label; refusing to patch")
+          manifest.write_text(source.replace(old_label, new_label, 1), encoding="utf-8")
+          if "applicationId 'com.situsnap.app.candidate126'" not in gradle.read_text(encoding="utf-8"):
+              raise SystemExit("FAIL: candidate applicationId not applied")
+          if 'android:label="SituSnap Test"' not in manifest.read_text(encoding="utf-8"):
+              raise SystemExit("FAIL: candidate label not applied")
+          print("PASS: candidate uses isolated package com.situsnap.app.candidate126 and label SituSnap Test")
+          PY
+
+      # Candidate-only changes. The input defaults false so production tag builds do not apply them.
+      - name: Patch native camera to app-private temporary storage
+        if: inputs.candidate
+        run: python3 .github/scripts/patch_native_photo_storage.py
+
+      - name: Add isolated Android Back-button confirmation
+        if: inputs.candidate
+        run: |
+          python3 .github/scripts/patch_back_confirmation.py
+          python3 .github/scripts/patch_native_back_dialog.py
 
       - name: Apply release version and Android API level
         shell: bash
@@ -68,20 +141,48 @@ jobs:
           cp index.html app/src/main/assets/phoenix.html
           cp situsnap-brand-mark.png app/src/main/assets/situsnap-brand-mark.png
 
-      - name: Restore permanent signing key
+      - name: Restore production signing key
+        if: ${{ !inputs.candidate }}
         env:
           KEYSTORE_BASE64: ${{ secrets.SITUSNAP_KEYSTORE_BASE64 }}
         run: |
           set -euo pipefail
           test -n "$KEYSTORE_BASE64"
           echo "$KEYSTORE_BASE64" | base64 --decode > situsnap-release.jks
-          echo "Keystore size: $(wc -c < situsnap-release.jks) bytes"
+          echo "Production keystore restored."
+
+      - name: Generate one-time candidate signing key
+        if: inputs.candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          STORE_PASSWORD="$(openssl rand -hex 24)"
+          KEY_ALIAS="situsnap-candidate-ephemeral"
+          keytool -genkeypair -noprompt -v -storetype JKS -keystore situsnap-release.jks -alias "$KEY_ALIAS" -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=SituSnap Test, OU=Development, O=SituSnap, L=Cardiff, ST=Wales, C=GB" -storepass "$STORE_PASSWORD" -keypass "$STORE_PASSWORD"
+          CERT_SHA256="$(keytool -list -v -keystore situsnap-release.jks -alias "$KEY_ALIAS" -storepass "$STORE_PASSWORD" | awk '/SHA256:/{gsub(/:/,"",$2); print tolower($2); exit}')"
+          test -n "$CERT_SHA256"
+          echo "CANDIDATE_STORE_PASSWORD=$STORE_PASSWORD" >> "$GITHUB_ENV"
+          echo "CANDIDATE_KEY_PASSWORD=$STORE_PASSWORD" >> "$GITHUB_ENV"
+          echo "CANDIDATE_KEY_ALIAS=$KEY_ALIAS" >> "$GITHUB_ENV"
+          echo "CANDIDATE_CERT_SHA256=$CERT_SHA256" >> "$GITHUB_ENV"
+          echo "SITUSNAP_STORE_PASSWORD=$STORE_PASSWORD" >> "$GITHUB_ENV"
+          echo "SITUSNAP_KEY_PASSWORD=$STORE_PASSWORD" >> "$GITHUB_ENV"
+          echo "SITUSNAP_KEY_ALIAS=$KEY_ALIAS" >> "$GITHUB_ENV"
+          echo "Created one-time signing key for isolated candidate test build."
 
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.13'
 
-      - name: Build signed APK and Play Store AAB
+      - name: Build candidate APK and AAB
+        if: inputs.candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          gradle assembleRelease bundleRelease
+
+      - name: Build production APK and Play Store AAB
+        if: ${{ !inputs.candidate }}
         env:
           SITUSNAP_STORE_PASSWORD: ${{ secrets.SITUSNAP_KEYSTORE_PASSWORD }}
           SITUSNAP_KEY_ALIAS: ${{ secrets.SITUSNAP_KEY_ALIAS }}
@@ -109,10 +210,18 @@ jobs:
           test -f "$AAB"
           CERT_OUTPUT=$("$BUILD_TOOLS/apksigner" verify --verbose --print-certs "$APK")
           echo "$CERT_OUTPUT"
-          echo "$CERT_OUTPUT" | grep -qi "certificate SHA-256 digest: eae5c5e8260276a79bc89151617085f6d3d5cf2ba9efa244e60d1de908a2efa2"
+          if [ "${{ inputs.candidate }}" = "true" ]; then
+            echo "$CERT_OUTPUT" | grep -qi "certificate SHA-256 digest: $CANDIDATE_CERT_SHA256"
+          else
+            echo "$CERT_OUTPUT" | grep -qi "certificate SHA-256 digest: eae5c5e8260276a79bc89151617085f6d3d5cf2ba9efa244e60d1de908a2efa2"
+          fi
           jarsigner -verify -verbose -certs "$AAB" >/dev/null
           BADGING=$("$BUILD_TOOLS/aapt" dump badging "$APK")
-          echo "$BADGING" | grep -q "package: name='com.situsnap.app' versionCode='${versionCode}' versionName='${versionName}'"
+          if [ "${{ inputs.candidate }}" = "true" ]; then
+            echo "$BADGING" | grep -q "package: name='com.situsnap.app.candidate126' versionCode='${versionCode}' versionName='${versionName}'"
+          else
+            echo "$BADGING" | grep -q "package: name='com.situsnap.app' versionCode='${versionCode}' versionName='${versionName}'"
+          fi
           echo "$BADGING" | grep -q "sdkVersion:'26'"
           echo "$BADGING" | grep -q "targetSdkVersion:'36'"
           echo "$BADGING" | grep -q "launchable-activity: name='com.situsnap.app.SplashActivity'"
@@ -161,6 +270,33 @@ jobs:
           PY
           echo "SIGNED APK AND AAB VERIFIED"
           echo "PACKAGE, VERSION, SDK, LAUNCHER AND HTML VERIFIED"
+
+      - name: Verify private camera implementation is packaged
+        if: inputs.candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK="app/build/outputs/apk/release/app-release.apk"
+          MANIFEST=$("$BUILD_TOOLS/aapt" dump xmltree "$APK" AndroidManifest.xml)
+          echo "$MANIFEST" | grep -Fq 'androidx.core.content.FileProvider'
+          echo "$MANIFEST" | grep -Fq 'com.situsnap.app.candidate126.photos'
+          RESOURCES=$("$BUILD_TOOLS/aapt" dump resources "$APK")
+          echo "$RESOURCES" | grep -Fq 'xml/situsnap_photo_paths'
+          python3 - <<'PY'
+          import sys, zipfile
+          apk = "app/build/outputs/apk/release/app-release.apk"
+          with zipfile.ZipFile(apk) as archive:
+              dex_names = [n for n in archive.namelist() if n.endswith('.dex')]
+              if not dex_names:
+                  sys.exit('FAIL: no DEX bytecode found')
+              dex = b''.join(archive.read(n) for n in dex_names)
+          for marker in (b'androidx/core/content/FileProvider', b'situsnap-camera'):
+              if marker not in dex:
+                  sys.exit('FAIL: private camera marker missing: ' + marker.decode())
+          if b'MediaStore$Images$Media' in dex:
+              sys.exit('FAIL: legacy shared-gallery MediaStore API remains in DEX')
+          print('PASS: private FileProvider/cache markers are packaged; legacy gallery insert marker absent')
+          PY
 
       - uses: actions/upload-artifact@v4
         with:
