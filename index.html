@@ -2368,8 +2368,19 @@ function persistFoundRecord(recordIdOverride){
   render();
   return true;
 }
+function ssResolveFoundRecordId(){
+  if(editingRecordId!==null)return editingRecordId;
+  const postcode=(document.getElementById("postcode")?.value||"").trim();
+  const address=(document.getElementById("address")?.value||"").trim();
+  const norm=v=>String(v||"").trim().toUpperCase().replace(/\s+/g," ");
+  const existing=getRecords().find(r=>r&&r.pinVerified===true&&norm(r.postcode)===norm(postcode)&&norm(r.address)===norm(address));
+  return existing?.id||Date.now();
+}
 async function finishFound(){
-  const recordId=editingRecordId!==null?editingRecordId:Date.now();
+  // Resolve the canonical record ID before caching the photo. Re-verifying an
+  // existing address must overwrite that record's photo key, not create an
+  // unreachable blob under a temporary timestamp ID.
+  const recordId=ssResolveFoundRecordId();
   const draft={id:recordId,localPhoto:false,localExtraPhoto:false};
   let photo;
   try{photo=await ssUploadVerifiedPhoto(draft)}
