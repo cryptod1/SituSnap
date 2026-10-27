@@ -92,7 +92,7 @@ jobs:
           gradle = Path("app/build.gradle")
           source = gradle.read_text(encoding="utf-8")
           old = "applicationId 'com.situsnap.app'"
-          new = "applicationId 'com.situsnap.app.candidate'"
+          new = "applicationId 'com.situsnap.app.candidate126'"
           if source.count(old) != 1:
               raise SystemExit("FAIL: expected exactly one base applicationId; refusing to patch")
           gradle.write_text(source.replace(old, new, 1), encoding="utf-8")
@@ -103,11 +103,11 @@ jobs:
           if source.count(old_label) != 1:
               raise SystemExit("FAIL: expected exactly one app label; refusing to patch")
           manifest.write_text(source.replace(old_label, new_label, 1), encoding="utf-8")
-          if "applicationId 'com.situsnap.app.candidate'" not in gradle.read_text(encoding="utf-8"):
+          if "applicationId 'com.situsnap.app.candidate126'" not in gradle.read_text(encoding="utf-8"):
               raise SystemExit("FAIL: candidate applicationId not applied")
           if 'android:label="SituSnap Test"' not in manifest.read_text(encoding="utf-8"):
               raise SystemExit("FAIL: candidate label not applied")
-          print("PASS: candidate uses isolated package com.situsnap.app.candidate and label SituSnap Test")
+          print("PASS: candidate uses isolated package com.situsnap.app.candidate126 and label SituSnap Test")
           PY
 
       # Candidate-only changes. The input defaults false so production tag builds do not apply them.
@@ -218,7 +218,7 @@ jobs:
           jarsigner -verify -verbose -certs "$AAB" >/dev/null
           BADGING=$("$BUILD_TOOLS/aapt" dump badging "$APK")
           if [ "${{ inputs.candidate }}" = "true" ]; then
-            echo "$BADGING" | grep -q "package: name='com.situsnap.app.candidate' versionCode='${versionCode}' versionName='${versionName}'"
+            echo "$BADGING" | grep -q "package: name='com.situsnap.app.candidate126' versionCode='${versionCode}' versionName='${versionName}'"
           else
             echo "$BADGING" | grep -q "package: name='com.situsnap.app' versionCode='${versionCode}' versionName='${versionName}'"
           fi
@@ -279,7 +279,7 @@ jobs:
           APK="app/build/outputs/apk/release/app-release.apk"
           MANIFEST=$("$BUILD_TOOLS/aapt" dump xmltree "$APK" AndroidManifest.xml)
           echo "$MANIFEST" | grep -Fq 'androidx.core.content.FileProvider'
-          echo "$MANIFEST" | grep -Fq 'com.situsnap.app.candidate.photos'
+          echo "$MANIFEST" | grep -Fq 'com.situsnap.app.candidate126.photos'
           RESOURCES=$("$BUILD_TOOLS/aapt" dump resources "$APK")
           echo "$RESOURCES" | grep -Fq 'xml/situsnap_photo_paths'
           python3 - <<'PY'
