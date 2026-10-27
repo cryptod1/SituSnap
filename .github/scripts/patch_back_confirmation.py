@@ -100,12 +100,9 @@ if 'id="ssBackExitOverlay"' not in page:
   function close(){overlay.setAttribute('aria-hidden','true');if(stay)stay.focus()}
   function hasUnfinishedReport(){
     var details=document.getElementById('recordDetails');
-    if(!details||!details.open)return false;
-    // Opening the report form means the colleague is actively working in it.
-    // Warn even when the fields are still blank or the destination is held in the
-    // separate postcode chooser rather than the handover fields below.
-    return true;
-    var fields=['postcode','address','notes','accessDirections','houseNumber','houseName','street'];
+    if(details&&details.open)return true;
+    // Also protect unsaved work when the report details section is collapsed.
+    var fields=['postcode','address','notes','street'];
     if(fields.some(function(id){var el=document.getElementById(id);return !!(el&&String(el.value||'').trim())}))return true;
     return ['photoCamera','photo1','photo2Camera','photo2'].some(function(id){var el=document.getElementById(id);return !!(el&&el.files&&el.files.length>0)});
   }
