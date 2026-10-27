@@ -11,6 +11,7 @@ jobs:
     uses: ./.github/workflows/situsnap-android-build.yml
     with:
       artifact_name: SituSnap-Android-Candidate
+      candidate: true
     secrets:
       SITUSNAP_KEYSTORE_BASE64: ${{ secrets.SITUSNAP_KEYSTORE_BASE64 }}
       SITUSNAP_KEYSTORE_PASSWORD: ${{ secrets.SITUSNAP_KEYSTORE_PASSWORD }}
