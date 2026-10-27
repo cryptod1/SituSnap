@@ -7,6 +7,11 @@ on:
         description: Name for the APK and AAB build artifact
         required: true
         type: string
+      candidate:
+        description: Apply candidate-only package, photo and Back-button patches
+        required: false
+        default: false
+        type: boolean
     secrets:
       SITUSNAP_KEYSTORE_BASE64:
         required: true
@@ -48,12 +53,13 @@ jobs:
       - name: Create Android project
         run: python3 .github/scripts/make_android.py
 
-      # Candidate-only native photo fix: avoid shared MediaStore/Gallery camera files.
+      # Candidate-only changes. The input defaults false so production tag builds do not apply them.
       - name: Patch native camera to app-private temporary storage
+        if: inputs.candidate
         run: python3 .github/scripts/patch_native_photo_storage.py
 
-      # Candidate-only report warning. Use a native Android dialog for reliable visibility.
       - name: Add isolated Android Back-button confirmation
+        if: inputs.candidate
         run: |
           python3 .github/scripts/patch_back_confirmation.py
           python3 .github/scripts/patch_native_back_dialog.py
@@ -122,7 +128,11 @@ jobs:
           echo "$CERT_OUTPUT" | grep -qi "certificate SHA-256 digest: eae5c5e8260276a79bc89151617085f6d3d5cf2ba9efa244e60d1de908a2efa2"
           jarsigner -verify -verbose -certs "$AAB" >/dev/null
           BADGING=$("$BUILD_TOOLS/aapt" dump badging "$APK")
-          echo "$BADGING" | grep -q "package: name='com.situsnap.app.candidate' versionCode='${versionCode}' versionName='${versionName}'"
+          if [ "${{ inputs.candidate }}" = "true" ]; then
+            echo "$BADGING" | grep -q "package: name='com.situsnap.app.candidate' versionCode='${versionCode}' versionName='${versionName}'"
+          else
+            echo "$BADGING" | grep -q "package: name='com.situsnap.app' versionCode='${versionCode}' versionName='${versionName}'"
+          fi
           echo "$BADGING" | grep -q "sdkVersion:'26'"
           echo "$BADGING" | grep -q "targetSdkVersion:'36'"
           echo "$BADGING" | grep -q "launchable-activity: name='com.situsnap.app.SplashActivity'"
@@ -173,6 +183,7 @@ jobs:
           echo "PACKAGE, VERSION, SDK, LAUNCHER AND HTML VERIFIED"
 
       - name: Verify private camera implementation is packaged
+        if: inputs.candidate
         shell: bash
         run: |
           set -euo pipefail
