@@ -14,13 +14,23 @@ on:
         type: boolean
     secrets:
       SITUSNAP_KEYSTORE_BASE64:
-        required: true
+        required: false
       SITUSNAP_KEYSTORE_PASSWORD:
-        required: true
+        required: false
       SITUSNAP_KEY_ALIAS:
-        required: true
+        required: false
       SITUSNAP_KEY_PASSWORD:
-        required: true
+        required: false
+      SITUSNAP_CANDIDATE_KEYSTORE_BASE64:
+        required: false
+      SITUSNAP_CANDIDATE_KEYSTORE_PASSWORD:
+        required: false
+      SITUSNAP_CANDIDATE_KEY_ALIAS:
+        required: false
+      SITUSNAP_CANDIDATE_KEY_PASSWORD:
+        required: false
+      SITUSNAP_CANDIDATE_CERT_SHA256:
+        required: false
 
 permissions:
   contents: read
@@ -34,6 +44,38 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
+
+      - name: Reject candidate mode on production release tags
+        if: ${{ startsWith(github.ref, 'refs/tags/v') && inputs.candidate }}
+        shell: bash
+        run: |
+          echo "FAIL: candidate-only build mode is forbidden for production release tags." >&2
+          exit 1
+
+      - name: Validate signing credentials for selected build type
+        shell: bash
+        env:
+          CANDIDATE_MODE: ${{ inputs.candidate }}
+          PROD_KEYSTORE: ${{ secrets.SITUSNAP_KEYSTORE_BASE64 }}
+          PROD_STORE_PASSWORD: ${{ secrets.SITUSNAP_KEYSTORE_PASSWORD }}
+          PROD_KEY_ALIAS: ${{ secrets.SITUSNAP_KEY_ALIAS }}
+          PROD_KEY_PASSWORD: ${{ secrets.SITUSNAP_KEY_PASSWORD }}
+          CANDIDATE_KEYSTORE: ${{ secrets.SITUSNAP_CANDIDATE_KEYSTORE_BASE64 }}
+          CANDIDATE_STORE_PASSWORD: ${{ secrets.SITUSNAP_CANDIDATE_KEYSTORE_PASSWORD }}
+          CANDIDATE_KEY_ALIAS: ${{ secrets.SITUSNAP_CANDIDATE_KEY_ALIAS }}
+          CANDIDATE_KEY_PASSWORD: ${{ secrets.SITUSNAP_CANDIDATE_KEY_PASSWORD }}
+          CANDIDATE_CERT_SHA256: ${{ secrets.SITUSNAP_CANDIDATE_CERT_SHA256 }}
+        run: |
+          set -euo pipefail
+          if [ "$CANDIDATE_MODE" = "true" ]; then
+            test -n "$CANDIDATE_KEYSTORE" || { echo "Missing candidate-only keystore secret." >&2; exit 1; }
+            test -n "$CANDIDATE_STORE_PASSWORD" || { echo "Missing candidate-only store password secret." >&2; exit 1; }
+            test -n "$CANDIDATE_KEY_ALIAS" || { echo "Missing candidate-only key alias secret." >&2; exit 1; }
+            test -n "$CANDIDATE_KEY_PASSWORD" || { echo "Missing candidate-only key password secret." >&2; exit 1; }
+            test -n "$CANDIDATE_CERT_SHA256" || { echo "Missing candidate certificate SHA-256 secret." >&2; exit 1; }
+          else
+            test -n "$PROD_KEYSTORE" && test -n "$PROD_STORE_PASSWORD" && test -n "$PROD_KEY_ALIAS" && test -n "$PROD_KEY_PASSWORD"
+          fi
 
       - name: Ensure release tags point to main and match the version
         if: startsWith(github.ref, 'refs/tags/v')
@@ -86,7 +128,7 @@ jobs:
 
       - name: Restore permanent signing key
         env:
-          KEYSTORE_BASE64: ${{ secrets.SITUSNAP_KEYSTORE_BASE64 }}
+          KEYSTORE_BASE64: ${{ inputs.candidate && secrets.SITUSNAP_CANDIDATE_KEYSTORE_BASE64 || secrets.SITUSNAP_KEYSTORE_BASE64 }}
         run: |
           set -euo pipefail
           test -n "$KEYSTORE_BASE64"
@@ -99,9 +141,9 @@ jobs:
 
       - name: Build signed APK and Play Store AAB
         env:
-          SITUSNAP_STORE_PASSWORD: ${{ secrets.SITUSNAP_KEYSTORE_PASSWORD }}
-          SITUSNAP_KEY_ALIAS: ${{ secrets.SITUSNAP_KEY_ALIAS }}
-          SITUSNAP_KEY_PASSWORD: ${{ secrets.SITUSNAP_KEY_PASSWORD }}
+          SITUSNAP_STORE_PASSWORD: ${{ inputs.candidate && secrets.SITUSNAP_CANDIDATE_KEYSTORE_PASSWORD || secrets.SITUSNAP_KEYSTORE_PASSWORD }}
+          SITUSNAP_KEY_ALIAS: ${{ inputs.candidate && secrets.SITUSNAP_CANDIDATE_KEY_ALIAS || secrets.SITUSNAP_KEY_ALIAS }}
+          SITUSNAP_KEY_PASSWORD: ${{ inputs.candidate && secrets.SITUSNAP_CANDIDATE_KEY_PASSWORD || secrets.SITUSNAP_KEY_PASSWORD }}
         run: |
           set -euo pipefail
           gradle assembleRelease bundleRelease
@@ -125,7 +167,11 @@ jobs:
           test -f "$AAB"
           CERT_OUTPUT=$("$BUILD_TOOLS/apksigner" verify --verbose --print-certs "$APK")
           echo "$CERT_OUTPUT"
-          echo "$CERT_OUTPUT" | grep -qi "certificate SHA-256 digest: eae5c5e8260276a79bc89151617085f6d3d5cf2ba9efa244e60d1de908a2efa2"
+          if [ "${{ inputs.candidate }}" = "true" ]; then
+            echo "$CERT_OUTPUT" | grep -qi "certificate SHA-256 digest: $(echo '${{ secrets.SITUSNAP_CANDIDATE_CERT_SHA256 }}' | tr -d ': ' | tr '[:upper:]' '[:lower:]')"
+          else
+            echo "$CERT_OUTPUT" | grep -qi "certificate SHA-256 digest: eae5c5e8260276a79bc89151617085f6d3d5cf2ba9efa244e60d1de908a2efa2"
+          fi
           jarsigner -verify -verbose -certs "$AAB" >/dev/null
           BADGING=$("$BUILD_TOOLS/aapt" dump badging "$APK")
           if [ "${{ inputs.candidate }}" = "true" ]; then
