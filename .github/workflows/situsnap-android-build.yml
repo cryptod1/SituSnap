@@ -82,6 +82,34 @@ jobs:
       - name: Create Android project
         run: python3 .github/scripts/make_android.py
 
+      - name: Isolate candidate package identity
+        if: inputs.candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          gradle = Path("app/build.gradle")
+          source = gradle.read_text(encoding="utf-8")
+          old = "applicationId 'com.situsnap.app'"
+          new = "applicationId 'com.situsnap.app.candidate'"
+          if source.count(old) != 1:
+              raise SystemExit("FAIL: expected exactly one base applicationId; refusing to patch")
+          gradle.write_text(source.replace(old, new, 1), encoding="utf-8")
+          manifest = Path("app/src/main/AndroidManifest.xml")
+          source = manifest.read_text(encoding="utf-8")
+          old_label = 'android:label="SituSnap"'
+          new_label = 'android:label="SituSnap Test"'
+          if source.count(old_label) != 1:
+              raise SystemExit("FAIL: expected exactly one app label; refusing to patch")
+          manifest.write_text(source.replace(old_label, new_label, 1), encoding="utf-8")
+          if "applicationId 'com.situsnap.app.candidate'" not in gradle.read_text(encoding="utf-8"):
+              raise SystemExit("FAIL: candidate applicationId not applied")
+          if 'android:label="SituSnap Test"' not in manifest.read_text(encoding="utf-8"):
+              raise SystemExit("FAIL: candidate label not applied")
+          print("PASS: candidate uses isolated package com.situsnap.app.candidate and label SituSnap Test")
+          PY
+
       # Candidate-only changes. The input defaults false so production tag builds do not apply them.
       - name: Patch native camera to app-private temporary storage
         if: inputs.candidate
