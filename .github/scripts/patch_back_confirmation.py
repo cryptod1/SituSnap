@@ -129,18 +129,8 @@ page = page.replace("1.3.3", "1.3.6").replace("1.3.4", "1.3.6")
 
 # Give the test candidate its own Android package so it installs alongside
 # the Play-signed production app and cannot overwrite or remove production data.
-import re
-gradle_file = Path("app/build.gradle")
-gradle_source = gradle_file.read_text(encoding="utf-8")
-gradle_source, app_id_count = re.subn(
-    r"(applicationId\s+['\"]com\.situsnap\.app['\"])",
-    r"\1\n        applicationIdSuffix '.candidate'",
-    gradle_source,
-    count=1,
-)
-if app_id_count != 1:
-    raise SystemExit("FAIL: could not isolate candidate Android package")
-gradle_file.write_text(gradle_source, encoding="utf-8")
+# Candidate package identity is applied once by the candidate workflow before this patch.
+# Keep applicationId mutation out of this script to avoid conflicting patches.
 
 strings_file = Path("app/src/main/res/values/strings.xml")
 if strings_file.is_file():
