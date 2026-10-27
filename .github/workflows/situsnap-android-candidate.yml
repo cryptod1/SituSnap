@@ -2,6 +2,7 @@
 name: Build SituSnap signed release candidate
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - 'release-candidate/**'
