@@ -137,17 +137,28 @@ jobs:
           echo "CANDIDATE_KEY_PASSWORD=$STORE_PASSWORD" >> "$GITHUB_ENV"
           echo "CANDIDATE_KEY_ALIAS=$KEY_ALIAS" >> "$GITHUB_ENV"
           echo "CANDIDATE_CERT_SHA256=$CERT_SHA256" >> "$GITHUB_ENV"
+          echo "SITUSNAP_STORE_PASSWORD=$STORE_PASSWORD" >> "$GITHUB_ENV"
+          echo "SITUSNAP_KEY_PASSWORD=$STORE_PASSWORD" >> "$GITHUB_ENV"
+          echo "SITUSNAP_KEY_ALIAS=$KEY_ALIAS" >> "$GITHUB_ENV"
           echo "Created one-time signing key for isolated candidate test build."
 
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.13'
 
-      - name: Build signed APK and Play Store AAB
+      - name: Build candidate APK and AAB
+        if: inputs.candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          gradle assembleRelease bundleRelease
+
+      - name: Build production APK and Play Store AAB
+        if: ${{ !inputs.candidate }}
         env:
-          SITUSNAP_STORE_PASSWORD: ${{ inputs.candidate && env.CANDIDATE_STORE_PASSWORD || secrets.SITUSNAP_KEYSTORE_PASSWORD }}
-          SITUSNAP_KEY_ALIAS: ${{ inputs.candidate && env.CANDIDATE_KEY_ALIAS || secrets.SITUSNAP_KEY_ALIAS }}
-          SITUSNAP_KEY_PASSWORD: ${{ inputs.candidate && env.CANDIDATE_KEY_PASSWORD || secrets.SITUSNAP_KEY_PASSWORD }}
+          SITUSNAP_STORE_PASSWORD: ${{ secrets.SITUSNAP_KEYSTORE_PASSWORD }}
+          SITUSNAP_KEY_ALIAS: ${{ secrets.SITUSNAP_KEY_ALIAS }}
+          SITUSNAP_KEY_PASSWORD: ${{ secrets.SITUSNAP_KEY_PASSWORD }}
         run: |
           set -euo pipefail
           gradle assembleRelease bundleRelease
