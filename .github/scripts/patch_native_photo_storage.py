@@ -127,9 +127,9 @@ m = manifest.read_text(encoding="utf-8")
 camera_query = '<intent><action android:name="android.media.action.IMAGE_CAPTURE" /></intent>'
 if "android.media.action.IMAGE_CAPTURE" not in m:
     if "</queries>" in m:
-        m = replace_once(m, "</queries>", camera_query + "\\n</queries>", "camera visibility query")
+        m = replace_once(m, "</queries>", camera_query + "\n</queries>", "camera visibility query")
     elif "<application" in m:
-        m = replace_once(m, "<application", "<queries>" + camera_query + "</queries>\\n<application", "manifest application opening")
+        m = replace_once(m, "<application", "<queries>" + camera_query + "</queries>\n<application", "manifest application opening")
     else:
         raise SystemExit("FAIL: manifest application opening tag not found for camera visibility query")
 provider = '''<provider
