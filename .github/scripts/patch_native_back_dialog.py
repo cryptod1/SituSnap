@@ -71,15 +71,30 @@ old_variants = [
 ]
 new_handler = '''    @Override
     public void onBackPressed() {
-        // Always show a native confirmation. No WebView/JavaScript state check
-        // is allowed to bypass the warning or close the app prematurely.
-        new AlertDialog.Builder(MainActivity.this)
-            .setTitle("Leave this report?")
-            .setMessage("Your report may contain unsaved details or photos. If you leave now, this work may be lost.")
-            .setNegativeButton("STAY ON REPORT", (dialog, which) -> dialog.dismiss())
-            .setPositiveButton("LEAVE REPORT", (dialog, which) -> finish())
-            .setCancelable(true)
-            .show();
+        if (webView == null) {
+            super.onBackPressed();
+            return;
+        }
+        // Ask the page whether a report is unfinished. Keep normal Back behaviour
+        // when no report is open; warn before discarding an unfinished report.
+        webView.evaluateJavascript(
+            "(function(){try{return !!(window.ssIsReportOpen && window.ssIsReportOpen());}catch(e){return false;}})()",
+            reportOpen -> {
+                if ("true".equals(reportOpen)) {
+                    runOnUiThread(() -> new AlertDialog.Builder(MainActivity.this)
+                        .setTitle("Leave this report?")
+                        .setMessage("Your report may contain unsaved details or photos. If you leave now, this work may be lost.")
+                        .setNegativeButton("STAY ON REPORT", (dialog, which) -> dialog.dismiss())
+                        .setPositiveButton("LEAVE REPORT", (dialog, which) -> finish())
+                        .setCancelable(true)
+                        .show());
+                } else if (webView != null && webView.canGoBack()) {
+                    webView.goBack();
+                } else {
+                    finish();
+                }
+            }
+        );
     }'''
 matched = [v for v in old_variants if v in source]
 if len(matched) != 1:
