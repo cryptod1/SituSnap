@@ -1,6 +1,9 @@
 <!doctype html>
 <!-- PHOENIX-CLEAN-2: recovered from Phoenix 26 with approved final wording/build gate -->
 <html lang="en"><head>
+<script id="ss-native-webview-detection">
+(function(){var ua=String(navigator.userAgent||"");if(/Android/i.test(ua)&&/wv/i.test(ua)){document.documentElement.classList.add("ss-native-webview")}})();
+</script>
 <script id="ss-local-evidence-network-guard">
 (function(){const f=window.fetch.bind(window);const blocked=h=>h==="cloudinary.com"||h.endsWith(".cloudinary.com")||h==="api.github.com"||h==="cryptod1.github.io";window.fetch=function(input,init){const raw=typeof input==="string"?input:input instanceof URL?input.href:input?.url;const u=new URL(raw,location.href);if(blocked(u.hostname)||u.pathname.includes("/api/situ-vault"))return Promise.reject(new Error("Cloud transport disabled"));return f(input,init)}})();
 </script>
@@ -60,7 +63,7 @@
 .find input#huntPostcode{padding:9px 10px;min-height:44px;font-size:14px}
 .find button{min-height:44px;padding:0 13px;border-radius:10px;font-size:12px}
 #targetBox{display:none !important}
-#postcodeChoices{display:none!important}.postcode-choices{margin-top:8px;padding:9px 10px;border-radius:12px;background:rgba(255,255,255,.96);border:1px solid rgba(105,223,131,.45)}
+#postcodeChoices.hidden{display:none!important}.postcode-choices{margin-top:8px;padding:9px 10px;border-radius:12px;background:rgba(255,255,255,.96);border:1px solid rgba(105,223,131,.45)}
 .postcode-choices label{display:block;font-size:9px;font-weight:900;letter-spacing:.5px;color:#31506b;margin-bottom:5px}
 
 
@@ -788,6 +791,7 @@ body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))!important}
 #ssApprovedSiteSplash.ss-splash-away{opacity:0;visibility:hidden;pointer-events:none}
 #ssApprovedSiteSplash img{width:100%;height:100%;object-fit:cover;object-position:center;display:block}
 @media (prefers-reduced-motion:reduce){#ssApprovedSiteSplash{transition:none}}
+html.ss-native-webview #ssApprovedSiteSplash{display:none!important}
 </style>
 <style id="ss-postcode-split-style">
 #huntPostcode{display:none!important}
@@ -799,11 +803,29 @@ body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))!important}
 .ss-postcode-space{height:2px;border-radius:2px;background:rgba(169,186,208,.55)}
 .ss-postcode-hint{margin-top:6px!important;line-height:1.35!important;font-size:10px!important;color:#a9bad0!important}
 </style>
+
+<style id="ss-unified-destination-dropdown">
+/* Candidate-only: one large, high-contrast destination drawer for field use. */
+.ss-unified-destinations{margin-top:10px;border:1px solid #31566a;border-radius:15px;background:#082433;color:#fff;overflow:hidden}
+.ss-unified-destinations>summary{list-style:none;cursor:pointer;display:flex;flex-direction:column;gap:5px;justify-content:center;min-height:58px;padding:12px 15px;font-size:14px;font-weight:1000;letter-spacing:.25px;background:#0a2b3d}
+.ss-unified-destinations>summary::-webkit-details-marker{display:none}
+.ss-unified-destinations>summary:after{content:"⌄";float:right;color:#31df68;font-size:22px;line-height:18px;align-self:flex-end;margin-top:-24px}
+.ss-unified-destinations[open]>summary:after{content:"⌃"}
+#ssUnifiedDestinationCount{font-size:12px;font-weight:750;letter-spacing:0;color:#b9cbd7}
+.ss-unified-destinations-body{padding:10px;display:grid;gap:9px}
+.ss-unified-section-label{font-size:11px;font-weight:1000;letter-spacing:.5px;color:#31df68}
+#verifiedFirstPanel,#postcodeChoices,#bcPostcodeChoicePanel{margin:0!important}
+#postcodeChoices label{font-size:11px!important}
+#verifiedFirstList button,#bcPostcodeChoiceList button{min-height:52px!important;font-size:14px!important;line-height:1.35!important}
+#ssCheckDestinationBtn[hidden]{display:none!important}
+@media(max-width:380px){.ss-unified-destinations>summary{min-height:62px;padding:12px;font-size:13px}}
+</style>
+
 </head>
 <body>
 <div id="ssApprovedSiteSplash" aria-hidden="true"><img src="/situsnap-approved-splash.png" alt="" fetchpriority="high"></div>
 
-<div id="ssBuildStamp" data-build="SituSnap-1.3.1" style="display:none">SituSnap-1.3.1</div>
+<div id="ssBuildStamp" data-build="SituSnap-1.3.3" style="display:none">SituSnap-1.3.3</div>
 <div id="offlineBanner" class="offline-banner hidden" role="status" aria-live="polite">No signal — continue offline.</div><div id="celebration" aria-hidden="true"><div class="celebrate-content"><div class="celebrate-title">PIN VERIFIED!</div><div class="celebrate-sub">SituSnap location confirmed</div></div></div><header><div class="brand"><div class="brand-mark" aria-label="SituSnap logo"><img src="situsnap-brand-mark.png" alt="" style="width:100%;height:100%;object-fit:contain;display:block;border-radius:18%" /></div><div><div class="brand-name"><span style="color:#fff">Situ</span><span style="color:#69df83">Snap</span></div><div class="tag">Find it. Snap it. Update it.</div></div></div></header>
 <main><div id="breadcrumbsBridge" class="card hidden" style="border:2px solid #69df83;margin-top:12px"><div class="eyebrow">BREADCRUMBS</div><h2 id="bridgeTitle" style="margin:5px 0">Continue</h2><div class="meta" id="bridgeText"></div></div>
 <section class="ss-home-shell" aria-labelledby="ssHomeTitle">
@@ -812,10 +834,7 @@ body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))!important}
 <div class="ss-find-card">
   <div class="ss-field ss-postcode-control" style="margin-top:0"><label class="ss-postcode-label">POSTCODE</label><div class="ss-postcode-split" role="group" aria-label="Postcode"><input id="postcodeOutward" aria-label="Postcode area" placeholder="" autocomplete="off" autocapitalize="characters" spellcheck="false" inputmode="text" maxlength="8"><span aria-hidden="true" class="ss-postcode-space"></span><input id="postcodeInward" aria-label="Last three postcode characters" placeholder="" autocomplete="off" autocapitalize="characters" spellcheck="false" inputmode="text" maxlength="8"></div><div class="small-note ss-postcode-hint">Enter the postcode area, then the last three characters. You can paste a full postcode.</div><input type="hidden" id="huntPostcode" aria-hidden="true" tabindex="-1" oninput="queuePostcodeLookup();syncRecordPostcode();bcQueueFromSimpleInputs()"></div>
 
-  <div id="verifiedFirstPanel" class="hidden" style="padding:10px;background:#eef8f1;border:1px solid #b9dfc4">
-    <div style="font-weight:950;color:#145a35;margin-bottom:6px">✓ PREVIOUSLY VERIFIED</div>
-    <div id="verifiedFirstList"></div>
-  </div>
+
 
   <div class="ss-address-row">
     <div class="ss-field">
@@ -829,7 +848,31 @@ body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))!important}
     </div>
   </div>
 
-  <button class="ss-find-primary" type="button" onclick="ssFindDestination()">CHECK DESTINATION</button>
+  <details id="ssUnifiedDestinationDropdown" class="ss-unified-destinations">
+    <summary aria-label="Open postcode destination choices"><span>DESTINATIONS FOR THIS POSTCODE</span><span id="ssUnifiedDestinationCount">Choose a destination</span></summary>
+    <div class="ss-unified-destinations-body">
+      <div class="ss-unified-section-label">✓ PREVIOUSLY VERIFIED</div>
+        <div id="verifiedFirstPanel" class="hidden" style="padding:10px;background:#eef8f1;border:1px solid #b9dfc4">
+    <div style="font-weight:950;color:#145a35;margin-bottom:6px">✓ PREVIOUSLY VERIFIED</div>
+    <div id="verifiedFirstList"></div>
+  </div>
+        <div id="postcodeChoices" class="postcode-choices hidden">
+    <label for="streetChoice">DESTINATIONS FOR THIS POSTCODE</label>
+    <div class="street-picker">
+      <button type="button" id="streetPickerTrigger" class="street-picker-trigger" onclick="toggleStreetPicker()">Looking up locations…</button>
+      <div id="streetPickerMenu" class="street-picker-menu hidden"></div>
+      <select id="streetChoice" class="hidden" onchange="syncSelectedAddress()"><option value="">Looking up locations…</option></select>
+    </div>
+  </div>
+        <div id="bcPostcodeChoicePanel" class="hidden" style="margin-top:10px;padding:13px;border-radius:13px;background:#082433;border:1px solid #31566a;color:#fff">
+    <div style="font-size:10px;font-weight:950;letter-spacing:.7px;color:#69df83">BREADCRUMBS</div>
+    <div style="font-size:17px;font-weight:1000;margin-top:3px">SELECT DESTINATION</div>
+    <div id="bcPostcodeChoiceList" style="margin-top:9px;display:grid;gap:7px"></div>
+  </div>
+    </div>
+  </details>
+
+  <button id="ssCheckDestinationBtn" class="ss-find-primary" type="button" onclick="ssFindDestination()">CHECK DESTINATION</button>
   <div id="ssFindResult" class="hidden" style="margin-top:10px;padding:13px;border-radius:13px;background:#eaf6ee;border:1px solid #b9dfc4;color:#163b28">
     <div id="ssFindResultKicker" style="font-size:10px;font-weight:950;letter-spacing:.7px;color:#28734a">DESTINATION</div>
     <div id="ssFindResultTitle" style="font-size:18px;font-weight:1000;margin-top:3px">Checking…</div>
@@ -839,11 +882,7 @@ body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))!important}
     <button id="googleMapsBtn" type="button" onclick="googleMapsNow()" disabled style="width:100%;min-height:48px;margin-top:9px;border:0;border-radius:11px;background:#52606d;color:#fff;font-weight:950">GOOGLE MAPS — UNVERIFIED</button>
   </div>
 
-  <div id="bcPostcodeChoicePanel" class="hidden" style="margin-top:10px;padding:13px;border-radius:13px;background:#082433;border:1px solid #31566a;color:#fff">
-    <div style="font-size:10px;font-weight:950;letter-spacing:.7px;color:#69df83">BREADCRUMBS</div>
-    <div style="font-size:17px;font-weight:1000;margin-top:3px">SELECT DESTINATION</div>
-    <div id="bcPostcodeChoiceList" style="margin-top:9px;display:grid;gap:7px"></div>
-  </div>
+
 
   <!-- Existing engine controls stay in the DOM because current resolver code updates them. -->
   <div class="ss-engine-hidden" aria-hidden="true">
@@ -851,14 +890,7 @@ body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))!important}
     <div id="bcQuickStatus">Enter property name</div>
   </div>
 
-  <div id="postcodeChoices" class="postcode-choices hidden">
-    <label for="streetChoice">DESTINATIONS FOR THIS POSTCODE</label>
-    <div class="street-picker">
-      <button type="button" id="streetPickerTrigger" class="street-picker-trigger" onclick="toggleStreetPicker()">Looking up locations…</button>
-      <div id="streetPickerMenu" class="street-picker-menu hidden"></div>
-      <select id="streetChoice" class="hidden" onchange="syncSelectedAddress()"><option value="">Looking up locations…</option></select>
-    </div>
-  </div>
+
 </div>
 
 
@@ -883,7 +915,7 @@ body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))!important}
 <input type="hidden" id="result" value="Location verified">
 <input type="hidden" id="accessDirections" value="">
 <div class="full"><label>Assisted</label><select id="localSource"><option>Not applicable</option><option>Local resident</option><option>Postie / delivery driver</option><option>Other</option></select></div><div class="full"><label>Handover notes</label><textarea id="notes" placeholder="Optional — anything useful for the next visit"></textarea></div>
-<div class="full" id="ssVersionCard" data-situsnap-version="1.3.1" style="margin-top:2px;padding:11px 12px;border:1px solid rgba(126,177,235,.22);border-radius:12px;background:rgba(10,25,52,.58)"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px"><div><div style="font-size:11px;opacity:.68;font-weight:800;letter-spacing:.04em">SITUSNAP</div><div id="ssPage2Version" style="font-size:13px;font-weight:900">SituSnap 1.3.1</div></div><button id="ssPage2UpdateBtn" type="button" class="hidden" onclick="ssApplyUpdate()" style="padding:9px 11px;border:0;border-radius:10px;background:#69df83;color:#071a33;font-size:11px;font-weight:950">UPDATE AVAILABLE</button></div><div id="ssPage2UpdateNote" class="hidden" style="margin-top:7px;font-size:11px;color:#dff8e3;font-weight:800">New signed SituSnap APK available.</div></div>
+<div class="full" id="ssVersionCard" data-situsnap-version="1.3.3" style="margin-top:2px;padding:11px 12px;border:1px solid rgba(126,177,235,.22);border-radius:12px;background:rgba(10,25,52,.58)"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px"><div><div style="font-size:11px;opacity:.68;font-weight:800;letter-spacing:.04em">SITUSNAP</div><div id="ssPage2Version" style="font-size:13px;font-weight:900">SituSnap 1.3.3</div></div><button id="ssPage2UpdateBtn" type="button" class="hidden" onclick="ssApplyUpdate()" style="padding:9px 11px;border:0;border-radius:10px;background:#69df83;color:#071a33;font-size:11px;font-weight:950">UPDATE AVAILABLE</button></div><div id="ssPage2UpdateNote" class="hidden" style="margin-top:7px;font-size:11px;color:#dff8e3;font-weight:800">New signed SituSnap APK available.</div></div>
 
 <div class="full"><label>Photo — property / entrance <span style="opacity:.72">(1 REQUIRED)</span></label>
 <div class="small-note" style="margin:0 0 7px">Take a photo now or choose one already taken. Extra photos are optional.</div>
@@ -906,7 +938,7 @@ body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))!important}
 <section class="card" id="recordsCard"><div class="section-head"><div><h2>Verified locations</h2><p class="muted">Previously verified properties for this postcode.</p></div></div><div id="records"><section id="ssDemoPins" aria-label="Fictional sample pins"><p class="ss-demo-note">Fictional sample pins · sample map points only</p><article class="ss-demo-record"><div class="ss-demo-name">Bramblewick Farm</div><div class="ss-demo-kind">Remote farm · SAMPLE-01</div><p class="ss-demo-note">Fictional rural setting · Narrow track · limited turning. Confirm the entrance with the site contact.</p><a class="ss-demo-map" href="https://www.google.com/maps/search/?api=1&amp;query=52.993%2C-3.566" target="_blank" rel="noopener noreferrer">VIEW SAMPLE MAP PIN</a></article><article class="ss-demo-record"><div class="ss-demo-name">Heatherdown Cottage</div><div class="ss-demo-kind">Remote cottage · SAMPLE-02</div><p class="ss-demo-note">Fictional rural setting · Lane ends before the property. Check the final approach on foot.</p><a class="ss-demo-map" href="https://www.google.com/maps/search/?api=1&amp;query=51.982%2C-3.320" target="_blank" rel="noopener noreferrer">VIEW SAMPLE MAP PIN</a></article><article class="ss-demo-record"><div class="ss-demo-name">Ridgeway Inspection Chamber</div><div class="ss-demo-kind">Inspection point · SAMPLE-03</div><p class="ss-demo-note">Fictional forestry track · Remote verge · approach on foot. Sample only · no live site or GPS.</p><a class="ss-demo-map" href="https://www.google.com/maps/search/?api=1&amp;query=52.190%2C-3.729" target="_blank" rel="noopener noreferrer">VIEW SAMPLE MAP PIN</a></article></section></div></section>
 
 </main><nav class="bottom"><button class="nav active" onclick="window.scrollTo({top:0,behavior:'smooth'})"><span class="ico">⌂</span>Find</button><button class="nav" onclick="document.getElementById('recordsCard').scrollIntoView({behavior:'smooth'})"><span class="ico">↻</span>Verified</button><button id="ssMoreNavBtn" class="nav" onclick="ssShowMore()" style="position:relative"><span class="ico">☰</span>More<span id="ssUpdateBadge" class="hidden" aria-label="Update available">UPDATE</span></button></nav>
-<div id="ssMorePanel" class="hidden" style="position:fixed;inset:0;z-index:900;background:rgba(2,9,20,.72);padding:90px 16px;overflow:auto" onclick="if(event.target===this)ssHideMore()"><div style="max-width:520px;margin:auto;background:#0a1934;border:1px solid rgba(126,177,235,.25);border-radius:18px;padding:18px"><div style="display:flex;justify-content:space-between;align-items:center"><div><b>SituSnap</b><div id="ssVisibleVersion" style="font-size:12px;color:#a9bad0">SituSnap 1.3.1</div></div><button type="button" onclick="ssHideMore()" style="min-height:40px;padding:6px 12px;border-radius:10px;background:#26384f;color:#fff">CLOSE</button></div><div id="ssUpdateStatus" style="margin-top:16px;padding:13px;border-radius:12px;background:#103d29;color:#dff8e3;font-size:12px;font-weight:850">Checking for updates…</div><button id="ssUpdateBtn" type="button" class="hidden" onclick="ssApplyUpdate()" style="width:100%;margin-top:10px;padding:13px;border-radius:12px;background:#69df83;color:#071a33;font-weight:950">UPDATE AVAILABLE — TAP TO UPDATE</button></div></div>
+<div id="ssMorePanel" class="hidden" style="position:fixed;inset:0;z-index:900;background:rgba(2,9,20,.72);padding:90px 16px;overflow:auto" onclick="if(event.target===this)ssHideMore()"><div style="max-width:520px;margin:auto;background:#0a1934;border:1px solid rgba(126,177,235,.25);border-radius:18px;padding:18px"><div style="display:flex;justify-content:space-between;align-items:center"><div><b>SituSnap</b><div id="ssVisibleVersion" style="font-size:12px;color:#a9bad0">SituSnap 1.3.3</div></div><button type="button" onclick="ssHideMore()" style="min-height:40px;padding:6px 12px;border-radius:10px;background:#26384f;color:#fff">CLOSE</button></div><div id="ssUpdateStatus" style="margin-top:16px;padding:13px;border-radius:12px;background:#103d29;color:#dff8e3;font-size:12px;font-weight:850">Checking for updates…</div><button id="ssUpdateBtn" type="button" class="hidden" onclick="ssApplyUpdate()" style="width:100%;margin-top:10px;padding:13px;border-radius:12px;background:#69df83;color:#071a33;font-weight:950">UPDATE AVAILABLE — TAP TO UPDATE</button></div></div>
 <script>
 let gps=null,huntPostcode="",huntAddressQuery="",target=null,watchId=null,postcodeTimer=null,editingRecordId=null;
 let ssFindGeneration=0;
@@ -920,7 +952,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   };
   new MutationObserver(keepLocalWinner).observe(card,{attributes:true,childList:true,subtree:true});
 });
-const SS_APP_VERSION="1.3.1";
+const SS_APP_VERSION="1.3.3";
 const SS_UPDATE_MANIFEST="https://cryptod1.github.io/SituSnap/situsnap-update.json";
 let ssApkUpdateUrl="";
 function ssVersionParts(v){return String(v||"").replace(/^v/i,"").split(".").map(n=>parseInt(n,10)||0)}
@@ -963,7 +995,7 @@ async function ssUploadVerifiedPhoto(record){
   try{cachedExtra=await ssGetExtraCachedPhoto(id)}catch(e){console.warn("Local extra photo lookup failed",e);lookupFailed=true}
   if(!file){
     if(!lookupFailed){record.localPhoto=!!cachedMain;record.localExtraPhoto=!!cachedExtra}
-    if(lookupFailed&&!extraFile){ssVaultStatus("PIN SAVED ON PHONE · PHOTO CHECK TEMPORARILY UNAVAILABLE");return {ok:false,reason:"local_cache_lookup_failed"}}
+    if(lookupFailed&&!extraFile){ssVaultStatus("PIN NOT SAVED — PHOTO CHECK TEMPORARILY UNAVAILABLE");return {ok:false,reason:"local_cache_lookup_failed"}}
     if(extraFile){
       try{await ssCacheExtraPhotoBlob(id,extraFile);record.localExtraPhoto=true}
       catch(e){console.warn("Local extra photo save failed",e);ssVaultStatus("PIN SAVED ON PHONE · EXTRA PHOTO STORAGE FAILED");return {ok:false,reason:"extra_local_cache_failed"}}
@@ -974,7 +1006,7 @@ async function ssUploadVerifiedPhoto(record){
     await ssCachePhotoBlob(id,file);
   }catch(e){
     console.warn("Local verified photo save failed",e);
-    ssVaultStatus("PIN SAVED ON PHONE · PHOTO STORAGE FAILED — please retry");
+    ssVaultStatus("PIN NOT SAVED — PHOTO STORAGE FAILED · please retry");
     return {ok:false,reason:"local_cache_failed"};
   }
   let extraSaved=lookupFailed?(record.localExtraPhoto===true):!!cachedExtra;
@@ -1534,12 +1566,31 @@ function ssRenderVerifiedFirst(postcode){
   if(!panel||!list)return;
   if(!isCompleteUkPostcode(normalisePc(postcode))){panel.classList.add("hidden");list.innerHTML="";return}
   const rows=ssVerifiedForPostcode(postcode);
+  const count=document.getElementById("ssUnifiedDestinationCount");
+  if(count)count.textContent=rows.length ? rows.length+" previously verified location"+(rows.length===1?"":"s") : "Choose a destination";
+  const sectionLabel=document.querySelector(".ss-unified-section-label");
+  if(sectionLabel)sectionLabel.textContent=rows.length ? "✓ PREVIOUSLY VERIFIED ("+rows.length+")" : "PREVIOUSLY VERIFIED";
   if(!rows.length){panel.classList.add("hidden");list.innerHTML="";return}
   list.innerHTML=rows.map(r=>{
     const label=[r.address,r.street].filter(Boolean).join(" · ");
-    return `<button type="button" onclick='ssChooseVerifiedFirst(${JSON.stringify(String(r.id))})' style="width:100%;margin-top:6px;padding:12px;border-radius:10px;border:0;background:#145a35;color:#fff;font-weight:900;text-align:left">✓ ${esc(label||"Verified property")}<br><span style="font-size:11px;font-weight:700;opacity:.86">${esc(r.postcode||"")} · ROUTE TO VERIFIED PIN →</span></button>${(r.photoUrl||r.localPhoto)?`<button type="button" onclick='ssViewVerifiedPhoto(${JSON.stringify(String(r.id))})' style="width:100%;margin-top:5px;padding:9px;border-radius:9px;border:1px solid #145a35;background:#fff;color:#145a35;font-weight:900">📷 VIEW VERIFIED PHOTO</button>`:""}`;
+    return `<button type="button" onclick='ssNavigateVerifiedFirst(${JSON.stringify(String(r.id))})' style="width:100%;margin-top:6px;padding:12px;border-radius:10px;border:0;background:#145a35;color:#fff;font-weight:900;text-align:left">✓ ${esc(label||"Verified property")}<br><span style="font-size:11px;font-weight:700;opacity:.86">${esc(r.postcode||"")} · ROUTE TO VERIFIED PIN →</span></button>${(r.photoUrl||r.localPhoto)?`<button type="button" onclick='ssViewVerifiedPhoto(${JSON.stringify(String(r.id))})' style="width:100%;margin-top:5px;padding:9px;border-radius:9px;border:1px solid #145a35;background:#fff;color:#145a35;font-weight:900">📷 VIEW VERIFIED PHOTO</button>`:""}`;
   }).join("");
   panel.classList.remove("hidden");
+}
+function ssNavigateVerifiedFirst(id){
+  const r=getRecords().find(x=>String(x.id)===String(id));
+  if(!r||!isVerifiedSituSnap(r))return;
+  const lat=Number(r.gps?.latitude ?? r.gps?.lat ?? r.latitude ?? r.lat);
+  const lon=Number(r.gps?.longitude ?? r.gps?.lon ?? r.longitude ?? r.lon);
+  const query=[r.address,r.street,r.postcode].filter(Boolean).join(', ');
+  // Verified property rows are a direct route action; no need to scroll to the result card.
+  if(Number.isFinite(lat)&&Number.isFinite(lon)&&Math.abs(lat)>0&&Math.abs(lon)>0){
+    window.location.href=`https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}&travelmode=driving`;
+    return;
+  }
+  if(query){
+    window.location.href="https://www.google.com/maps/dir/?api=1&destination="+encodeURIComponent(query)+"&travelmode=driving";
+  }
 }
 function ssChooseVerifiedFirst(id){
   const r=getRecords().find(x=>String(x.id)===String(id));
@@ -1570,7 +1621,7 @@ function queuePostcodeLookup(){
   // V1.0.5j: never auto-start Breadcrumbs when a postcode completes.
   // FIND DESTINATION owns resolver order: local SituSnap pin first, Breadcrumbs only if needed.
   // Mapping suggestions still load quietly in the background.
-  postcodeTimer=setTimeout(lookupPostcodeOptions,450);
+  postcodeTimer=setTimeout(()=>{lookupPostcodeOptions();ssLoadUnifiedPostcodeChoices(raw);},450);
 }
 function bcPropertyInput(){
   const number=(document.getElementById("doorNumber")?.value||"").trim();
@@ -1659,8 +1710,16 @@ function ssShowFindResult(title,text,canNavigate=false,kicker='DESTINATION'){
   document.getElementById('ssFindResultText').textContent=text||'';
   const nav=document.getElementById('ssNavigateBtn');
   nav.classList.toggle('hidden',!canNavigate);
+  if(!canNavigate){
+    const check=document.getElementById('ssCheckDestinationBtn');
+    if(check)check.hidden=false;
+  }
   const fieldRecord=document.getElementById('ssRecordWithoutSatNavBtn');
   if(fieldRecord)fieldRecord.classList.toggle('hidden',canNavigate);
+  const check=document.getElementById('ssCheckDestinationBtn');
+  if(check)check.hidden=!!canNavigate;
+  const count=document.getElementById('ssUnifiedDestinationCount');
+  if(count && canNavigate)count.textContent='Current destination verified';
   box.classList.remove('hidden');
 }
 
@@ -1684,56 +1743,35 @@ function ssHidePostcodeChoices(){
   if(list)list.innerHTML='';
 }
 
-async function ssApplyPostcodeChoice(choice){
+function ssApplyPostcodeChoice(choice){
   const address=String(choice?.address||'').trim();
-  const selectedUprn=String(choice?.uprn||'').trim();
-  const firstLine=address.split(',')[0].trim();
+  const addressParts=address.split(',').map(part=>part.trim()).filter(Boolean);
+  const firstLine=addressParts[0]||'';
   if(!firstLine)return;
 
-  const numberMatch=firstLine.match(/^([0-9]+[A-Za-z]?(?:\/[0-9]+[A-Za-z]?)?)\s+(.+)$/);
+  // Selection only fills the form. CHECK DESTINATION is the sole action
+  // that may verify a destination or enable navigation.
+  const numberMatch=firstLine.match(/^([0-9]+[A-Za-z]?(?:\/[0-9]+[A-Za-z]?)?)(?:\s+(.+))?$/);
   const door=document.getElementById('doorNumber');
   const property=document.getElementById('manualAddress');
   if(numberMatch){
     if(door)door.value=numberMatch[1];
-    if(property)property.value=numberMatch[2];
+    if(property)property.value=(numberMatch[2]||addressParts[1]||'').trim();
   }else{
     if(door)door.value='';
     if(property)property.value=firstLine;
   }
   syncManualAddress();
-  ssHidePostcodeChoices();
-
-  // A selected authoritative postcode choice gets one direct production
-  // verification pass. Discovery itself never verifies a pin.
-  const pc=(document.getElementById('huntPostcode')?.value||'').trim().toUpperCase();
-  const selectedProperty=bcPropertyInput();
-  const myFindGeneration=++ssFindGeneration;
-  window.__ssLocalVerifiedLocked=false;
   ssPendingNavigation=null;
-  ssShowFindResult('Checking destination…',[selectedProperty,pc].filter(Boolean).join(' · '),false,'BREADCRUMBS');
-
-  const result=await bcResolve(selectedProperty,pc,undefined,true);
-  if(myFindGeneration!==ssFindGeneration)return;
-
-  const returnedUprn=String(result?.uprn||'').trim();
-  const uprnMatches=!selectedUprn || (returnedUprn && returnedUprn===selectedUprn);
-  if(result?.verified===true && uprnMatches &&
-     Number.isFinite(Number(result.latitude)) && Number.isFinite(Number(result.longitude))){
-    ssPendingNavigation={
-      latitude:Number(result.latitude),
-      longitude:Number(result.longitude),
-      query:result.address||address||[selectedProperty,pc].join(', ')
-    };
-    ssShowFindResult('✓ DESTINATION VERIFIED',
-      result.address||address||[selectedProperty,pc].join(' · '),true,'BREADCRUMBS');
-    return;
-  }
-
-  ssShowFindResult('DESTINATION NOT VERIFIED',
-    'No confirmed pin is available yet. Use Record Without Sat Nav when you reach the property.',
-    false,'SITUSNAP');
+  window.__ssLocalVerifiedLocked=false;
+  const nav=document.getElementById('ssNavigateBtn');
+  if(nav)nav.classList.add('hidden');
+  const check=document.getElementById('ssCheckDestinationBtn');
+  if(check)check.hidden=false;
+  const result=document.getElementById('ssFindResult');
+  if(result)result.classList.add('hidden');
+  // Keep the postcode list available so another address can be chosen.
 }
-
 function ssRenderPostcodeChoices(choices){
   const panel=document.getElementById('bcPostcodeChoicePanel');
   const list=document.getElementById('bcPostcodeChoiceList');
@@ -1746,10 +1784,60 @@ function ssRenderPostcodeChoices(choices){
     btn.type='button';
     btn.textContent=address;
     btn.style.cssText='width:100%;text-align:left;padding:12px;border:1px solid #31566a;border-radius:10px;background:#0b3042;color:#fff;font-weight:850;line-height:1.25';
-    btn.addEventListener('click',()=>ssApplyPostcodeChoice(choice));
+    btn.addEventListener('click',()=>ssNavigatePostcodeChoice(choice));
     list.appendChild(btn);
   }
   panel.classList.toggle('hidden',!list.children.length);
+}
+
+
+let ssUnifiedChoicesGeneration=0;
+async function ssLoadUnifiedPostcodeChoices(postcode){
+  const generation=++ssUnifiedChoicesGeneration;
+  const pc=String(postcode||'').trim().toUpperCase();
+  const count=document.getElementById('ssUnifiedDestinationCount');
+  if(!isCompleteUkPostcode(normalisePc(pc)))return;
+  if(count)count.textContent='Loading addresses…';
+  try{
+    const choices=await ssFindPostcodeChoices(pc);
+    if(generation!==ssUnifiedChoicesGeneration ||
+       normalisePc(document.getElementById('huntPostcode')?.value)!==normalisePc(pc))return;
+    ssRenderPostcodeChoices(choices);
+    const verified=ssVerifiedForPostcode(pc);
+    if(count)count.textContent=(verified.length+choices.length)+' address'+(verified.length+choices.length===1?'':'es')+' available';
+    const dropdown=document.getElementById('ssUnifiedDestinationDropdown');
+    if(dropdown && choices.length)dropdown.open=true;
+  }catch(_){
+    if(generation===ssUnifiedChoicesGeneration && count)count.textContent='Enter address manually if needed';
+  }
+}
+
+
+async function ssNavigatePostcodeChoice(choice){
+  // One tap on a postcode result attempts verification and routes only if a confirmed pin is returned.
+  ssApplyPostcodeChoice(choice);
+  const pc=(document.getElementById('huntPostcode')?.value||'').trim().toUpperCase();
+  const property=bcPropertyInput();
+  if(!property||!isCompleteUkPostcode(pc))return;
+  const check=document.getElementById('ssCheckDestinationBtn');
+  if(check)check.hidden=false;
+  const count=document.getElementById('ssUnifiedDestinationCount');
+  if(count)count.textContent='Verifying selected address…';
+  try{
+    const result=await bcResolve(property,pc,choice?.uprn,true);
+    const returnedUprn=String(result?.uprn||'').trim();
+    const selectedUprn=String(choice?.uprn||'').trim();
+    const uprnMatches=!selectedUprn||(returnedUprn&&returnedUprn===selectedUprn);
+    const lat=Number(result?.latitude),lon=Number(result?.longitude);
+    if(result?.verified===true&&uprnMatches&&Number.isFinite(lat)&&Number.isFinite(lon)&&Math.abs(lat)>0&&Math.abs(lon)>0){
+      if(count)count.textContent='Destination verified — opening pin…';
+      window.location.href='https://www.google.com/maps/dir/?api=1&destination='+lat+','+lon+'&travelmode=driving';
+      return;
+    }
+    if(count)count.textContent='Not verified — use CHECK DESTINATION';
+  }catch(_){
+    if(count)count.textContent='Could not verify — use CHECK DESTINATION';
+  }
 }
 
 async function ssFindPostcodeChoices(postcode){
@@ -2231,7 +2319,7 @@ function updateFoundButton(){
 }
 document.addEventListener("input",e=>{if(e.target?.closest?.("#recordDetails"))updateFoundButton()});
 document.addEventListener("change",e=>{if(e.target?.closest?.("#recordDetails"))updateFoundButton()});
-function persistFoundRecord(){
+function persistFoundRecord(recordIdOverride){
   const postcode=document.getElementById("postcode").value.trim();
   const address=document.getElementById("address").value.trim();
   const street=(document.getElementById("street")?.value||"").trim();
@@ -2250,9 +2338,9 @@ function persistFoundRecord(){
   const approach=accessDirections;
   const accessInfo="";
   const notes=document.getElementById("notes").value.trim();
-  const record={id:previous?.id||Date.now(),pinVerified:true,postcode,address,street,type:document.getElementById("type").value,observedBy:document.getElementById("observedBy").value,updateStatus:document.getElementById("updateStatus").value,result:document.getElementById("result").value,entrance,approach,accessInfo,visibility:"My Team",localSource:(document.getElementById("localSource")?.value||"Not applicable"),notes,
+  const record={id:previous?.id||recordIdOverride||Date.now(),pinVerified:true,postcode,address,street,type:document.getElementById("type").value,observedBy:document.getElementById("observedBy").value,updateStatus:document.getElementById("updateStatus").value,result:document.getElementById("result").value,entrance,approach,accessInfo,visibility:"My Team",localSource:(document.getElementById("localSource")?.value||"Not applicable"),notes,
     lastMile:{vehicleApproach:approach||null,entrance:entrance||null,hazard:accessInfo||null,handoverNote:notes||null,source:"SituSnap field handover",fieldConfirmed:true},
-    gps:gps||previous?.gps||null,target:target||previous?.target||null,localPhoto:previous?.localPhoto===true,localExtraPhoto:previous?.localExtraPhoto===true,photoUrl:previous?.photoUrl||"",photoPublicId:previous?.photoPublicId||"",verifiedAt:new Date().toISOString(),createdAt:previous?.createdAt||new Date().toISOString()};
+    gps:gps||previous?.gps||null,target:target||previous?.target||null,localPhoto:previous?.localPhoto===true||!!window.__ssPhotoPreSavedId&&String(window.__ssPhotoPreSavedId)===String(previous?.id||recordIdOverride||""),localExtraPhoto:previous?.localExtraPhoto===true,photoUrl:previous?.photoUrl||"",photoPublicId:previous?.photoPublicId||"",verifiedAt:new Date().toISOString(),createdAt:previous?.createdAt||new Date().toISOString()};
   if(existingIndex>=0)rs.splice(existingIndex,1);
   rs.unshift(record);
   try{
@@ -2280,25 +2368,50 @@ function persistFoundRecord(){
   render();
   return true;
 }
-function finishFound(){
-  if(!persistFoundRecord()) return;
+async function finishFound(){
+  const recordId=editingRecordId!==null?editingRecordId:Date.now();
+  const draft={id:recordId,localPhoto:false,localExtraPhoto:false};
+  let photo;
+  try{photo=await ssUploadVerifiedPhoto(draft)}
+  catch(err){console.warn("Verified photo storage failed",err)}
+  if(!photo?.ok||draft.localPhoto!==true){
+    const message="PIN NOT SAVED — the property photo could not be confirmed on this phone. Check storage or select the photo again, then retry.";
+    const note=document.getElementById("foundGpsNote");if(note)note.textContent=message;
+    const status=document.getElementById("localSaveStatus");if(status)status.textContent=message;
+    alert(message);
+    return;
+  }
+
+  window.ssClearRemovedVerifiedPlace?.(
+    document.getElementById("postcode")?.value||"",
+    document.getElementById("address")?.value||""
+  );
+  window.__ssPhotoPreSavedId=String(recordId);
+  const saved=persistFoundRecord(recordId);
+  window.__ssPhotoPreSavedId="";
+  if(!saved){
+    if(editingRecordId===null&&recordId!==window.__ssLastVerifiedRecord?.id)await ssDeleteCachedPhoto(recordId);
+    return;
+  }
+
+  ["photoCamera","photo1","photo2Camera","photo2"].forEach(id=>{
+    const input=document.getElementById(id);if(input)input.value="";
+  });
+  const extraStatus=document.getElementById("extraPhotoStatus");
+  if(extraStatus)extraStatus.textContent="No photo selected.";
+  updateFoundButton();
+
   const cloudRecord=window.__ssLastVerifiedRecord||getRecords().find(r=>r&&r.pinVerified===true);
   if(cloudRecord){
     (async()=>{
-      try{
-        const photo=await ssUploadVerifiedPhoto(cloudRecord);
-        if(photo.ok)ssPersistLocalPhotoReference(cloudRecord);
-      }catch(err){console.warn("Verified photo upload failed",err)}
       await ssVaultSaveRecord(cloudRecord);
       render();
       ssRenderVerifiedFirst(document.getElementById("huntPostcode")?.value||"");
-    })();
+    })().catch(err=>console.warn("Verified record sync failed",err));
   }
 
-  // Show the success screen first. Keep the form/page untouched underneath it
-  // until the colleague has actually had time to see the confirmation.
+  // Show success only after both the pin and its required photo are saved locally.
   triggerCelebration();
-
   setTimeout(()=>{
     hideForm();
     const note=document.getElementById("foundGpsNote");
@@ -3549,7 +3662,7 @@ document.getElementById("ssTraceBox")?.remove();
     '<details class="more-card" id="ssPhoenixUpdates">'+
       '<summary>Updates <span class="update-dot" id="ssUpdateDot" aria-label="Update available"></span><span class="plus">＋</span></summary>'+
       '<div class="more-inside">'+
-        '<div class="version-line"><span>Installed version</span><b>SituSnap 1.3.1</b></div>'+
+        '<div class="version-line"><span>Installed version</span><b>SituSnap 1.3.3</b></div>'+
         '<div class="version-line"><span>Update status</span><b id="ssUpdateStatus">Checking…</b></div>'+
       '</div>'+
     '</details>'+
@@ -4146,13 +4259,40 @@ function addBoundaryChoice(){const btn=document.getElementById("detailsFoundBtn"
 addBoundaryChoice();document.addEventListener("DOMContentLoaded",addBoundaryChoice);
 const originalFinish=window.finishFound;if(typeof originalFinish==="function")window.finishFound=function(){const note=document.getElementById("foundGpsNote"),block=m=>{if(note)note.textContent=m;alert(m);return false},fix=typeof gps!=="undefined"&&gps?gps:null,captured=Date.parse(fix?.capturedAt||"");if(!fix||!Number.isFinite(captured)||Date.now()-captured>60000||Date.now()<captured-30000)return block("Location check failed. Turn on phone Location and try again at the site.");if(!Number.isFinite(Number(fix.accuracy))||Number(fix.accuracy)>50)return block("GPS is too weak to verify this pin. Wait for accuracy of 50 m or better, then retry.");const point=exactSitePoint(),fieldRecordedWithoutSatNav=window.ssRecordWithoutSatNavActive===true;if(!point&&!fieldRecordedWithoutSatNav)return block("Check Destination and select the actual property or site location, or choose Record Without Sat Nav when you are at the property.");const landmark=document.getElementById("ssVisitBoundary")?.value==="landmark";if(point){const limit=landmark?1609.344:250,dist=distanceM({lat:Number(fix.latitude),lon:Number(fix.longitude)},point);if(!Number.isFinite(dist)||dist>limit)return block("You are outside this pin visit boundary. Photos and the pin were not saved. Return to the site or choose the nearby-landmark option.")}const type=document.getElementById("type");if(type)type.value=point&&landmark?"Landmark / access point":"Property / building";return originalFinish.apply(this,arguments)};
 })();
-</script></body></html>
+</script>
+<script id="ss-destination-edit-reset">
+(function(){
+  function start(){
+    const ids=["postcodeOutward","postcodeInward","doorNumber","manualAddress"];
+    ids.map(id=>document.getElementById(id)).filter(Boolean).forEach(el=>{
+      el.addEventListener("input",()=>{
+        try{ssPendingNavigation=null}catch(_){}
+        const result=document.getElementById("ssFindResult");
+        if(result)result.classList.add("hidden");
+        const check=document.getElementById("ssCheckDestinationBtn");
+        if(check)check.hidden=false;
+        const count=document.getElementById("ssUnifiedDestinationCount");
+        if(count)count.textContent="Choose a destination";
+      });
+    });
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",start,{once:true});else start();
+})();
+</script>
+
+</body></html>
 <script>
 /* Keep a removed verified place suppressed in every on-phone recovery store. */
 (function(){
  const key="situSnapRemovedVerifiedV1";
  const read=k=>{try{const x=JSON.parse(localStorage.getItem(k)||"[]");return Array.isArray(x)?x:[]}catch(_){return []}};
  const place=r=>{const pc=String(r?.postcode||"").toUpperCase().replace(/\s+/g,"").trim(),n=String(r?.address||r?.property||r?.propertyName||"").toUpperCase().replace(/[^A-Z0-9]+/g," ").trim();return pc&&n?"place:"+pc+"|"+n:""};
+ window.ssClearRemovedVerifiedPlace=function(postcode,address){
+  const token=place({postcode,address});if(!token)return false;
+  const ids=read(key).map(String),next=ids.filter(id=>id!==token);
+  if(next.length!==ids.length)localStorage.setItem(key,JSON.stringify(next));
+  return next.length!==ids.length;
+ };
  const rid=r=>String(r?.id??r?.recordId??r?.pinId??"");
  const hidden=(r,ids)=>ids.includes(rid(r))||(place(r)&&ids.includes(place(r)));
  function tombstones(){const ids=read(key).map(String),all=[...read("situSnapRecords"),...read("situSnapVerifiedArchiveV1"),...read("situSnapVerifiedPinsV1")];for(const r of all){if(ids.includes(rid(r))&&place(r)&&!ids.includes(place(r)))ids.unshift(place(r))}if(ids.length!==read(key).length)localStorage.setItem(key,JSON.stringify(ids.slice(0,2000)));return ids}
